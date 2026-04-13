@@ -1,225 +1,166 @@
-// ================================================================
-//  lib/data.ts — Your entire portfolio content lives here.
-//  Edit this file to personalise EVERYTHING. No hunting through
-//  component files — just update the data here.
-// ================================================================
+import { FiGithub, FiLinkedin, FiTwitter, FiMail } from "react-icons/fi";
 
-// ── Personal Info ───────────────────────────────────────────────
-export const personal = {
-  name: "Your Name",
-  initials: "YN",
-  role: "Full-Stack Developer",
-  tagline: "I build fast, beautiful things for the web.",
-  bio: `I'm a Full-Stack Developer passionate about crafting performant, pixel-perfect web experiences. I love turning complex problems into elegant, intuitive solutions — from sleek UIs to robust backends.`,
-  location: "Your City, Country",
-  email: "hello@yourportfolio.dev",
-  resumeUrl: "/resume.pdf",
-  available: true, // shows "Open to work" badge
+// ─────────────────────────────────────────────
+//  PERSONAL INFO  ← Edit everything here
+// ─────────────────────────────────────────────
+export const personalInfo = {
+  name: "Alex Rivera",           // ← Your name
+  initials: "AR",                // ← Used in Navbar logo
+  tagline: "Full-Stack Developer",
+  bio: "I craft fast, accessible, and visually stunning web experiences. From pixel-perfect UIs to scalable backend systems — I bring ideas to life with clean code and creative thinking.",
+  email: "alex@example.com",     // ← Your email
+  location: "San Francisco, CA",
+  resumeUrl: "/resume.pdf",      // ← Drop resume.pdf in /public
+
+  social: [
+    { label: "GitHub",   url: "https://github.com",        icon: FiGithub   },
+    { label: "LinkedIn", url: "https://linkedin.com",      icon: FiLinkedin },
+    { label: "Twitter",  url: "https://twitter.com",       icon: FiTwitter  },
+    { label: "Email",    url: "mailto:alex@example.com",   icon: FiMail     },
+  ],
 };
 
-// ── Social Links ────────────────────────────────────────────────
-export const socials = {
-  github: "https://github.com/yourusername",
-  linkedin: "https://linkedin.com/in/yourusername",
-  twitter: "https://twitter.com/yourhandle",
-  // add more: dribbble, devto, medium, etc.
-};
+// Navbar.tsx alias — keeps backward compat
+export const personal = personalInfo;
 
-// ── Navigation ──────────────────────────────────────────────────
 export const navLinks = [
-  { label: "About", href: "#about" },
-  { label: "Skills", href: "#skills" },
-  { label: "Projects", href: "#projects" },
+  { label: "About",      href: "#about"      },
+  { label: "Skills",     href: "#skills"     },
+  { label: "Projects",   href: "#projects"   },
   { label: "Experience", href: "#experience" },
-  { label: "Contact", href: "#contact" },
+  { label: "Contact",    href: "#contact"    },
 ];
 
-// ── Stats (shown in About section) ──────────────────────────────
+// ─────────────────────────────────────────────
+//  STATS  (About section)
+// ─────────────────────────────────────────────
 export const stats = [
-  { value: "3+", label: "Years Experience" },
-  { value: "20+", label: "Projects Built" },
-  { value: "10+", label: "Happy Clients" },
-  { value: "∞", label: "Coffees Drunk" },
+  { label: "Years Experience", value: "3+"  },
+  { label: "Projects Built",   value: "40+" },
+  { label: "Coffees Drunk",    value: "∞"   },
 ];
 
-// ── Skills ──────────────────────────────────────────────────────
-export type Skill = {
-  name: string;
-  icon: string; // devicon class or emoji fallback
-  color: string; // neon accent color
-};
-
-export type SkillGroup = {
-  category: string;
-  skills: Skill[];
-};
-
-export const skillGroups: SkillGroup[] = [
+// ─────────────────────────────────────────────
+//  SKILLS
+// ─────────────────────────────────────────────
+export const skillGroups = [
   {
     category: "Frontend",
     skills: [
-      { name: "React", icon: "react", color: "#61DAFB" },
-      { name: "Next.js", icon: "nextjs", color: "#ffffff" },
-      { name: "TypeScript", icon: "typescript", color: "#3178C6" },
-      { name: "Tailwind CSS", icon: "tailwind", color: "#38BDF8" },
-      { name: "Framer Motion", icon: "motion", color: "#FF4D9E" },
+      { name: "React",         icon: "⚛️", level: 95 },
+      { name: "Next.js",       icon: "▲",  level: 92 },
+      { name: "TypeScript",    icon: "TS", level: 90 },
+      { name: "Tailwind",      icon: "🌊", level: 93 },
+      { name: "Framer Motion", icon: "🎬", level: 82 },
+      { name: "Three.js",      icon: "🎲", level: 65 },
     ],
   },
   {
     category: "Backend",
     skills: [
-      { name: "Node.js", icon: "nodejs", color: "#68A063" },
-      { name: "Express", icon: "express", color: "#ffffff" },
-      { name: "PostgreSQL", icon: "postgresql", color: "#336791" },
-      { name: "MongoDB", icon: "mongodb", color: "#4DB33D" },
-      { name: "Prisma", icon: "prisma", color: "#2D3748" },
+      { name: "Node.js",    icon: "🟢", level: 88 },
+      { name: "Express",    icon: "🚂", level: 85 },
+      { name: "PostgreSQL", icon: "🐘", level: 80 },
+      { name: "MongoDB",    icon: "🍃", level: 78 },
+      { name: "Prisma",     icon: "◈",  level: 82 },
+      { name: "GraphQL",    icon: "◉",  level: 72 },
     ],
   },
   {
     category: "Tools & DevOps",
     skills: [
-      { name: "Git", icon: "git", color: "#F05032" },
-      { name: "Docker", icon: "docker", color: "#2496ED" },
-      { name: "Vercel", icon: "vercel", color: "#ffffff" },
-      { name: "Figma", icon: "figma", color: "#F24E1E" },
-      { name: "VS Code", icon: "vscode", color: "#007ACC" },
+      { name: "Git",    icon: "🌿", level: 95 },
+      { name: "Docker", icon: "🐳", level: 75 },
+      { name: "AWS",    icon: "☁️", level: 68 },
+      { name: "Vercel", icon: "▲",  level: 92 },
+      { name: "Figma",  icon: "🎨", level: 78 },
+      { name: "Jest",   icon: "🃏", level: 80 },
     ],
   },
 ];
 
-// ── Projects ────────────────────────────────────────────────────
-export type Project = {
-  id: string;
-  title: string;
-  description: string;
-  longDescription?: string;
-  image: string; // path to screenshot in /public/projects/
-  tags: string[];
-  liveUrl?: string;
-  githubUrl?: string;
-  featured: boolean;
-  year: string;
-  accentColor: string; // neon color for card glow
-};
-
-export const projects: Project[] = [
+// ─────────────────────────────────────────────
+//  PROJECTS
+// ─────────────────────────────────────────────
+export const projects = [
   {
-    id: "project-1",
-    title: "Project Alpha",
+    id: 1,
+    title: "NexaCommerce",
     description:
-      "A full-stack SaaS application with real-time features, authentication, and a beautiful dashboard.",
-    longDescription:
-      "Built with Next.js 14, Prisma, PostgreSQL, and Stripe integration. Handles thousands of users with optimized performance.",
-    image: "/projects/project-1.png",
-    tags: ["Next.js", "TypeScript", "PostgreSQL", "Stripe", "Tailwind"],
-    liveUrl: "https://project-alpha.dev",
-    githubUrl: "https://github.com/you/project-alpha",
+      "A full-stack e-commerce platform with real-time inventory, Stripe payments, and an AI-powered product recommendation engine.",
+    image: "/projects/nexacommerce.png",
+    tags: ["Next.js", "TypeScript", "Stripe", "PostgreSQL", "Redis"],
+    liveUrl: "https://example.com",
+    githubUrl: "https://github.com",
     featured: true,
-    year: "2025",
-    accentColor: "#7B2FFF",
   },
   {
-    id: "project-2",
-    title: "Project Beta",
+    id: 2,
+    title: "CodeCollab",
     description:
-      "An open-source developer tool that automates repetitive workflows with a clean CLI and web UI.",
-    image: "/projects/project-2.png",
-    tags: ["Node.js", "React", "MongoDB", "Docker"],
-    liveUrl: "https://project-beta.dev",
-    githubUrl: "https://github.com/you/project-beta",
+      "Real-time collaborative code editor with multi-cursor support, syntax highlighting for 40+ languages, and built-in video chat.",
+    image: "/projects/codecollab.png",
+    tags: ["React", "WebSockets", "Node.js", "Monaco Editor", "WebRTC"],
+    liveUrl: "https://example.com",
+    githubUrl: "https://github.com",
     featured: true,
-    year: "2024",
-    accentColor: "#00F5FF",
   },
   {
-    id: "project-3",
-    title: "Project Gamma",
+    id: 3,
+    title: "AIPortfolio",
     description:
-      "A real-time collaborative whiteboard app built with WebSockets and Canvas API.",
-    image: "/projects/project-3.png",
-    tags: ["React", "WebSockets", "Canvas API", "Express"],
-    githubUrl: "https://github.com/you/project-gamma",
+      "An AI-powered portfolio analyzer that scrapes GitHub activity, generates insights, and creates dynamic visual reports.",
+    image: "/projects/aiportfolio.png",
+    tags: ["Python", "FastAPI", "OpenAI", "React", "D3.js"],
+    liveUrl: "https://example.com",
+    githubUrl: "https://github.com",
     featured: false,
-    year: "2024",
-    accentColor: "#FF2FBE",
   },
   {
-    id: "project-4",
-    title: "Project Delta",
+    id: 4,
+    title: "TaskFlow",
     description:
-      "E-commerce platform with headless CMS, product filtering, and seamless checkout.",
-    image: "/projects/project-4.png",
-    tags: ["Next.js", "Sanity CMS", "Stripe", "Tailwind"],
-    liveUrl: "https://project-delta.dev",
+      "Drag-and-drop project management tool with Kanban boards, time tracking, and team analytics dashboard.",
+    image: "/projects/taskflow.png",
+    tags: ["Vue.js", "Pinia", "Node.js", "MongoDB"],
+    liveUrl: "https://example.com",
+    githubUrl: "https://github.com",
     featured: false,
-    year: "2023",
-    accentColor: "#7B2FFF",
   },
 ];
 
-export const featuredProjects = projects.filter((p) => p.featured);
-export const otherProjects = projects.filter((p) => !p.featured);
-
-// ── Experience ──────────────────────────────────────────────────
-export type Experience = {
-  id: string;
-  company: string;
-  role: string;
-  type: "Full-time" | "Part-time" | "Freelance" | "Internship";
-  startDate: string;
-  endDate: string | "Present";
-  description: string;
-  highlights: string[];
-  technologies: string[];
-  logoUrl?: string;
-};
-
-export const experiences: Experience[] = [
+// ─────────────────────────────────────────────
+//  EXPERIENCE
+// ─────────────────────────────────────────────
+export const experience = [
   {
-    id: "exp-1",
-    company: "Awesome Company",
+    id: 1,
     role: "Senior Frontend Developer",
-    type: "Full-time",
-    startDate: "Jan 2024",
-    endDate: "Present",
+    company: "TechCorp Inc.",
+    location: "San Francisco, CA",
+    period: "Jan 2023 – Present",
     description:
-      "Leading the frontend architecture for a B2B SaaS product used by 50,000+ users worldwide.",
-    highlights: [
-      "Reduced bundle size by 40% through code splitting and lazy loading",
-      "Built a design system used across 3 products",
-      "Mentored 2 junior developers",
-    ],
-    technologies: ["React", "TypeScript", "Next.js", "GraphQL"],
+      "Led the redesign of the core dashboard, reducing load time by 60%. Mentored 3 junior devs and established component library used across 5 products.",
+    tags: ["React", "TypeScript", "GraphQL", "AWS"],
   },
   {
-    id: "exp-2",
-    company: "Cool Startup",
+    id: 2,
     role: "Full-Stack Developer",
-    type: "Full-time",
-    startDate: "Mar 2022",
-    endDate: "Dec 2023",
+    company: "StartupXYZ",
+    location: "Remote",
+    period: "Jun 2021 – Dec 2022",
     description:
-      "Full-stack development for an early-stage fintech startup, from MVP to scaling.",
-    highlights: [
-      "Built core banking dashboard from scratch",
-      "Integrated 5 third-party payment APIs",
-      "Improved API response time by 60%",
-    ],
-    technologies: ["Node.js", "React", "PostgreSQL", "AWS"],
+      "Built and shipped 4 major features end-to-end. Integrated Stripe billing, designed REST APIs, and improved test coverage from 30% to 85%.",
+    tags: ["Next.js", "Node.js", "PostgreSQL", "Stripe"],
   },
   {
-    id: "exp-3",
-    company: "Freelance",
-    role: "Web Developer",
-    type: "Freelance",
-    startDate: "Jan 2021",
-    endDate: "Feb 2022",
+    id: 3,
+    role: "Frontend Developer (Intern → Full-time)",
+    company: "Creative Agency",
+    location: "New York, NY",
+    period: "Jan 2020 – May 2021",
     description:
-      "Worked with 10+ clients to build websites, landing pages, and web applications.",
-    highlights: [
-      "Delivered 12 projects on time and within budget",
-      "Average client satisfaction score of 4.9/5",
-    ],
-    technologies: ["React", "WordPress", "Shopify", "PHP"],
+      "Developed 12+ client landing pages with pixel-perfect precision. Introduced component-based architecture and cut development time by 40%.",
+    tags: ["React", "SASS", "Figma", "WordPress"],
   },
 ];
