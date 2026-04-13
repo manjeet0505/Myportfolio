@@ -5,7 +5,7 @@ export const personalInfo = {
   initials: "MKM",
   tagline: "Full-Stack Developer",
   bio: "I craft fast, accessible, and visually stunning web experiences. From pixel-perfect UIs to scalable backend systems — I bring ideas to life with clean code and creative thinking.",
-  email: "manjeet@example.com",
+  email: "mishramanjeet26@gmail.com",
   location: "India",
   resumeUrl: "/Manjeet.pdf",
   avatar: "/profile.jpg",
@@ -208,16 +208,18 @@ export const experiences: Experience[] = [
   {
     id: "exp-3",
     company: "Freelance",
-    role: "Web Developer",
+    role: "Full Stack Developer",
     type: "Freelance",
-    startDate: "Jan 2021",
-    endDate: "Feb 2022",
+    startDate: "Jan 2026",
+    endDate: "Present",
     description:
-      "Worked with 10+ clients to build websites, landing pages, and web applications.",
+      "Building and developing full-stack web applications as part of an early-stage startup, focusing on creating scalable products, improving user experience, and exploring real-world problem-solving.",
     highlights: [
-      "Delivered 12 projects on time and within budget",
-      "Average client satisfaction score of 4.9/5",
-    ],
-    technologies: ["React", "WordPress", "Shopify", "PHP"],
+  "Developing full-stack applications using modern technologies like React and Node.js",
+  "Working on product development from idea to implementation",
+  "Designing responsive and user-friendly interfaces",
+  "Continuously improving application performance and scalability"
+],
+    technologies: ["React.js", "Next.js 14", "Node.js", "FastAPI", "MongoDB", "PostgreSQL", "Qdrant", "Tailwind CSS", "REST APIs", "JWT Authentication", "LangChain", "OpenAI API", "Git", "Docker", "Vercel", "Railway"],
   },
 ];
