@@ -5,7 +5,7 @@ import { motion, useInView } from "framer-motion";
 import { personalInfo, stats } from "@/lib/data";
 
 const GRAD = "linear-gradient(135deg, #7B2FFF 0%, #00F5FF 100%)";
-const STAT_ICONS = ["🗓️", "🚀", "😊", "☕"];
+// const STAT_ICONS = ["🗓️", "🚀", "😊", "☕"];
 
 function FadeUp({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -184,7 +184,7 @@ export default function About() {
                   >
                     {/* corner glow */}
                     <div style={{ position: "absolute", top: 0, right: 0, width: 60, height: 60, background: "rgba(123,47,255,0.08)", borderRadius: "0 1.25rem 0 100%", pointerEvents: "none" }} />
-                    <div style={{ fontSize: "1.5rem" }}>{STAT_ICONS[i]}</div>
+                    {/* <div style={{ fontSize: "1.5rem" }}>{STAT_ICONS[i]}</div> */}
                     <span style={{ fontFamily: "Syne, sans-serif", fontWeight: 800, fontSize: "2rem", background: GRAD, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
                       {s.value}
                     </span>
@@ -236,7 +236,7 @@ export default function About() {
                 <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#7B2FFF", boxShadow: "0 0 10px #7B2FFF", flexShrink: 0 }} />
                 <span style={{ fontSize: "0.85rem", color: "#A0A0B8" }}>
                   Currently building:{" "}
-                  <span style={{ color: "#F0F0FF", fontWeight: 500 }}>something awesome 🚀</span>
+                  <span style={{ color: "#F0F0FF", fontWeight: 500 }}>Senior-Junior Connect AI powered platform</span>
                 </span>
               </div>
             </FadeUp>

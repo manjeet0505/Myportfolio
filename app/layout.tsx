@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Inter, Syne, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 
-// ── Fonts ──────────────────────────────────────────────────────
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
@@ -23,11 +22,13 @@ const jetbrainsMono = JetBrains_Mono({
   display: "swap",
 });
 
-// ── Metadata ───────────────────────────────────────────────────
 export const metadata: Metadata = {
+  // ✅ Required for resolving OG/Twitter images correctly
+  metadataBase: new URL("https://manjeetkumarmishra.dev"),
+
   title: {
-    default: "Your Name — Full-Stack Developer",
-    template: "%s | Your Name",
+    default: "Manjeet Kumar Mishra — Full-Stack Developer",
+    template: "%s | Manjeet Kumar Mishra",
   },
   description:
     "Full-Stack Developer crafting modern, performant web experiences. Specializing in React, Next.js, Node.js, and everything in between.",
@@ -38,34 +39,30 @@ export const metadata: Metadata = {
     "Node.js",
     "Web Development",
     "Portfolio",
+    "Manjeet Kumar Mishra",
   ],
-  authors: [{ name: "Your Name" }],
-  creator: "Your Name",
+  authors: [{ name: "Manjeet Kumar Mishra" }],
+  creator: "Manjeet Kumar Mishra",
+
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: "https://yourportfolio.dev",
-    title: "Your Name — Full-Stack Developer",
+    url: "https://manjeetkumarmishra.dev",
+    title: "Manjeet Kumar Mishra — Full-Stack Developer",
     description:
       "Full-Stack Developer crafting modern, performant web experiences.",
-    siteName: "Your Name Portfolio",
-    images: [
-      {
-        url: "/og-image.png",
-        width: 1200,
-        height: 630,
-        alt: "Your Name — Full-Stack Developer",
-      },
-    ],
+    siteName: "Manjeet Kumar Mishra Portfolio",
+    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Manjeet Kumar Mishra" }],
   },
+
   twitter: {
     card: "summary_large_image",
-    title: "Your Name — Full-Stack Developer",
-    description:
-      "Full-Stack Developer crafting modern, performant web experiences.",
-    creator: "@yourhandle",
+    title: "Manjeet Kumar Mishra — Full-Stack Developer",
+    description: "Full-Stack Developer crafting modern, performant web experiences.",
+    creator: "@mishramanjeet26",
     images: ["/og-image.png"],
   },
+
   robots: {
     index: true,
     follow: true,
@@ -77,19 +74,15 @@ export const metadata: Metadata = {
       "max-snippet": -1,
     },
   },
+
+  // ✅ Only reference favicon.ico which Next.js handles automatically
+  // Place favicon.ico in the /app directory (not /public) for App Router
   icons: {
     icon: "/favicon.ico",
-    shortcut: "/favicon-16x16.png",
-    apple: "/apple-touch-icon.png",
   },
 };
 
-// ── Root Layout ────────────────────────────────────────────────
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html
       lang="en"
@@ -97,7 +90,6 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="bg-[#0a0a0f] text-[#F0F0FF] font-body antialiased overflow-x-hidden">
-        {/* Noise texture overlay */}
         <div
           className="fixed inset-0 pointer-events-none z-50 opacity-[0.03]"
           style={{

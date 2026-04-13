@@ -173,6 +173,7 @@ export default function Contact() {
                           value={form.name}
                           onChange={handleChange}
                           placeholder="John Doe"
+                          suppressHydrationWarning
                           className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/25 focus:outline-none focus:border-violet-500/60 focus:ring-1 focus:ring-violet-500/30 transition"
                         />
                       </div>
@@ -184,6 +185,7 @@ export default function Contact() {
                           value={form.email}
                           onChange={handleChange}
                           placeholder="john@example.com"
+                          suppressHydrationWarning
                           className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/25 focus:outline-none focus:border-violet-500/60 focus:ring-1 focus:ring-violet-500/30 transition"
                         />
                       </div>
@@ -194,6 +196,7 @@ export default function Contact() {
                           value={form.subject}
                           onChange={handleChange}
                           placeholder="Project inquiry, Freelance, etc."
+                          suppressHydrationWarning
                           className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/25 focus:outline-none focus:border-violet-500/60 focus:ring-1 focus:ring-violet-500/30 transition"
                         />
                       </div>
@@ -205,6 +208,7 @@ export default function Contact() {
                           onChange={handleChange}
                           rows={5}
                           placeholder="Tell me about your project..."
+                          suppressHydrationWarning
                           className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/25 focus:outline-none focus:border-violet-500/60 focus:ring-1 focus:ring-violet-500/30 transition resize-none"
                         />
                       </div>
@@ -228,6 +232,7 @@ export default function Contact() {
                     <button
                       onClick={handleSubmit}
                       disabled={!canSubmit}
+                      suppressHydrationWarning
                       className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl font-medium text-sm transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed bg-gradient-to-r from-violet-600 to-violet-500 hover:from-violet-500 hover:to-cyan-500 text-white shadow-lg shadow-violet-500/25 hover:shadow-violet-500/40"
                     >
                       {status === "loading" ? (

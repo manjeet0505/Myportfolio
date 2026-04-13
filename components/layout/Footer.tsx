@@ -71,6 +71,7 @@ export default function Footer() {
             })}
 
             <motion.button onClick={scrollToTop} whileHover={{ y: -3, scale: 1.1 }}
+            suppressHydrationWarning
               style={{ width: "36px", height: "36px", borderRadius: "9px", background: "rgba(123,47,255,0.1)", border: "1px solid rgba(123,47,255,0.25)", display: "flex", alignItems: "center", justifyContent: "center", color: VIOLET, cursor: "pointer", marginLeft: "0.25rem" }}>
               <FiArrowUp />
             </motion.button>

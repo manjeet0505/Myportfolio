@@ -75,7 +75,7 @@ export default function Navbar() {
 
           {/* Resume button */}
           <a
-            href="/resume.pdf"
+            href="/Manjeet.pdf"
             download
             className="hidden md:flex items-center gap-2 px-4 py-2 rounded-full border border-cyan-500/40 text-cyan-400 text-sm font-medium hover:bg-cyan-500/10 hover:border-cyan-400 transition-all duration-200"
           >

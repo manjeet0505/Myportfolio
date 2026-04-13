@@ -73,8 +73,20 @@ function FeaturedCard({ project, index }: { project: typeof projects[0]; index: 
               backgroundImage: "linear-gradient(rgba(123,47,255,0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(123,47,255,0.08) 1px, transparent 1px)",
               backgroundSize: "30px 30px",
             }} />
-            <div style={{ position: "absolute", width: 120, height: 120, borderRadius: "50%", background: `rgba(${project.accentColor === "#00F5FF" ? "0,245,255" : "123,47,255"},0.12)`, filter: "blur(40px)" }} />
-            <Layers size={60} style={{ color: "rgba(123,47,255,0.25)", position: "relative" }} />
+           <img
+  src={project.image}
+  alt={project.title}
+  style={{
+    position: "absolute", inset: 0,
+    width: "100%", height: "100%",
+    objectFit: "cover", objectPosition: "top",
+    opacity: 0.9,
+    transition: "transform 0.5s ease",
+    transform: hovered ? "scale(1.05)" : "scale(1)",
+  }}
+  onError={(e) => { (e.target as HTMLImageElement).style.opacity = "0"; }}
+/>
+<div style={{ position: "absolute", inset: 0, background: "linear-gradient(135deg, rgba(10,10,15,0.2) 0%, transparent 60%)", pointerEvents: "none" }} />
 
             {/* Hover overlay with links */}
             <motion.div
@@ -302,7 +314,7 @@ export default function Projects() {
         {/* GitHub CTA */}
         <FadeUp>
           <div style={{ display: "flex", justifyContent: "center" }}>
-            <a href="https://github.com/yourusername" target="_blank" rel="noopener noreferrer" style={{
+            <a href="https://github.com/manjeet0505" target="_blank" rel="noopener noreferrer" style={{
               display: "inline-flex", alignItems: "center", gap: "0.5rem",
               padding: "0.8rem 1.75rem",
               background: "transparent",

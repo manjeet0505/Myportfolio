@@ -5,7 +5,6 @@ import { motion, useMotionValue, useSpring } from "framer-motion";
 import { ArrowDown, Download, Sparkles, Code2, Zap, Globe } from "lucide-react";
 import { personalInfo } from "@/lib/data";
 
-// ── Roles ─────────────────────────────────────────────────────────────────────
 const ROLES = ["Full-Stack Developer", "UI/UX Enthusiast", "Problem Solver", "Open Source Builder"];
 
 function useTypewriter(words: string[], speed = 75, pause = 2000) {
@@ -31,7 +30,6 @@ function useTypewriter(words: string[], speed = 75, pause = 2000) {
   return display;
 }
 
-// ── Floating particles (client only) ─────────────────────────────────────────
 function Particles() {
   const [pts, setPts] = useState<{ id: number; x: number; y: number; s: number; dur: number; del: number; cyan: boolean }[]>([]);
   useEffect(() => {
@@ -54,7 +52,7 @@ function Particles() {
   );
 }
 
-// ── Magnetic button ───────────────────────────────────────────────────────────
+// ✅ suppressHydrationWarning added to the button so password manager fdprocessedid is ignored
 function Mag({ children, className, style, onClick, href }: {
   children: React.ReactNode; className?: string; style?: React.CSSProperties;
   onClick?: () => void; href?: string;
@@ -69,12 +67,11 @@ function Mag({ children, className, style, onClick, href }: {
       onMouseLeave={() => { x.set(0); y.set(0); }}>
       {href
         ? <a href={href} className={className} style={style} target="_blank" rel="noreferrer">{children}</a>
-        : <button type="button" onClick={onClick} className={className} style={style}>{children}</button>}
+        : <button type="button" suppressHydrationWarning onClick={onClick} className={className} style={style}>{children}</button>}
     </motion.div>
   );
 }
 
-// ── Stat badge ────────────────────────────────────────────────────────────────
 function StatBadge({ icon: Icon, label, value }: { icon: React.ElementType; label: string; value: string }) {
   return (
     <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl"
@@ -88,7 +85,6 @@ function StatBadge({ icon: Icon, label, value }: { icon: React.ElementType; labe
   );
 }
 
-// ── Hero ──────────────────────────────────────────────────────────────────────
 export default function Hero() {
   const typed = useTypewriter(ROLES);
   const [mounted, setMounted] = useState(false);
@@ -99,8 +95,6 @@ export default function Hero() {
     <section id="home" className="relative min-h-screen flex items-center justify-center overflow-hidden"
       style={{ background: "#050508" }}>
 
-      {/* ── Deep layered background ── */}
-      {/* Base gradient */}
       <div className="absolute inset-0"
         style={{ background: "radial-gradient(ellipse 120% 80% at 50% -20%, rgba(123,47,255,0.25) 0%, transparent 60%)" }} />
       <div className="absolute inset-0"
@@ -108,17 +102,14 @@ export default function Hero() {
       <div className="absolute inset-0"
         style={{ background: "radial-gradient(ellipse 60% 60% at 10% 60%, rgba(123,47,255,0.08) 0%, transparent 50%)" }} />
 
-      {/* Grid */}
       <div className="absolute inset-0 opacity-[0.03]"
         style={{ backgroundImage: "linear-gradient(rgba(123,47,255,1) 1px, transparent 1px), linear-gradient(90deg, rgba(123,47,255,1) 1px, transparent 1px)", backgroundSize: "60px 60px" }} />
 
-      {/* Horizontal scan line */}
       <motion.div className="absolute left-0 right-0 h-px pointer-events-none"
         style={{ background: "linear-gradient(90deg, transparent, rgba(0,245,255,0.4), transparent)" }}
         animate={{ top: ["0%", "100%"] }}
         transition={{ duration: 8, repeat: Infinity, ease: "linear", repeatDelay: 2 }} />
 
-      {/* Orbs */}
       <motion.div className="absolute rounded-full pointer-events-none"
         style={{ width: 600, height: 600, top: "-20%", left: "60%", background: "#7B2FFF", filter: "blur(120px)", opacity: 0.12 }}
         animate={{ scale: [1, 1.15, 1], x: [0, 30, 0] }} transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }} />
@@ -128,14 +119,11 @@ export default function Hero() {
 
       <Particles />
 
-      {/* ── Content ── */}
       <div className="relative z-10 max-w-6xl mx-auto px-6 pt-24 pb-20 w-full">
         <div className="flex flex-col lg:flex-row items-center justify-between gap-12">
 
-          {/* LEFT — text */}
           <div className="flex-1 flex flex-col items-start">
 
-            {/* Available badge */}
             <motion.div initial={{ opacity: 0, y: 20 }} animate={mounted ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.6, delay: 0.1 }}>
               <div className="inline-flex items-center gap-2 px-4 py-2 mb-8 rounded-full"
                 style={{ background: "rgba(123,47,255,0.15)", border: "1px solid rgba(123,47,255,0.4)", backdropFilter: "blur(8px)" }}>
@@ -148,20 +136,16 @@ export default function Hero() {
               </div>
             </motion.div>
 
-            {/* Greeting line */}
             <motion.p initial={{ opacity: 0, x: -30 }} animate={mounted ? { opacity: 1, x: 0 } : {}} transition={{ duration: 0.6, delay: 0.2 }}
               className="text-xl sm:text-2xl font-mono mb-3" style={{ color: "#6B7280" }}>
               Hello, World! 👋 I&apos;m
             </motion.p>
 
-            {/* BIG NAME — split into lines for impact */}
             <motion.div initial={{ opacity: 0, y: 40 }} animate={mounted ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.7, delay: 0.3 }}>
               <h1 className="font-heading font-black leading-[0.9] tracking-tight mb-4">
-                {/* First name */}
                 <span className="block text-6xl sm:text-8xl md:text-[7rem]" style={{ color: "#F0F0FF" }}>
                   Manjeet
                 </span>
-                {/* Last name with neon gradient */}
                 <span className="block text-5xl sm:text-7xl md:text-[5.5rem]"
                   style={{ background: "linear-gradient(135deg, #7B2FFF 0%, #00F5FF 60%, #7B2FFF 100%)", backgroundSize: "200%", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
                   <motion.span style={{ display: "inline-block", backgroundSize: "200%" }}
@@ -173,7 +157,6 @@ export default function Hero() {
               </h1>
             </motion.div>
 
-            {/* Typewriter */}
             <motion.div initial={{ opacity: 0 }} animate={mounted ? { opacity: 1 } : {}} transition={{ duration: 0.6, delay: 0.5 }}
               className="flex items-center gap-2 mb-6 h-10">
               <span className="w-2 h-6 rounded-sm" style={{ background: "linear-gradient(180deg,#7B2FFF,#00F5FF)" }} />
@@ -183,13 +166,11 @@ export default function Hero() {
               </p>
             </motion.div>
 
-            {/* Bio */}
             <motion.p initial={{ opacity: 0, y: 20 }} animate={mounted ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.6, delay: 0.55 }}
               className="text-base sm:text-lg leading-relaxed mb-10 max-w-lg" style={{ color: "#6B7280" }}>
               {personalInfo.bio}
             </motion.p>
 
-            {/* CTAs */}
             <motion.div initial={{ opacity: 0, y: 20 }} animate={mounted ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.6, delay: 0.65 }}
               className="flex flex-wrap gap-4 mb-10">
               <Mag onClick={() => go("projects")}
@@ -213,7 +194,6 @@ export default function Hero() {
               </Mag>
             </motion.div>
 
-            {/* Social links */}
             <motion.div initial={{ opacity: 0 }} animate={mounted ? { opacity: 1 } : {}} transition={{ duration: 0.6, delay: 0.75 }}
               className="flex items-center gap-4">
               {personalInfo.social.map(s => (
@@ -227,22 +207,17 @@ export default function Hero() {
             </motion.div>
           </div>
 
-          {/* RIGHT — visual card */}
           <motion.div initial={{ opacity: 0, x: 60 }} animate={mounted ? { opacity: 1, x: 0 } : {}} transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
             className="flex-shrink-0 hidden lg:flex flex-col items-center gap-6">
 
-            {/* Profile card */}
             <div className="relative">
-              {/* Outer glow */}
               <motion.div className="absolute -inset-4 rounded-3xl"
                 style={{ background: "linear-gradient(135deg,#7B2FFF,#00F5FF)", filter: "blur(24px)", opacity: 0.3 }}
                 animate={{ opacity: [0.2, 0.45, 0.2] }} transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }} />
 
-              {/* Card */}
               <div className="relative w-72 rounded-3xl overflow-hidden p-6 flex flex-col items-center gap-5"
                 style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)", backdropFilter: "blur(20px)" }}>
 
-                {/* Photo */}
                 <div className="relative">
                   <motion.div className="absolute -inset-[2px] rounded-2xl"
                     style={{ background: "linear-gradient(135deg,#7B2FFF,#00F5FF)" }}
@@ -260,17 +235,14 @@ export default function Hero() {
                   <span className="absolute bottom-0 right-0 z-20 w-4 h-4 rounded-full bg-green-400 border-2 border-[#050508] animate-pulse" />
                 </div>
 
-                {/* Name */}
                 <div className="text-center">
                   <p className="text-xl font-heading font-black" style={{ color: "#F0F0FF" }}>Manjeet Kumar</p>
                   <p className="text-xl font-heading font-black mb-1" style={{ color: "#F0F0FF" }}>Mishra</p>
                   <p className="text-xs font-mono tracking-widest uppercase" style={{ color: "#7B2FFF" }}>Full-Stack Developer</p>
                 </div>
 
-                {/* Divider */}
                 <div className="w-full h-px" style={{ background: "linear-gradient(90deg,transparent,rgba(123,47,255,0.5),transparent)" }} />
 
-                {/* Mini stats */}
                 <div className="w-full grid grid-cols-3 gap-2 text-center">
                   {[{ v: "3+", l: "Years" }, { v: "40+", l: "Projects" }, { v: "∞", l: "Coffees" }].map(s => (
                     <div key={s.l}>
@@ -283,7 +255,6 @@ export default function Hero() {
                   ))}
                 </div>
 
-                {/* Status */}
                 <div className="w-full flex items-center justify-center gap-2 py-2 rounded-xl"
                   style={{ background: "rgba(0,245,255,0.06)", border: "1px solid rgba(0,245,255,0.15)" }}>
                   <motion.span className="w-1.5 h-1.5 rounded-full bg-green-400"
@@ -293,7 +264,6 @@ export default function Hero() {
               </div>
             </div>
 
-            {/* Floating mini stat badges */}
             <div className="flex gap-3">
               <StatBadge icon={Code2} label="Stack" value="Full-Stack" />
               <StatBadge icon={Globe} label="Remote" value="Available" />
@@ -301,7 +271,6 @@ export default function Hero() {
           </motion.div>
         </div>
 
-        {/* Scroll indicator */}
         <motion.div initial={{ opacity: 0 }} animate={mounted ? { opacity: 1 } : {}} transition={{ delay: 1.2 }}
           className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 cursor-pointer"
           onClick={() => go("about")}>
@@ -316,7 +285,6 @@ export default function Hero() {
         </motion.div>
       </div>
 
-      {/* Bottom fade */}
       <div className="absolute bottom-0 left-0 right-0 h-40 pointer-events-none"
         style={{ background: "linear-gradient(to top, #0a0a0f, transparent)" }} />
     </section>

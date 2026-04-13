@@ -7,14 +7,14 @@ export const personalInfo = {
   bio: "I craft fast, accessible, and visually stunning web experiences. From pixel-perfect UIs to scalable backend systems — I bring ideas to life with clean code and creative thinking.",
   email: "manjeet@example.com",
   location: "India",
-  resumeUrl: "/resume.pdf",
+  resumeUrl: "/Manjeet.pdf",
   avatar: "/profile.jpg",
 
   social: [
-    { label: "GitHub",   url: "https://github.com",   icon: FiGithub   },
-    { label: "LinkedIn", url: "https://linkedin.com", icon: FiLinkedin },
-    { label: "Twitter",  url: "https://twitter.com",  icon: FiTwitter  },
-    { label: "Email",    url: "mailto:manjeet@example.com", icon: FiMail },
+    { label: "GitHub",   url: "https://github.com/manjeet0505",   icon: FiGithub   },
+    { label: "LinkedIn", url: "https://www.linkedin.com/in/manjeet-mishra-175705260/", icon: FiLinkedin },
+    { label: "Twitter",  url: "https://x.com/mishramanjeet26",  icon: FiTwitter  },
+    { label: "Email",    url: "mailto:mishramanjeet26@gmail.com", icon: FiMail },
   ],
 };
 
@@ -40,7 +40,7 @@ export const roles = [
 // ── Stats ──────────────────────────────────────────────────────
 export const stats = [
   { value: "3+",  label: "Years Experience" },
-  { value: "20+", label: "Projects Built"   },
+  { value: "10+", label: "Projects Built"   },
   { value: "10+", label: "Happy Clients"    },
   { value: "∞",   label: "Coffees Drunk"    },
 ];
@@ -109,55 +109,47 @@ export type Project = {
 export const projects: Project[] = [
   {
     id: "project-1",
-    title: "Project Alpha",
+    title: "S3 Dashboard: Smart Career Intelligence System",
     description:
-      "A full-stack SaaS application with real-time features, authentication, and a beautiful dashboard.",
+      "AI-powered platform that helps students track progress, optimize skills, and get personalized career guidance.",
     longDescription:
-      "Built with Next.js 14, Prisma, PostgreSQL, and Stripe integration. Handles thousands of users with optimized performance.",
+      "Built with Next.js, MongoDB, and modern full-stack technologies, featuring AI-powered RAG chatbot, resume analysis, job recommendations, and real-time insights to help students track progress and accelerate their career growth.",
     image: "/projects/project-1.png",
-    tags: ["Next.js", "TypeScript", "PostgreSQL", "Stripe", "Tailwind"],
-    liveUrl: "https://project-alpha.dev",
-    githubUrl: "https://github.com/manjeet/project-alpha",
+    tags: ["Next.js", "TypeScript", "MONGODB", "Stripe", "Tailwind"],
+    liveUrl: "https://s3frontend-seven.vercel.app/",
+    githubUrl: "https://github.com/manjeet0505/s3dashboard",
     featured: true,
     year: "2025",
     accentColor: "#7B2FFF",
   },
   {
     id: "project-2",
-    title: "Project Beta",
+    title: "Expense Tracker",
     description:
-      "An open-source developer tool that automates repetitive workflows with a clean CLI and web UI.",
+      "A full-stack expense tracker to manage, categorize, and visualize daily spending.",
+    longDescription:
+      " Built a full-stack expense tracking application using Next.js, MongoDB, and modern web technologies, enabling users to manage daily expenses, categorize transactions, and visualize spending patterns through interactive dashboards.",
     image: "/projects/project-2.png",
-    tags: ["Node.js", "React", "MongoDB", "Docker"],
-    liveUrl: "https://project-beta.dev",
-    githubUrl: "https://github.com/manjeet/project-beta",
+    tags: ["Node.js", "React", "MongoDB", "GeminiAPI"],
+    liveUrl: "https://expense-bay-mu.vercel.app/",
+    githubUrl: "https://github.com/manjeet0505/Expense",
     featured: true,
     year: "2024",
     accentColor: "#00F5FF",
   },
   {
     id: "project-3",
-    title: "Project Gamma",
+    title: "Noteflow",
     description:
-      "A real-time collaborative whiteboard app built with WebSockets and Canvas API.",
+      "A full-stack note-taking app with AI-powered assistance for smarter writing and productivity.",
+    longDescription:
+      "Built a full-stack note-taking application using Next.js, MongoDB, and modern web technologies, enabling users to create, organize, and manage notes with AI-powered assistance for smarter writing and productivity.",
     image: "/projects/project-3.png",
-    tags: ["React", "WebSockets", "Canvas API", "Express"],
-    githubUrl: "https://github.com/manjeet/project-gamma",
+    tags: ["Nextjs","MongoDB", "Express"],
+    githubUrl: "https://github.com/manjeet0505/noteflow",
     featured: false,
     year: "2024",
     accentColor: "#FF2FBE",
-  },
-  {
-    id: "project-4",
-    title: "Project Delta",
-    description:
-      "E-commerce platform with headless CMS, product filtering, and seamless checkout flow.",
-    image: "/projects/project-4.png",
-    tags: ["Next.js", "Sanity CMS", "Stripe", "Tailwind"],
-    liveUrl: "https://project-delta.dev",
-    featured: false,
-    year: "2023",
-    accentColor: "#7B2FFF",
   },
 ];
  

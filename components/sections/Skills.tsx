@@ -1,324 +1,223 @@
 "use client";
 
-import { useRef, useState } from "react";
-import { motion, useInView, AnimatePresence } from "framer-motion";
-import { skillGroups } from "@/lib/data";
+import { useRef } from "react";
+import { motion, useInView } from "framer-motion";
+import {
+  SiReact, SiNextdotjs, SiTypescript, SiTailwindcss, SiFramer,
+  SiNodedotjs, SiExpress, SiPostgresql, SiMongodb, SiPrisma,
+  SiGit, SiDocker, SiVercel, SiFigma,
+} from "react-icons/si";
+import { VscVscode } from "react-icons/vsc"; // ✅ correct VS Code icon
 
-const GRAD  = "linear-gradient(135deg, #7B2FFF 0%, #00F5FF 100%)";
-const MUTED = "#6B7280";
-const WHITE = "#F0F0FF";
-const GLASS = "rgba(255,255,255,0.04)";
+const VIOLET = "#7B2FFF";
+const CYAN = "#00F5FF";
+const GRAD = `linear-gradient(135deg, ${VIOLET}, ${CYAN})`;
 
-// ── Reusable fade-up ──────────────────────────────────────────────────────────
-function FadeUp({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
-  const ref    = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { once: true, margin: "-60px" });
-  return (
-    <motion.div ref={ref}
-      initial={{ opacity: 0, y: 32 }}
-      animate={inView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.6, ease: "easeOut", delay }}>
-      {children}
-    </motion.div>
-  );
-}
+const ICON_MAP: Record<string, { component: React.ElementType; color: string }> = {
+  react:      { component: SiReact,      color: "#61DAFB" },
+  nextjs:     { component: SiNextdotjs,  color: "#ffffff" },
+  typescript: { component: SiTypescript, color: "#3178C6" },
+  tailwind:   { component: SiTailwindcss,color: "#38BDF8" },
+  motion:     { component: SiFramer,     color: "#FF4D9E" },
+  nodejs:     { component: SiNodedotjs,  color: "#68A063" },
+  express:    { component: SiExpress,    color: "#ffffff" },
+  postgresql: { component: SiPostgresql, color: "#336791" },
+  mongodb:    { component: SiMongodb,    color: "#4DB33D" },
+  prisma:     { component: SiPrisma,     color: "#A5F3FC" },
+  git:        { component: SiGit,        color: "#F05032" },
+  docker:     { component: SiDocker,     color: "#2496ED" },
+  vercel:     { component: SiVercel,     color: "#ffffff" },
+  figma:      { component: SiFigma,      color: "#F24E1E" },
+  vscode:     { component: VscVscode,    color: "#007ACC" }, // ✅ fixed
+};
 
-// ── Animated skill bar ────────────────────────────────────────────────────────
-function SkillBar({ name, icon, level, delay }: {
-  name: string; icon: string; level: number; delay: number;
-}) {
-  const ref    = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { once: true, margin: "-40px" });
+const skillGroups = [
+  {
+    category: "Frontend",
+    label: "UI & Interfaces",
+    skills: [
+      { name: "React",         icon: "react",      level: 92 },
+      { name: "Next.js",       icon: "nextjs",     level: 88 },
+      { name: "TypeScript",    icon: "typescript", level: 85 },
+      { name: "Tailwind CSS",  icon: "tailwind",   level: 90 },
+      { name: "Framer Motion", icon: "motion",     level: 78 },
+    ],
+  },
+  {
+    category: "Backend",
+    label: "APIs & Databases",
+    skills: [
+      { name: "Node.js",    icon: "nodejs",     level: 85 },
+      { name: "Express",    icon: "express",    level: 82 },
+      { name: "PostgreSQL", icon: "postgresql", level: 75 },
+      { name: "MongoDB",    icon: "mongodb",    level: 78 },
+      { name: "Prisma",     icon: "prisma",     level: 72 },
+    ],
+  },
+  {
+    category: "Tools & DevOps",
+    label: "Dev Environment",
+    skills: [
+      { name: "Git",     icon: "git",    level: 90 },
+      { name: "Docker",  icon: "docker", level: 70 },
+      { name: "Vercel",  icon: "vercel", level: 88 },
+      { name: "Figma",   icon: "figma",  level: 75 },
+      { name: "VS Code", icon: "vscode", level: 95 },
+    ],
+  },
+];
 
-  return (
-    <motion.div ref={ref}
-      initial={{ opacity: 0, x: -20 }}
-      animate={inView ? { opacity: 1, x: 0 } : {}}
-      transition={{ duration: 0.5, ease: "easeOut", delay }}
-      className="group"
-    >
-      <div className="flex items-center justify-between mb-2">
-        <div className="flex items-center gap-2">
-          <span className="text-base leading-none">{icon}</span>
-          <span className="text-sm font-semibold" style={{ color: WHITE }}>{name}</span>
-        </div>
-        <motion.span
-          className="text-xs font-mono tabular-nums"
-          style={{ color: "#7B2FFF" }}
-          initial={{ opacity: 0 }}
-          animate={inView ? { opacity: 1 } : {}}
-          transition={{ delay: delay + 0.4 }}
-        >
-          {level}%
-        </motion.span>
-      </div>
+const allSkills = skillGroups.flatMap((g) => g.skills);
 
-      {/* Track */}
-      <div className="relative h-1.5 rounded-full overflow-hidden"
-        style={{ background: "rgba(255,255,255,0.06)" }}>
-        {/* Fill */}
-        <motion.div
-          className="absolute inset-y-0 left-0 rounded-full"
-          style={{ background: GRAD }}
-          initial={{ width: 0 }}
-          animate={inView ? { width: `${level}%` } : {}}
-          transition={{ duration: 1.2, ease: [0.34, 1.56, 0.64, 1], delay: delay + 0.2 }}
-        />
-        {/* Shimmer on fill */}
-        <motion.div
-          className="absolute inset-y-0 w-16 rounded-full"
-          style={{ background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent)" }}
-          initial={{ left: "-10%" }}
-          animate={inView ? { left: `${level - 5}%` } : {}}
-          transition={{ duration: 1.2, ease: "easeOut", delay: delay + 0.2 }}
-        />
-      </div>
-    </motion.div>
-  );
-}
-
-// ── Hexagon skill card ────────────────────────────────────────────────────────
-function HexCard({ name, icon, level, delay }: {
-  name: string; icon: string; level: number; delay: number;
-}) {
-  const ref    = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { once: true, margin: "-40px" });
-
-  return (
-    <motion.div ref={ref}
-      initial={{ opacity: 0, scale: 0.8, y: 20 }}
-      animate={inView ? { opacity: 1, scale: 1, y: 0 } : {}}
-      transition={{ duration: 0.5, ease: "easeOut", delay }}
-      whileHover={{ scale: 1.06, y: -4 }}
-      className="group relative flex flex-col items-center gap-3 p-5 rounded-2xl cursor-default overflow-hidden"
-      style={{ background: GLASS, border: "1px solid rgba(255,255,255,0.07)", backdropFilter: "blur(12px)" }}
-    >
-      {/* Hover glow */}
-      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-400 pointer-events-none rounded-2xl"
-        style={{ background: "radial-gradient(circle at 50% 0%, rgba(123,47,255,0.2), transparent 70%)" }} />
-
-      {/* Animated border on hover */}
-      <motion.div
-        className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-        style={{ background: "transparent", border: "1px solid rgba(0,245,255,0.3)" }}
-      />
-
-      {/* Icon */}
-      <div className="relative w-12 h-12 rounded-xl flex items-center justify-center text-xl"
-        style={{ background: "rgba(123,47,255,0.15)", border: "1px solid rgba(123,47,255,0.25)" }}>
-        <span>{icon}</span>
-        {/* Glow dot */}
-        <motion.div
-          className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full"
-          style={{ background: `conic-gradient(from 0deg, #7B2FFF ${level}%, rgba(255,255,255,0.05) ${level}%)` }}
-        />
-      </div>
-
-      <span className="text-sm font-semibold text-center" style={{ color: WHITE }}>{name}</span>
-
-      {/* Level bar */}
-      <div className="w-full">
-        <div className="h-1 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.06)" }}>
-          <motion.div
-            className="h-full rounded-full"
-            style={{ background: GRAD }}
-            initial={{ width: 0 }}
-            animate={inView ? { width: `${level}%` } : {}}
-            transition={{ duration: 1, ease: "easeOut", delay: delay + 0.3 }}
-          />
-        </div>
-        <p className="text-[10px] font-mono text-right mt-1" style={{ color: MUTED }}>{level}%</p>
-      </div>
-    </motion.div>
-  );
-}
-
-// ── Category tab ──────────────────────────────────────────────────────────────
-function Tab({ label, active, onClick }: { label: string; active: boolean; onClick: () => void }) {
-  return (
-    <button type="button" onClick={onClick}
-      className="relative px-5 py-2.5 rounded-xl text-sm font-semibold font-mono transition-all duration-300 cursor-pointer"
-      style={{ color: active ? WHITE : MUTED, background: active ? "rgba(123,47,255,0.2)" : "transparent" }}>
-      {active && (
-        <motion.div layoutId="tab-bg" className="absolute inset-0 rounded-xl"
-          style={{ border: "1px solid rgba(123,47,255,0.5)", background: "rgba(123,47,255,0.15)" }}
-          transition={{ type: "spring", bounce: 0.2, duration: 0.5 }} />
-      )}
-      <span className="relative z-10">{label}</span>
-    </button>
-  );
-}
-
-// ── Proficiency ring ──────────────────────────────────────────────────────────
-function ProficiencyRing({ level, label }: { level: number; label: string }) {
-  const ref    = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { once: true, margin: "-40px" });
-  const r = 36, circ = 2 * Math.PI * r;
-
-  return (
-    <div ref={ref} className="flex flex-col items-center gap-2">
-      <div className="relative w-24 h-24 flex items-center justify-center">
-        <svg className="absolute inset-0 -rotate-90" width="96" height="96" viewBox="0 0 96 96">
-          {/* Track */}
-          <circle cx="48" cy="48" r={r} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="5" />
-          {/* Progress */}
-          <motion.circle cx="48" cy="48" r={r} fill="none"
-            stroke="url(#ring-grad)" strokeWidth="5"
-            strokeLinecap="round"
-            strokeDasharray={circ}
-            initial={{ strokeDashoffset: circ }}
-            animate={inView ? { strokeDashoffset: circ - (circ * level) / 100 } : {}}
-            transition={{ duration: 1.4, ease: "easeOut", delay: 0.2 }}
-          />
-          <defs>
-            <linearGradient id="ring-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#7B2FFF" />
-              <stop offset="100%" stopColor="#00F5FF" />
-            </linearGradient>
-          </defs>
-        </svg>
-        <span className="text-xl font-heading font-black"
-          style={{ background: GRAD, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
-          {level}
-        </span>
-      </div>
-      <span className="text-xs font-mono text-center" style={{ color: MUTED }}>{label}</span>
-    </div>
-  );
-}
-
-// ── Skills ────────────────────────────────────────────────────────────────────
 export default function Skills() {
-  const [activeTab, setActiveTab] = useState(0);
-  const current = skillGroups[activeTab];
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true, margin: "-80px" });
 
   return (
-    <section id="skills" className="relative py-32 overflow-hidden" style={{ background: "#0a0a0f" }}>
+    <section id="skills" ref={ref} style={{ padding: "7rem 0", position: "relative", overflow: "hidden" }}>
 
-      {/* Separator */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-px h-24"
-        style={{ background: "linear-gradient(to bottom, transparent, rgba(0,245,255,0.5), transparent)" }} />
+      {/* Ambient orb */}
+      <div style={{ position: "absolute", top: "20%", left: "50%", transform: "translateX(-50%)", width: "700px", height: "400px", borderRadius: "50%", background: "radial-gradient(ellipse, rgba(123,47,255,0.05) 0%, transparent 70%)", pointerEvents: "none" }} />
 
-      {/* Ambient orbs */}
-      <div className="absolute left-1/2 top-0 w-[600px] h-[300px] -translate-x-1/2 pointer-events-none"
-        style={{ background: "radial-gradient(ellipse, rgba(0,245,255,0.06) 0%, transparent 70%)" }} />
-      <div className="absolute -right-32 bottom-20 w-[400px] h-[400px] rounded-full pointer-events-none"
-        style={{ background: "#7B2FFF", filter: "blur(150px)", opacity: 0.07 }} />
+      <div style={{ maxWidth: "1100px", margin: "0 auto", padding: "0 1.5rem" }}>
 
-      <div className="relative z-10 max-w-6xl mx-auto px-6">
-
-        {/* Label */}
-        <FadeUp>
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-8 h-px" style={{ background: GRAD }} />
-            <span className="text-xs font-mono tracking-[0.3em] uppercase" style={{ color: "#00F5FF" }}>Tech Stack</span>
-          </div>
-        </FadeUp>
-
-        {/* Heading */}
-        <FadeUp delay={0.08}>
-          <h2 className="text-4xl sm:text-5xl font-heading font-black mb-4" style={{ color: WHITE }}>
+        {/* Header */}
+        <motion.div initial={{ opacity: 0, y: 32 }} animate={inView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.6 }} style={{ textAlign: "center", marginBottom: "4rem" }}>
+          <span style={{ fontFamily: "JetBrains Mono, monospace", fontSize: "0.72rem", letterSpacing: "0.2em", color: VIOLET, textTransform: "uppercase" as const, display: "block", marginBottom: "1rem" }}>
+            02. SKILLS
+          </span>
+          <h2 style={{ fontFamily: "Syne, sans-serif", fontSize: "clamp(2rem, 4vw, 3rem)", fontWeight: 800, color: "#F0F0FF", lineHeight: 1.1, marginBottom: "1rem" }}>
             Tools I{" "}
-            <span style={{ background: GRAD, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
-              master
-            </span>{" "}
-            every day.
+            <span style={{ background: GRAD, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>Master</span>
           </h2>
-          <p className="text-lg mb-12" style={{ color: MUTED }}>
-            A curated set of technologies I use to build fast, scalable, and beautiful products.
+          <p style={{ color: "#9CA3AF", fontFamily: "Inter, sans-serif", fontSize: "1rem", maxWidth: "440px", margin: "0 auto", lineHeight: 1.7 }}>
+            A curated stack I use daily to build fast, accessible, production-ready products.
           </p>
-        </FadeUp>
+        </motion.div>
 
-        {/* ── Top summary rings ── */}
-        <FadeUp delay={0.12}>
-          <div className="flex flex-wrap gap-8 justify-center sm:justify-start mb-16 p-6 rounded-2xl"
-            style={{ background: GLASS, border: "1px solid rgba(255,255,255,0.06)", backdropFilter: "blur(12px)" }}>
-            <ProficiencyRing level={93} label="Frontend" />
-            <ProficiencyRing level={85} label="Backend" />
-            <ProficiencyRing level={88} label="DevOps" />
-            <ProficiencyRing level={79} label="UI/UX" />
-            <div className="hidden sm:flex flex-col justify-center gap-2 ml-4">
-              <p className="text-sm font-mono" style={{ color: MUTED }}>Overall proficiency based on</p>
-              <p className="text-2xl font-heading font-black" style={{ color: WHITE }}>3+ years</p>
-              <p className="text-sm font-mono" style={{ color: MUTED }}>of hands-on experience</p>
-            </div>
-          </div>
-        </FadeUp>
+        {/* Skill groups */}
+        <div style={{ display: "flex", flexDirection: "column", gap: "3rem" }}>
+          {skillGroups.map((group, gi) => (
+            <motion.div key={group.category}
+              initial={{ opacity: 0, y: 28 }} animate={inView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.55, delay: 0.15 + gi * 0.12 }}>
 
-        {/* ── Category tabs ── */}
-        <FadeUp delay={0.16}>
-          <div className="flex gap-2 mb-8 flex-wrap">
-            {skillGroups.map((g, i) => (
-              <Tab key={g.category} label={g.category} active={activeTab === i} onClick={() => setActiveTab(i)} />
-            ))}
-          </div>
-        </FadeUp>
-
-        {/* ── Two-column layout ── */}
-        <AnimatePresence mode="wait">
-          <motion.div key={activeTab}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.35, ease: "easeOut" }}
-            className="grid grid-cols-1 lg:grid-cols-2 gap-10"
-          >
-            {/* Left — Skill bars */}
-            <div className="p-6 rounded-2xl flex flex-col gap-5"
-              style={{ background: GLASS, border: "1px solid rgba(255,255,255,0.07)", backdropFilter: "blur(12px)" }}>
-              <div className="flex items-center gap-3 mb-2">
-                <div className="w-1 h-5 rounded-full" style={{ background: GRAD }} />
-                <p className="text-sm font-mono tracking-widest uppercase" style={{ color: "#7B2FFF" }}>
-                  {current.category} — Proficiency
-                </p>
+              {/* Group header */}
+              <div style={{ display: "flex", alignItems: "center", gap: "1rem", marginBottom: "1.5rem" }}>
+                <span style={{ fontFamily: "JetBrains Mono, monospace", fontSize: "0.65rem", letterSpacing: "0.2em", color: VIOLET, textTransform: "uppercase" as const }}>
+                  {String(gi + 1).padStart(2, "0")}
+                </span>
+                <div style={{ flex: 1, height: "1px", background: "rgba(255,255,255,0.06)" }} />
+                <span style={{ fontFamily: "Syne, sans-serif", fontWeight: 700, fontSize: "0.9rem", color: "#F0F0FF" }}>
+                  {group.category}
+                </span>
+                <span style={{ fontFamily: "Inter, sans-serif", fontSize: "0.75rem", color: "#6B7280" }}>
+                  {group.label}
+                </span>
+                <div style={{ flex: 1, height: "1px", background: "rgba(255,255,255,0.06)" }} />
               </div>
-              {current.skills.map((s, i) => (
-                <SkillBar key={s.name} name={s.name} icon={s.icon} level={s.level} delay={i * 0.07} />
-              ))}
-            </div>
 
-            {/* Right — Hex cards grid */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-              {current.skills.map((s, i) => (
-                <HexCard key={s.name} name={s.name} icon={s.icon} level={s.level} delay={i * 0.07} />
-              ))}
-            </div>
-          </motion.div>
-        </AnimatePresence>
+              {/* Skills row */}
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))", gap: "1rem" }}>
+                {group.skills.map((skill, si) => {
+                  const iconData = ICON_MAP[skill.icon];
+                  const Icon = iconData?.component;
+                  const iconColor = iconData?.color ?? CYAN;
 
-        {/* ── Bottom — all tech logos strip ── */}
-        <FadeUp delay={0.2}>
-          <div className="mt-16">
-            <p className="text-xs font-mono tracking-widest uppercase mb-6 text-center" style={{ color: MUTED }}>
-              All technologies I work with
-            </p>
-            <div className="relative overflow-hidden rounded-2xl py-5 px-4"
-              style={{ background: GLASS, border: "1px solid rgba(255,255,255,0.06)" }}>
-              {/* Fade edges */}
-              <div className="absolute left-0 top-0 bottom-0 w-16 z-10 pointer-events-none"
-                style={{ background: "linear-gradient(to right, #0a0a0f, transparent)" }} />
-              <div className="absolute right-0 top-0 bottom-0 w-16 z-10 pointer-events-none"
-                style={{ background: "linear-gradient(to left, #0a0a0f, transparent)" }} />
+                  return (
+                    <motion.div key={skill.name}
+                      initial={{ opacity: 0, scale: 0.9 }} animate={inView ? { opacity: 1, scale: 1 } : {}}
+                      transition={{ duration: 0.4, delay: 0.25 + gi * 0.1 + si * 0.06 }}
+                      whileHover={{ y: -4, scale: 1.03 }}
+                      style={{
+                        background: "rgba(255,255,255,0.03)",
+                        border: "1px solid rgba(255,255,255,0.07)",
+                        borderRadius: "16px",
+                        padding: "1.25rem",
+                        cursor: "default",
+                        transition: "all 0.3s ease",
+                        position: "relative",
+                        overflow: "hidden",
+                      }}
+                      onMouseEnter={(e) => {
+                        const el = e.currentTarget as HTMLElement;
+                        el.style.borderColor = `${iconColor}40`;
+                        el.style.background = `${iconColor}08`;
+                        el.style.boxShadow = `0 8px 32px ${iconColor}15`;
+                      }}
+                      onMouseLeave={(e) => {
+                        const el = e.currentTarget as HTMLElement;
+                        el.style.borderColor = "rgba(255,255,255,0.07)";
+                        el.style.background = "rgba(255,255,255,0.03)";
+                        el.style.boxShadow = "none";
+                      }}
+                    >
+                      <div style={{ marginBottom: "0.9rem" }}>
+                        {Icon ? (
+                          <Icon style={{ fontSize: "2rem", color: iconColor, filter: `drop-shadow(0 0 8px ${iconColor}60)` }} />
+                        ) : (
+                          <div style={{ width: "2rem", height: "2rem", borderRadius: "6px", background: `${iconColor}20`, border: `1px solid ${iconColor}40` }} />
+                        )}
+                      </div>
+                      <p style={{ fontFamily: "Syne, sans-serif", fontWeight: 700, fontSize: "0.88rem", color: "#F0F0FF", marginBottom: "0.6rem" }}>
+                        {skill.name}
+                      </p>
+                      <div style={{ height: "3px", background: "rgba(255,255,255,0.06)", borderRadius: "2px", overflow: "hidden" }}>
+                        <motion.div
+                          initial={{ width: 0 }} animate={inView ? { width: `${skill.level}%` } : { width: 0 }}
+                          transition={{ duration: 1, delay: 0.4 + gi * 0.1 + si * 0.07, ease: "easeOut" }}
+                          style={{ height: "100%", background: `linear-gradient(90deg, ${iconColor}, ${iconColor}80)`, borderRadius: "2px" }}
+                        />
+                      </div>
+                      <p style={{ fontFamily: "JetBrains Mono, monospace", fontSize: "0.65rem", color: "#4B5563", marginTop: "0.4rem", textAlign: "right" as const }}>
+                        {skill.level}%
+                      </p>
+                    </motion.div>
+                  );
+                })}
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </div>
 
-              {/* Scrolling strip */}
-              <motion.div
-                className="flex gap-6 w-max"
-                animate={{ x: ["0%", "-50%"] }}
-                transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+      {/* Infinite marquee strip — icon + name only, no duplication */}
+      <div style={{ marginTop: "4rem", overflow: "hidden", padding: "1.5rem 0", borderTop: "1px solid rgba(255,255,255,0.04)", borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
+        <motion.div
+          animate={{ x: ["0%", "-50%"] }}
+          transition={{ duration: 28, repeat: Infinity, ease: "linear" }}
+          style={{ display: "flex", gap: "1.5rem", width: "max-content" }}
+        >
+          {/* Duplicate array for seamless loop */}
+          {[...allSkills, ...allSkills].map((skill, i) => {
+            const iconData = ICON_MAP[skill.icon];
+            const Icon = iconData?.component;
+            const iconColor = iconData?.color ?? CYAN;
+            return (
+              <div
+                key={`marquee-${i}`}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "0.5rem",
+                  padding: "0.45rem 1rem",
+                  background: "rgba(255,255,255,0.03)",
+                  border: "1px solid rgba(255,255,255,0.06)",
+                  borderRadius: "999px",
+                  whiteSpace: "nowrap" as const,
+                  flexShrink: 0,
+                }}
               >
-                {[...skillGroups.flatMap(g => g.skills), ...skillGroups.flatMap(g => g.skills)].map((s, i) => (
-                  <div key={i}
-                    className="flex items-center gap-2 px-4 py-2 rounded-xl flex-shrink-0"
-                    style={{ background: "rgba(123,47,255,0.08)", border: "1px solid rgba(123,47,255,0.15)" }}>
-                    <span className="text-base">{s.icon}</span>
-                    <span className="text-sm font-mono whitespace-nowrap" style={{ color: WHITE }}>{s.name}</span>
-                  </div>
-                ))}
-              </motion.div>
-            </div>
-          </div>
-        </FadeUp>
-
+                {Icon && (
+                  <Icon style={{ color: iconColor, fontSize: "1rem", flexShrink: 0 }} />
+                )}
+                <span style={{ fontFamily: "Inter, sans-serif", fontSize: "0.8rem", color: "#9CA3AF" }}>
+                  {skill.name}
+                </span>
+              </div>
+            );
+          })}
+        </motion.div>
       </div>
     </section>
   );

@@ -57,7 +57,7 @@ const nextConfig: NextConfig = {
               // Allow images: self + data URIs (for Next.js Image optimization)
               "img-src 'self' data: blob: https:",
               // Allow connections: EmailJS API
-              "connect-src 'self' https://api.emailjs.com",
+              "connect-src 'self'",
               // Block all frames
               "frame-src 'none'",
               // Block object embeds
