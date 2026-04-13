@@ -173,34 +173,36 @@ export type Experience = {
 export const experiences: Experience[] = [
   {
     id: "exp-1",
-    company: "Awesome Company",
-    role: "Senior Frontend Developer",
-    type: "Full-time",
-    startDate: "Jan 2024",
-    endDate: "Present",
+    company: "Next24Technology",
+    role: "Web developer ",
+    type: "Internship",
+    startDate: "Jul 2023",
+    endDate: "Sep 2023",
     description:
-      "Leading the frontend architecture for a B2B SaaS product used by 50,000+ users worldwide.",
+      "Worked as a Web Developer Intern, contributing to both frontend and backend development by building responsive UI components, integrating APIs, and improving overall application performance. ",
     highlights: [
-      "Reduced bundle size by 40% through code splitting and lazy loading",
-      "Built a design system used across 3 products",
-      "Mentored 2 junior developers",
-    ],
-    technologies: ["React", "TypeScript", "Next.js", "GraphQL"],
+  "Developed responsive and user-friendly UI components using modern web technologies",
+  "Integrated REST APIs to enable seamless data flow between frontend and backend",
+  "Improved application performance through code optimization and efficient rendering",
+  "Collaborated with team members to implement features and fix bugs in a timely manner"
+],
+    technologies: ["React", "Tailwind", "CSS3", "Javascript"],
   },
   {
     id: "exp-2",
-    company: "Cool Startup",
+    company: "Webs Jyoti",
     role: "Full-Stack Developer",
-    type: "Full-time",
-    startDate: "Mar 2022",
-    endDate: "Dec 2023",
+    type: "Internship",
+    startDate: "July 2024",
+    endDate: "Nov 2024",
     description:
-      "Full-stack development for an early-stage fintech startup, from MVP to scaling.",
+      "Worked as a Full-Stack Developer Intern at an early-stage fintech startup, contributing to the development of scalable web applications by building frontend interfaces, developing backend APIs, and integrating third-party services.",
     highlights: [
-      "Built core banking dashboard from scratch",
-      "Integrated 5 third-party payment APIs",
-      "Improved API response time by 60%",
-    ],
+  "Developed and maintained full-stack features for a fintech dashboard using modern web technologies",
+  "Integrated third-party APIs for payments and financial services",
+  "Designed and optimized backend APIs for efficient data handling and improved performance",
+  "Built responsive and user-friendly UI components to enhance user experience"
+],
     technologies: ["Node.js", "React", "PostgreSQL", "AWS"],
   },
   {
