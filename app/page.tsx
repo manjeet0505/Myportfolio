@@ -1,32 +1,25 @@
-import Navbar from "@/components/layout/Navbar";
-import Hero from "@/components/sections/Hero";
-import About from "@/components/sections/About";
-import Skills from "@/components/sections/Skills";
-import Projects from "@/components/sections/Projects";
+import Navbar    from "@/components/layout/Navbar";
+import Hero       from "@/components/sections/Hero";
+import About      from "@/components/sections/About";
+import Skills     from "@/components/sections/Skills";
+import Projects   from "@/components/sections/Projects";
+import Experience from "@/components/sections/Experience";
 
 export default function Home() {
   return (
-    <main className="relative bg-[#0a0a0f] min-h-screen">
+    <main style={{ background: "#0a0a0f", overflowX: "hidden" }}>
       <Navbar />
       <Hero />
       <About />
       <Skills />
       <Projects />
+      <Experience />
 
-      <section id="experience" className="min-h-screen flex flex-col items-center justify-center gap-3">
-        <p className="text-3xl font-heading font-bold"
-          style={{ background: "linear-gradient(135deg,#7B2FFF,#00F5FF)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
-          Experience
+      {/* Contact + Footer placeholder */}
+      <section id="contact" style={{ minHeight: "40vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <p style={{ fontFamily: "JetBrains Mono, monospace", fontSize: "0.85rem", color: "#6B7280" }}>
+          Contact section — coming in Step 8 ↓
         </p>
-        <p className="text-white/40 text-sm">Coming in Step 7 ↓</p>
-      </section>
-
-      <section id="contact" className="min-h-screen flex flex-col items-center justify-center gap-3">
-        <p className="text-3xl font-heading font-bold"
-          style={{ background: "linear-gradient(135deg,#7B2FFF,#00F5FF)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
-          Contact
-        </p>
-        <p className="text-white/40 text-sm">Coming in Step 8 ↓</p>
       </section>
     </main>
   );
