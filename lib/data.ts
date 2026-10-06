@@ -3,95 +3,56 @@ import { FiGithub, FiLinkedin, FiTwitter, FiMail } from "react-icons/fi";
 export const personalInfo = {
   name: "Manjeet Kumar Mishra",
   initials: "MKM",
-  tagline: "Full-Stack Developer",
-  bio: "I craft fast, accessible, and visually stunning web experiences. From pixel-perfect UIs to scalable backend systems — I bring ideas to life with clean code and creative thinking.",
+  tagline: "AI Engineer & Full-Stack Developer",
+  bio: "I build AI products end to end: multi-agent systems, RAG pipelines and the full-stack apps around them. 2026 CS graduate, ranked 1st in my university, IEEE-published on LLM architecture.",
   email: "mishramanjeet26@gmail.com",
   location: "India",
   resumeUrl: "/Manjeet.pdf",
   avatar: "/profile.jpg",
 
   social: [
-    { label: "GitHub",   url: "https://github.com/manjeet0505",   icon: FiGithub   },
+    { label: "GitHub", url: "https://github.com/manjeet0505", icon: FiGithub },
     { label: "LinkedIn", url: "https://www.linkedin.com/in/manjeet-mishra-175705260/", icon: FiLinkedin },
-    { label: "Twitter",  url: "https://x.com/mishramanjeet26",  icon: FiTwitter  },
-    { label: "Email",    url: "mailto:mishramanjeet26@gmail.com", icon: FiMail },
+    { label: "Twitter", url: "https://x.com/mishramanjeet26", icon: FiTwitter },
+    { label: "Email", url: "mailto:mishramanjeet26@gmail.com", icon: FiMail },
   ],
 };
 
 export const personal = personalInfo;
 
 export const navLinks = [
-  { label: "Home",       href: "#home"       },
-  { label: "About",      href: "#about"      },
-  { label: "Skills",     href: "#skills"     },
-  { label: "Projects",   href: "#projects"   },
+  { label: "Home", href: "#home" },
+  { label: "About", href: "#about" },
+  { label: "Skills", href: "#skills" },
+  { label: "Projects", href: "#projects" },
   { label: "Experience", href: "#experience" },
-  { label: "Contact",    href: "#contact"    },
+  { label: "Contact", href: "#contact" },
 ];
 
-export const roles = [
+// Typewriter roles in the Hero
+export const heroRoles = [
+  "AI Engineer",
   "Full-Stack Developer",
-  "React Specialist",
-  "Next.js Engineer",
-  "UI Craftsman",
-  "Problem Solver",
+  "Multi-Agent Systems",
+  "RAG Pipelines",
 ];
- 
-// ── Stats ──────────────────────────────────────────────────────
+
+// Small credential card in the Hero
+export const heroStats = [
+  { value: "IEEE", label: "Published paper" },
+  { value: "#1", label: "University rank" },
+  { value: "3", label: "Internships" },
+];
+
+// About section stat cards (2x2 grid)
 export const stats = [
-  { value: "3+",  label: "Years Experience" },
-  { value: "10+", label: "Projects Built"   },
-  { value: "10+", label: "Happy Clients"    },
-  { value: "∞",   label: "Coffees Drunk"    },
+  { value: "3", label: "Internships completed" },
+  { value: "IEEE", label: "Paper on LLM architecture" },
+  { value: "#1", label: "University rank, MDU" },
+  { value: "8.0", label: "CGPA" },
 ];
- 
-// ── Skills ─────────────────────────────────────────────────────
-export type Skill = {
-  name: string;
-  icon: string;
-  color: string;
-  level: number; // 0–100
-};
- 
-export type SkillGroup = {
-  category: string;
-  skills: Skill[];
-};
- 
-export const skillGroups: SkillGroup[] = [
-  {
-    category: "Frontend",
-    skills: [
-      { name: "React",         icon: "react",      color: "#61DAFB", level: 92 },
-      { name: "Next.js",       icon: "nextjs",     color: "#ffffff", level: 88 },
-      { name: "TypeScript",    icon: "typescript", color: "#3178C6", level: 85 },
-      { name: "Tailwind CSS",  icon: "tailwind",   color: "#38BDF8", level: 90 },
-      { name: "Framer Motion", icon: "motion",     color: "#FF4D9E", level: 78 },
-    ],
-  },
-  {
-    category: "Backend",
-    skills: [
-      { name: "Node.js",    icon: "nodejs",      color: "#68A063", level: 85 },
-      { name: "Express",    icon: "express",     color: "#ffffff", level: 82 },
-      { name: "PostgreSQL", icon: "postgresql",  color: "#336791", level: 75 },
-      { name: "MongoDB",    icon: "mongodb",     color: "#4DB33D", level: 78 },
-      { name: "Prisma",     icon: "prisma",      color: "#2D3748", level: 72 },
-    ],
-  },
-  {
-    category: "Tools & DevOps",
-    skills: [
-      { name: "Git",    icon: "git",    color: "#F05032", level: 90 },
-      { name: "Docker", icon: "docker", color: "#2496ED", level: 70 },
-      { name: "Vercel", icon: "vercel", color: "#ffffff", level: 88 },
-      { name: "Figma",  icon: "figma",  color: "#F24E1E", level: 75 },
-      { name: "VS Code",icon: "vscode", color: "#007ACC", level: 95 },
-    ],
-  },
-];
- 
-// ── Projects ───────────────────────────────────────────────────
+
+// ── Projects ─────────────────────────────────────────────────────────
 export type Project = {
   id: string;
   title: string;
@@ -105,17 +66,17 @@ export type Project = {
   year: string;
   accentColor: string;
 };
- 
+
 export const projects: Project[] = [
   {
     id: "project-1",
-    title: "S3 Dashboard: Smart Career Intelligence System",
+    title: "S3 Dashboard: Career Intelligence Platform",
     description:
-      "AI-powered platform that helps students track progress, optimize skills, and get personalized career guidance.",
+      "Multi-agent career platform with a mock interview agent, skill-gap analysis scored on live market demand, a resume scorer and a drag-and-drop job tracker.",
     longDescription:
-      "Built with Next.js, MongoDB, and modern full-stack technologies, featuring AI-powered RAG chatbot, resume analysis, job recommendations, and real-time insights to help students track progress and accelerate their career growth.",
+      "Next.js 14 frontend and FastAPI backend with Qdrant vector search and MongoDB usage tracking.",
     image: "/projects/project-1.png",
-    tags: ["Next.js", "TypeScript", "MONGODB", "Stripe", "Tailwind"],
+    tags: ["Next.js 14", "FastAPI", "Qdrant", "MongoDB", "GPT-4o"],
     liveUrl: "https://s3frontend-seven.vercel.app/",
     githubUrl: "https://github.com/manjeet0505/s3dashboard",
     featured: true,
@@ -123,17 +84,29 @@ export const projects: Project[] = [
     accentColor: "#7B2FFF",
   },
   {
+    id: "project-4",
+    title: "MedLoop AI: Multi-Agent Patient Care",
+    description:
+      "Multi-agent patient care platform built on LangGraph, with JWT-secured patient management and invite-based onboarding.",
+    // TODO: add a screenshot at /public/projects/project-4.png and the live/GitHub links
+    image: "/projects/project-4.png",
+    tags: ["LangGraph", "FastAPI", "PostgreSQL", "JWT Auth", "OpenAI"],
+    featured: true,
+    year: "2026",
+    accentColor: "#00F5FF",
+  },
+  {
     id: "project-2",
     title: "Expense Tracker",
     description:
       "A full-stack expense tracker to manage, categorize, and visualize daily spending.",
     longDescription:
-      " Built a full-stack expense tracking application using Next.js, MongoDB, and modern web technologies, enabling users to manage daily expenses, categorize transactions, and visualize spending patterns through interactive dashboards.",
+      "Full-stack expense tracking app that lets users manage daily expenses, categorize transactions, and visualize spending patterns through interactive dashboards.",
     image: "/projects/project-2.png",
     tags: ["Node.js", "React", "MongoDB", "GeminiAPI"],
     liveUrl: "https://expense-bay-mu.vercel.app/",
     githubUrl: "https://github.com/manjeet0505/Expense",
-    featured: true,
+    featured: false,
     year: "2024",
     accentColor: "#00F5FF",
   },
@@ -143,20 +116,20 @@ export const projects: Project[] = [
     description:
       "A full-stack note-taking app with AI-powered assistance for smarter writing and productivity.",
     longDescription:
-      "Built a full-stack note-taking application using Next.js, MongoDB, and modern web technologies, enabling users to create, organize, and manage notes with AI-powered assistance for smarter writing and productivity.",
+      "Note-taking app to create, organize and manage notes, with AI assistance for writing.",
     image: "/projects/project-3.png",
-    tags: ["Nextjs","MongoDB", "Express"],
+    tags: ["Next.js", "MongoDB", "Express"],
     githubUrl: "https://github.com/manjeet0505/noteflow",
     featured: false,
     year: "2024",
     accentColor: "#FF2FBE",
   },
 ];
- 
+
 export const featuredProjects = projects.filter((p) => p.featured);
-export const otherProjects    = projects.filter((p) => !p.featured);
- 
-// ── Experience ─────────────────────────────────────────────────
+export const otherProjects = projects.filter((p) => !p.featured);
+
+// ── Experience ───────────────────────────────────────────────────────
 export type Experience = {
   id: string;
   company: string;
@@ -169,57 +142,70 @@ export type Experience = {
   technologies: string[];
   logoUrl?: string;
 };
- 
+
 export const experiences: Experience[] = [
+  // TODO: add the AIsignal internship here (role, dates, what you built).
+  // Copy one of the entries below as a template.
   {
     id: "exp-1",
     company: "Next24Technology",
-    role: "Web developer ",
+    role: "Web Developer",
     type: "Internship",
     startDate: "Jul 2023",
     endDate: "Sep 2023",
     description:
-      "Worked as a Web Developer Intern, contributing to both frontend and backend development by building responsive UI components, integrating APIs, and improving overall application performance. ",
+      "Web Developer Intern contributing to frontend and backend work: responsive UI components, API integration and performance improvements.",
     highlights: [
-  "Developed responsive and user-friendly UI components using modern web technologies",
-  "Integrated REST APIs to enable seamless data flow between frontend and backend",
-  "Improved application performance through code optimization and efficient rendering",
-  "Collaborated with team members to implement features and fix bugs in a timely manner"
-],
-    technologies: ["React", "Tailwind", "CSS3", "Javascript"],
+      "Developed responsive and user-friendly UI components using modern web technologies",
+      "Integrated REST APIs to enable seamless data flow between frontend and backend",
+      "Improved application performance through code optimization and efficient rendering",
+      "Collaborated with team members to implement features and fix bugs in a timely manner",
+    ],
+    technologies: ["React", "Tailwind", "CSS3", "JavaScript"],
   },
   {
     id: "exp-2",
     company: "Webs Jyoti",
     role: "Full-Stack Developer",
     type: "Internship",
-    startDate: "July 2024",
+    startDate: "Jul 2024",
     endDate: "Nov 2024",
     description:
-      "Worked as a Full-Stack Developer Intern at an early-stage fintech startup, contributing to the development of scalable web applications by building frontend interfaces, developing backend APIs, and integrating third-party services.",
+      "Full-Stack Developer Intern at an early-stage fintech startup, building frontend interfaces, backend APIs and third-party integrations.",
     highlights: [
-  "Developed and maintained full-stack features for a fintech dashboard using modern web technologies",
-  "Integrated third-party APIs for payments and financial services",
-  "Designed and optimized backend APIs for efficient data handling and improved performance",
-  "Built responsive and user-friendly UI components to enhance user experience"
-],
+      "Developed and maintained full-stack features for a fintech dashboard using modern web technologies",
+      "Integrated third-party APIs for payments and financial services",
+      "Designed and optimized backend APIs for efficient data handling and improved performance",
+      "Built responsive and user-friendly UI components to enhance user experience",
+    ],
     technologies: ["Node.js", "React", "PostgreSQL", "AWS"],
   },
   {
     id: "exp-3",
     company: "Freelance",
-    role: "Full Stack Developer",
+    role: "Full-Stack & AI Developer",
     type: "Freelance",
     startDate: "Jan 2026",
     endDate: "Present",
     description:
-      "Building and developing full-stack web applications as part of an early-stage startup, focusing on creating scalable products, improving user experience, and exploring real-world problem-solving.",
+      "Building full-stack and AI-powered web applications, from idea to deployment.",
     highlights: [
-  "Developing full-stack applications using modern technologies like React and Node.js",
-  "Working on product development from idea to implementation",
-  "Designing responsive and user-friendly interfaces",
-  "Continuously improving application performance and scalability"
-],
-    technologies: ["React.js", "Next.js 14", "Node.js", "FastAPI", "MongoDB", "PostgreSQL", "Qdrant", "Tailwind CSS", "REST APIs", "JWT Authentication", "LangChain", "OpenAI API", "Git", "Docker", "Vercel", "Railway"],
+      "Built multi-agent AI products with LangChain, FastAPI and vector search",
+      "Owned projects from idea to deployment on Vercel, Render and Railway",
+      "Designed responsive, user-friendly interfaces",
+      "Improved application performance and scalability",
+    ],
+    technologies: [
+      "Next.js 14",
+      "FastAPI",
+      "Python",
+      "MongoDB",
+      "PostgreSQL",
+      "Qdrant",
+      "LangChain",
+      "OpenAI API",
+      "Docker",
+      "Vercel",
+    ],
   },
 ];

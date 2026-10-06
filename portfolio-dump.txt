@@ -1,0 +1,3073 @@
+﻿
+===== C:\Users\DELL\OneDrive\Desktop\portfolio\portfolio\app\api\contact\route.ts =====
+
+import { NextRequest, NextResponse } from "next/server";
+import nodemailer from "nodemailer";
+
+export async function POST(req: NextRequest) {
+  try {
+    const { name, email, subject, message } = await req.json();
+
+    if (!name || !email || !message) {
+      return NextResponse.json(
+        { error: "Name, email, and message are required." },
+        { status: 400 }
+      );
+    }
+
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.GMAIL_USER,   // your Gmail address
+        pass: process.env.GMAIL_PASS,   // Gmail App Password (16-char)
+      },
+    });
+
+    await transporter.sendMail({
+      from: `"${name}" <${process.env.GMAIL_USER}>`,
+      to: process.env.GMAIL_USER,       // receive in your own inbox
+      replyTo: email,
+      subject: subject || `Portfolio contact from ${name}`,
+      html: `
+        <div style="font-family:sans-serif;max-width:600px;margin:auto;background:#0d0d18;color:#e5e5e5;border-radius:12px;overflow:hidden">
+          <div style="background:linear-gradient(135deg,#7c3aed,#06b6d4);padding:24px 32px">
+            <h2 style="margin:0;color:#fff;font-size:20px">New Portfolio Message</h2>
+          </div>
+          <div style="padding:32px">
+            <table style="width:100%;border-collapse:collapse">
+              <tr><td style="padding:8px 0;color:#a0a0b0;width:90px">From</td><td style="padding:8px 0;color:#e5e5e5;font-weight:600">${name}</td></tr>
+              <tr><td style="padding:8px 0;color:#a0a0b0">Email</td><td style="padding:8px 0"><a href="mailto:${email}" style="color:#06b6d4">${email}</a></td></tr>
+              ${subject ? `<tr><td style="padding:8px 0;color:#a0a0b0">Subject</td><td style="padding:8px 0;color:#e5e5e5">${subject}</td></tr>` : ""}
+            </table>
+            <hr style="border:none;border-top:1px solid #ffffff18;margin:24px 0"/>
+            <p style="color:#a0a0b0;margin:0 0 8px">Message</p>
+            <p style="color:#e5e5e5;line-height:1.7;white-space:pre-wrap">${message}</p>
+          </div>
+          <div style="padding:16px 32px;background:#ffffff08;font-size:12px;color:#606070;text-align:center">
+            Sent via your portfolio contact form
+          </div>
+        </div>
+      `,
+    });
+
+    return NextResponse.json({ success: true });
+  } catch (err) {
+    console.error("Mail error:", err);
+    return NextResponse.json(
+      { error: "Failed to send email. Please try again." },
+      { status: 500 }
+    );
+  }
+}
+
+===== C:\Users\DELL\OneDrive\Desktop\portfolio\portfolio\app\globals.css =====
+
+@import "tailwindcss";
+
+/* ============================================
+   THEME â€” Tailwind v4 (replaces tailwind.config.ts)
+   Delete tailwind.config.ts after using this file.
+============================================ */
+@theme {
+  /* Colors -> bg-bg-primary, text-neon-cyan, border-border-glass ... */
+  --color-bg-primary: #0a0a0f;
+  --color-bg-secondary: #0f0f1a;
+  --color-bg-card: rgba(255, 255, 255, 0.04);
+
+  --color-neon-violet: #7b2fff;
+  --color-neon-cyan: #00f5ff;
+  --color-neon-pink: #ff2fbe;
+
+  --color-text-primary: #f0f0ff;
+  --color-text-muted: #6b7280;
+  --color-text-soft: #a0a0b8;
+
+  --color-border-glass: rgba(255, 255, 255, 0.08);
+  --color-border-neon: rgba(123, 47, 255, 0.4);
+
+  /* Shadows -> shadow-neon-violet, shadow-glass ... */
+  --shadow-neon-violet: 0 0 20px rgba(123, 47, 255, 0.5),
+    0 0 60px rgba(123, 47, 255, 0.2);
+  --shadow-neon-cyan: 0 0 20px rgba(0, 245, 255, 0.5),
+    0 0 60px rgba(0, 245, 255, 0.2);
+  --shadow-neon-pink: 0 0 20px rgba(255, 47, 190, 0.5),
+    0 0 60px rgba(255, 47, 190, 0.2);
+  --shadow-glass: 0 4px 24px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  --shadow-glass-hover: 0 8px 40px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+
+  /* Animations -> animate-float, animate-glow ... (keyframes are below) */
+  --animate-fade-up: fadeUp 0.6s ease forwards;
+  --animate-fade-in: fadeIn 0.8s ease forwards;
+  --animate-glow: glow 2s ease-in-out infinite alternate;
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-spin-slow: spin 8s linear infinite;
+  --animate-typewriter: typewriter 3s steps(30) forwards;
+  --animate-blink: blink 1s step-end infinite;
+  --animate-shimmer: shimmer 2s linear infinite;
+
+  /* Radius + blur (same values as your old config) */
+  --radius-2xl: 1rem;
+  --radius-3xl: 1.5rem;
+  --radius-4xl: 2rem;
+  --blur-xs: 2px;
+  --blur-2xl: 40px;
+}
+
+/* next/font variables resolve at runtime, so this must be "inline".
+   -> font-heading, font-body, font-mono */
+@theme inline {
+  --font-heading: var(--font-syne), sans-serif;
+  --font-body: var(--font-inter), sans-serif;
+  --font-mono: var(--font-jetbrains), monospace;
+}
+
+/* Gradients that used to be backgroundImage in the old config */
+@utility bg-neon-gradient {
+  background-image: linear-gradient(135deg, #7b2fff 0%, #00f5ff 100%);
+}
+@utility bg-neon-gradient-pink {
+  background-image: linear-gradient(135deg, #7b2fff 0%, #ff2fbe 100%);
+}
+@utility bg-glass-gradient {
+  background-image: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.08) 0%,
+    rgba(255, 255, 255, 0.02) 100%
+  );
+}
+@utility bg-hero-glow {
+  background-image: radial-gradient(
+    ellipse 80% 60% at 50% 0%,
+    rgba(123, 47, 255, 0.25) 0%,
+    transparent 70%
+  );
+}
+@utility bg-grid-pattern {
+  background-image: linear-gradient(rgba(123, 47, 255, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(123, 47, 255, 0.06) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
+
+/* ============================================
+   KEYFRAMES (top-level so they are always emitted)
+============================================ */
+@keyframes fadeUp {
+  0% {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+@keyframes glow {
+  0% {
+    box-shadow: 0 0 20px rgba(123, 47, 255, 0.4);
+  }
+  100% {
+    box-shadow: 0 0 40px rgba(123, 47, 255, 0.8),
+      0 0 80px rgba(0, 245, 255, 0.3);
+  }
+}
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+@keyframes typewriter {
+  0% {
+    width: 0;
+  }
+  100% {
+    width: 100%;
+  }
+}
+@keyframes blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* ============================================
+   CSS VARIABLES â€” DESIGN TOKENS
+   (used by the custom classes + inline styles)
+============================================ */
+:root {
+  --bg-primary: #0a0a0f;
+  --bg-secondary: #0f0f1a;
+  --bg-tertiary: #141424;
+
+  --neon-violet: #7b2fff;
+  --neon-violet-rgb: 123, 47, 255;
+  --neon-cyan: #00f5ff;
+  --neon-cyan-rgb: 0, 245, 255;
+  --neon-pink: #ff2fbe;
+  --neon-pink-rgb: 255, 47, 190;
+
+  --text-primary: #f0f0ff;
+  --text-secondary: #c0c0d8;
+  --text-muted: #6b7280;
+  --text-soft: #a0a0b8;
+
+  --glass-bg: rgba(255, 255, 255, 0.04);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-border-hover: rgba(123, 47, 255, 0.4);
+
+  --section-padding: 6rem 0;
+  --container-max: 1100px;
+  --radius-card: 1.25rem;
+  --radius-btn: 0.75rem;
+
+  --transition-fast: 150ms ease;
+  --transition-base: 300ms ease;
+  --transition-slow: 600ms ease;
+}
+
+/* ============================================
+   BASE (inside @layer so Tailwind utilities can override)
+   NOTE: the old "* { margin:0; padding:0 }" reset is removed on
+   purpose. Tailwind's preflight already does it, and an unlayered
+   reset would beat every p-*, m-*, px-* utility.
+============================================ */
+@layer base {
+  /* v4 changed the default border color to currentColor.
+     This keeps plain `border` classes looking like the glass theme. */
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--glass-border);
+  }
+
+  html {
+    color-scheme: dark;
+    scroll-behavior: smooth;
+    scroll-padding-top: 80px;
+  }
+
+  body {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    font-family: var(--font-inter), "Inter", sans-serif;
+    font-size: 16px;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+  }
+
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+
+  ::selection {
+    background: rgba(123, 47, 255, 0.3);
+    color: var(--neon-cyan);
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--bg-primary);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgba(123, 47, 255, 0.4);
+    border-radius: 3px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--neon-violet);
+  }
+
+  /* Typography */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-syne), "Syne", sans-serif;
+    font-weight: 700;
+    line-height: 1.15;
+    color: var(--text-primary);
+  }
+
+  code,
+  pre {
+    font-family: var(--font-jetbrains), "JetBrains Mono", monospace;
+  }
+
+  /* Accessibility: visible keyboard focus.
+     (border-radius removed so it no longer squares off rounded buttons) */
+  :focus-visible {
+    outline: 2px solid var(--neon-violet);
+    outline-offset: 3px;
+  }
+}
+
+/* ============================================
+   COMPONENTS (still overridable by utilities)
+============================================ */
+@layer components {
+  /* Layout */
+  .container-custom {
+    max-width: var(--container-max);
+    margin: 0 auto;
+    padding: 0 1.5rem;
+  }
+
+  .section-padding {
+    padding: var(--section-padding);
+  }
+
+  /* Glassmorphism */
+  .glass {
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-card);
+  }
+
+  .glass-hover {
+    transition: all var(--transition-base);
+  }
+
+  .glass-hover:hover {
+    background: rgba(255, 255, 255, 0.07);
+    border-color: var(--glass-border-hover);
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5),
+      0 0 0 1px rgba(123, 47, 255, 0.2),
+      inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    transform: translateY(-4px);
+  }
+
+  /* Neon text */
+  .neon-text {
+    background: linear-gradient(135deg, var(--neon-violet), var(--neon-cyan));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .neon-text-pink {
+    background: linear-gradient(135deg, var(--neon-violet), var(--neon-pink));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .neon-glow-violet {
+    text-shadow: 0 0 20px rgba(123, 47, 255, 0.8),
+      0 0 40px rgba(123, 47, 255, 0.4);
+  }
+
+  .neon-glow-cyan {
+    text-shadow: 0 0 20px rgba(0, 245, 255, 0.8),
+      0 0 40px rgba(0, 245, 255, 0.4);
+  }
+
+  /* Buttons */
+  .btn-neon {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.75rem;
+    background: linear-gradient(135deg, var(--neon-violet), #5b1fd4);
+    color: #fff;
+    font-family: var(--font-syne), "Syne", sans-serif;
+    font-weight: 600;
+    font-size: 0.9rem;
+    letter-spacing: 0.02em;
+    border: none;
+    border-radius: var(--radius-btn);
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: all var(--transition-base);
+    text-decoration: none;
+  }
+
+  .btn-neon::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, #9b4fff, var(--neon-cyan));
+    opacity: 0;
+    transition: opacity var(--transition-base);
+  }
+
+  .btn-neon:hover {
+    box-shadow: 0 0 20px rgba(123, 47, 255, 0.6),
+      0 0 60px rgba(123, 47, 255, 0.25);
+    transform: translateY(-2px);
+  }
+
+  .btn-neon:hover::before {
+    opacity: 1;
+  }
+
+  .btn-neon span {
+    position: relative;
+    z-index: 1;
+  }
+
+  .btn-ghost {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.75rem;
+    background: transparent;
+    color: var(--text-primary);
+    font-family: var(--font-syne), "Syne", sans-serif;
+    font-weight: 600;
+    font-size: 0.9rem;
+    letter-spacing: 0.02em;
+    border: 1px solid var(--glass-border-hover);
+    border-radius: var(--radius-btn);
+    cursor: pointer;
+    transition: all var(--transition-base);
+    text-decoration: none;
+  }
+
+  .btn-ghost:hover {
+    background: rgba(123, 47, 255, 0.1);
+    border-color: var(--neon-violet);
+    color: var(--neon-cyan);
+    box-shadow: 0 0 20px rgba(123, 47, 255, 0.2);
+    transform: translateY(-2px);
+  }
+
+  /* Section title */
+  .section-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: var(--font-jetbrains), "JetBrains Mono", monospace;
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--neon-cyan);
+    margin-bottom: 1rem;
+  }
+
+  .section-label::before {
+    content: "";
+    display: block;
+    width: 2rem;
+    height: 1px;
+    background: var(--neon-cyan);
+    box-shadow: 0 0 8px var(--neon-cyan);
+  }
+
+  .section-title {
+    font-family: var(--font-syne), "Syne", sans-serif;
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 800;
+    line-height: 1.1;
+    margin-bottom: 1rem;
+  }
+
+  /* Neon border card */
+  .neon-card {
+    position: relative;
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: var(--radius-card);
+    overflow: hidden;
+    transition: all var(--transition-base);
+  }
+
+  .neon-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: var(--radius-card);
+    padding: 1px;
+    background: linear-gradient(
+      135deg,
+      var(--neon-violet),
+      transparent,
+      var(--neon-cyan)
+    );
+    -webkit-mask: linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    opacity: 0.4;
+    transition: opacity var(--transition-base);
+    pointer-events: none;
+  }
+
+  .neon-card:hover::before {
+    opacity: 1;
+  }
+
+  .neon-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5),
+      0 0 30px rgba(123, 47, 255, 0.15);
+  }
+
+  /* Background grid + glow */
+  .bg-grid {
+    background-image: linear-gradient(
+        rgba(123, 47, 255, 0.06) 1px,
+        transparent 1px
+      ),
+      linear-gradient(90deg, rgba(123, 47, 255, 0.06) 1px, transparent 1px);
+    background-size: 60px 60px;
+  }
+
+  .hero-glow {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+      ellipse 80% 60% at 50% 0%,
+      rgba(123, 47, 255, 0.25) 0%,
+      transparent 70%
+    );
+    pointer-events: none;
+  }
+
+  .hero-glow-bottom {
+    position: absolute;
+    bottom: -20%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60%;
+    height: 400px;
+    background: radial-gradient(
+      ellipse at center,
+      rgba(0, 245, 255, 0.1) 0%,
+      transparent 70%
+    );
+    pointer-events: none;
+  }
+
+  /* Tech tag */
+  .tech-tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.3rem 0.75rem;
+    background: rgba(123, 47, 255, 0.1);
+    color: var(--neon-cyan);
+    font-family: var(--font-jetbrains), "JetBrains Mono", monospace;
+    font-size: 0.7rem;
+    font-weight: 500;
+    border: 1px solid rgba(0, 245, 255, 0.2);
+    border-radius: 2rem;
+    transition: all var(--transition-fast);
+  }
+
+  .tech-tag:hover {
+    background: rgba(0, 245, 255, 0.1);
+    border-color: var(--neon-cyan);
+    box-shadow: 0 0 12px rgba(0, 245, 255, 0.25);
+  }
+
+  /* Divider */
+  .neon-divider {
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(123, 47, 255, 0.5),
+      rgba(0, 245, 255, 0.5),
+      transparent
+    );
+  }
+
+  /* Floating orbs */
+  .orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    pointer-events: none;
+    animation: float 6s ease-in-out infinite;
+  }
+
+  .orb-violet {
+    background: rgba(123, 47, 255, 0.2);
+  }
+
+  .orb-cyan {
+    background: rgba(0, 245, 255, 0.12);
+  }
+
+  .orb-pink {
+    background: rgba(255, 47, 190, 0.12);
+  }
+
+  /* Animated underline link */
+  .link-neon {
+    position: relative;
+    color: var(--text-soft);
+    text-decoration: none;
+    transition: color var(--transition-fast);
+  }
+
+  .link-neon::after {
+    content: "";
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 1px;
+    background: linear-gradient(90deg, var(--neon-violet), var(--neon-cyan));
+    box-shadow: 0 0 8px var(--neon-cyan);
+    transition: width var(--transition-base);
+  }
+
+  .link-neon:hover {
+    color: var(--neon-cyan);
+  }
+
+  .link-neon:hover::after {
+    width: 100%;
+  }
+}
+
+/* ============================================
+   RESPONSIVE
+============================================ */
+@media (max-width: 768px) {
+  :root {
+    --section-padding: 4rem 0;
+  }
+
+  .section-title {
+    font-size: clamp(1.75rem, 6vw, 2.5rem);
+  }
+}
+
+/* ============================================
+   REDUCED MOTION (accessibility)
+============================================ */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+===== C:\Users\DELL\OneDrive\Desktop\portfolio\portfolio\app\layout.tsx =====
+
+import type { Metadata } from "next";
+import { Inter, Syne, JetBrains_Mono } from "next/font/google";
+import "./globals.css";
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap",
+});
+
+const syne = Syne({
+  subsets: ["latin"],
+  variable: "--font-syne",
+  weight: ["400", "500", "600", "700", "800"],
+  display: "swap",
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
+  variable: "--font-jetbrains",
+  weight: ["400", "500"],
+  display: "swap",
+});
+
+export const metadata: Metadata = {
+  // âœ… Required for resolving OG/Twitter images correctly
+  metadataBase: new URL("https://manjeetkumarmishra.dev"),
+
+  title: {
+    default: "Manjeet Kumar Mishra â€” Full-Stack Developer",
+    template: "%s | Manjeet Kumar Mishra",
+  },
+  description:
+    "Full-Stack Developer crafting modern, performant web experiences. Specializing in React, Next.js, Node.js, and everything in between.",
+  keywords: [
+    "Full-Stack Developer",
+    "React Developer",
+    "Next.js",
+    "Node.js",
+    "Web Development",
+    "Portfolio",
+    "Manjeet Kumar Mishra",
+  ],
+  authors: [{ name: "Manjeet Kumar Mishra" }],
+  creator: "Manjeet Kumar Mishra",
+
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: "https://manjeetkumarmishra.dev",
+    title: "Manjeet Kumar Mishra â€” Full-Stack Developer",
+    description:
+      "Full-Stack Developer crafting modern, performant web experiences.",
+    siteName: "Manjeet Kumar Mishra Portfolio",
+    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Manjeet Kumar Mishra" }],
+  },
+
+  twitter: {
+    card: "summary_large_image",
+    title: "Manjeet Kumar Mishra â€” Full-Stack Developer",
+    description: "Full-Stack Developer crafting modern, performant web experiences.",
+    creator: "@mishramanjeet26",
+    images: ["/og-image.png"],
+  },
+
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+
+  // âœ… Only reference favicon.ico which Next.js handles automatically
+  // Place favicon.ico in the /app directory (not /public) for App Router
+  icons: {
+    icon: "/favicon.ico",
+  },
+};
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html
+      lang="en"
+      className={`${inter.variable} ${syne.variable} ${jetbrainsMono.variable}`}
+      suppressHydrationWarning
+    >
+      <body className="bg-[#0a0a0f] text-[#F0F0FF] font-body antialiased overflow-x-hidden">
+        <div
+          className="fixed inset-0 pointer-events-none z-50 opacity-[0.03]"
+          style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
+            backgroundRepeat: "repeat",
+            backgroundSize: "128px 128px",
+          }}
+        />
+        {children}
+      </body>
+    </html>
+  );
+}
+
+===== C:\Users\DELL\OneDrive\Desktop\portfolio\portfolio\app\page.tsx =====
+
+import Navbar from "@/components/layout/Navbar";
+import Footer from "@/components/layout/Footer";
+import Hero from "@/components/sections/Hero";
+import About from "@/components/sections/About";
+import Skills from "@/components/sections/Skills";
+import Projects from "@/components/sections/Projects";
+import Experience from "@/components/sections/Experience";
+import Contact from "@/components/sections/Contact";
+
+export default function Home() {
+  return (
+    <main style={{ background: "#0a0a0f", minHeight: "100vh" }}>
+      <Navbar />
+      <Hero />
+      <About />
+      <Skills />
+      <Projects />
+      <Experience />
+      <Contact />
+      <Footer />
+    </main>
+  );
+}
+
+===== C:\Users\DELL\OneDrive\Desktop\portfolio\portfolio\components\layout\Footer.tsx =====
+
+"use client";
+
+import { motion } from "framer-motion";
+import { personalInfo } from "@/lib/data";
+import { FiArrowUp } from "react-icons/fi";
+
+const VIOLET = "#7B2FFF";
+const CYAN = "#00F5FF";
+const GRAD = `linear-gradient(135deg, ${VIOLET}, ${CYAN})`;
+
+const navLinks = [
+  { label: "About",      href: "#about"      },
+  { label: "Skills",     href: "#skills"     },
+  { label: "Projects",   href: "#projects"   },
+  { label: "Experience", href: "#experience" },
+  { label: "Contact",    href: "#contact"    },
+];
+
+export default function Footer() {
+  const scrollToTop = () => window.scrollTo({ top: 0, behavior: "smooth" });
+
+  return (
+    <footer style={{ position: "relative", borderTop: "1px solid rgba(255,255,255,0.06)", overflow: "hidden" }}>
+
+      {/* Top gradient line */}
+      <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "1px", background: `linear-gradient(90deg, transparent, ${VIOLET}55, ${CYAN}33, transparent)` }} />
+
+      {/* Background glow */}
+      <div style={{ position: "absolute", bottom: "-60px", left: "50%", transform: "translateX(-50%)", width: "600px", height: "200px", borderRadius: "50%", background: "radial-gradient(ellipse, rgba(123,47,255,0.06) 0%, transparent 70%)", pointerEvents: "none" }} />
+
+      <div style={{ maxWidth: "1100px", margin: "0 auto", padding: "3rem 1.5rem 2rem" }}>
+
+        {/* Top row */}
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "1.5rem", marginBottom: "2.5rem" }}>
+
+          {/* Logo */}
+          <motion.div whileHover={{ scale: 1.03 }} style={{ cursor: "pointer" }} onClick={scrollToTop}>
+            <span style={{ fontFamily: "Syne, sans-serif", fontWeight: 800, fontSize: "1.3rem", background: GRAD, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
+              {personalInfo.initials}
+            </span>
+            <span style={{ fontFamily: "JetBrains Mono, monospace", fontSize: "0.65rem", color: "#4B5563", display: "block", letterSpacing: "0.1em", marginTop: "2px" }}>
+              Full-Stack Â· AI Engineer
+            </span>
+          </motion.div>
+
+          {/* Nav links */}
+          <nav style={{ display: "flex", gap: "0.25rem", flexWrap: "wrap" }}>
+            {navLinks.map((link) => (
+              <a key={link.label} href={link.href}
+                style={{ fontFamily: "Inter, sans-serif", fontSize: "0.82rem", color: "#6B7280", textDecoration: "none", padding: "0.4rem 0.75rem", borderRadius: "8px", transition: "all 0.25s ease" }}
+                onMouseEnter={(e) => { const el = e.target as HTMLElement; el.style.color = "#F0F0FF"; el.style.background = "rgba(255,255,255,0.05)"; }}
+                onMouseLeave={(e) => { const el = e.target as HTMLElement; el.style.color = "#6B7280"; el.style.background = "transparent"; }}>
+                {link.label}
+              </a>
+            ))}
+          </nav>
+
+          {/* Socials + scroll-to-top */}
+          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+            {personalInfo.social.map((s) => {
+              const Icon = s.icon;
+              return (
+                <motion.a key={s.label} href={s.url} target="_blank" rel="noopener noreferrer"
+                  whileHover={{ y: -3, scale: 1.1 }} aria-label={s.label}
+                  style={{ width: "36px", height: "36px", borderRadius: "9px", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", display: "flex", alignItems: "center", justifyContent: "center", color: "#9CA3AF", textDecoration: "none", fontSize: "0.95rem", transition: "all 0.25s ease" }}
+                  onMouseEnter={(e) => { const el = e.currentTarget as HTMLElement; el.style.color = CYAN; el.style.borderColor = "rgba(0,245,255,0.3)"; el.style.background = "rgba(0,245,255,0.06)"; }}
+                  onMouseLeave={(e) => { const el = e.currentTarget as HTMLElement; el.style.color = "#9CA3AF"; el.style.borderColor = "rgba(255,255,255,0.08)"; el.style.background = "rgba(255,255,255,0.04)"; }}>
+                  <Icon />
+                </motion.a>
+              );
+            })}
+
+            <motion.button onClick={scrollToTop} whileHover={{ y: -3, scale: 1.1 }}
+            suppressHydrationWarning
+              style={{ width: "36px", height: "36px", borderRadius: "9px", background: "rgba(123,47,255,0.1)", border: "1px solid rgba(123,47,255,0.25)", display: "flex", alignItems: "center", justifyContent: "center", color: VIOLET, cursor: "pointer", marginLeft: "0.25rem" }}>
+              <FiArrowUp />
+            </motion.button>
+          </div>
+        </div>
+
+        {/* Divider */}
+        <div style={{ height: "1px", background: "rgba(255,255,255,0.05)", marginBottom: "1.5rem" }} />
+
+        {/* Bottom row */}
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "0.75rem" }}>
+          <p style={{ fontFamily: "Inter, sans-serif", color: "#4B5563", fontSize: "0.78rem" }}>
+            Â© 2026 {personalInfo.name} Â· All rights reserved
+          </p>
+          <p style={{ fontFamily: "JetBrains Mono, monospace", color: "#4B5563", fontSize: "0.72rem", display: "flex", alignItems: "center", gap: "0.4rem", flexWrap: "wrap" }}>
+            Built with{" "}
+            <span style={{ background: GRAD, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text", fontWeight: 600 }}>Next.js</span>
+            {" "}&amp;{" "}
+            <span style={{ background: GRAD, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text", fontWeight: 600 }}>Framer Motion</span>
+            {" "}âœ¦ Deployed on{" "}
+            <span style={{ background: GRAD, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text", fontWeight: 600 }}>Vercel</span>
+          </p>
+        </div>
+      </div>
+    </footer>
+  );
+}
+
+===== C:\Users\DELL\OneDrive\Desktop\portfolio\portfolio\components\layout\Navbar.tsx =====
+
+"use client";
+
+import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Menu, X, Download } from "lucide-react";
+
+const navLinks = [
+  { label: "Home", href: "#home" },
+  { label: "About", href: "#about" },
+  { label: "Skills", href: "#skills" },
+  { label: "Projects", href: "#projects" },
+  { label: "Experience", href: "#experience" },
+  { label: "Contact", href: "#contact" },
+];
+
+export default function Navbar() {
+  const [scrolled, setScrolled] = useState(false);
+  const [active, setActive] = useState("Home");
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 20);
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  return (
+    <>
+      <header
+        className={`fixed top-0 left-0 right-0 z-[9999] transition-all duration-300 ${
+          scrolled
+            ? "bg-[#0a0a0f]/80 backdrop-blur-xl border-b border-white/5 shadow-lg shadow-black/20"
+            : "bg-transparent"
+        }`}
+      >
+        <nav className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+          {/* Logo â€” name only, no badge */}
+          <a href="#home" className="flex items-center gap-2 group">
+            <span className="text-lg font-bold tracking-tight">
+              <span className="text-white">Manjeet</span>
+              <span className="text-white/40"> Kumar Mishra</span>
+            </span>
+          </a>
+
+          {/* Desktop links */}
+          <div className="hidden md:flex items-center gap-1 bg-white/5 rounded-full px-2 py-1.5 border border-white/10">
+            {navLinks.map((link) => (
+              <a
+                key={link.label}
+                href={link.href}
+                onClick={() => setActive(link.label)}
+                className="relative px-4 py-1.5 text-sm font-medium rounded-full transition-colors duration-200"
+              >
+                {active === link.label && (
+                  <motion.span
+                    layoutId="pill"
+                    className="absolute inset-0 bg-violet-600/80 rounded-full"
+                    transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                  />
+                )}
+                <span
+                  className={`relative z-10 ${
+                    active === link.label
+                      ? "text-white"
+                      : "text-white/60 hover:text-white"
+                  }`}
+                >
+                  {link.label}
+                </span>
+              </a>
+            ))}
+          </div>
+
+          {/* Resume button */}
+          <a
+            href="/Manjeet.pdf"
+            download
+            className="hidden md:flex items-center gap-2 px-4 py-2 rounded-full border border-cyan-500/40 text-cyan-400 text-sm font-medium hover:bg-cyan-500/10 hover:border-cyan-400 transition-all duration-200"
+          >
+            <Download size={14} />
+            Resume
+          </a>
+
+          {/* Mobile hamburger */}
+          <button
+            onClick={() => setMobileOpen((v) => !v)}
+            className="md:hidden p-2 rounded-lg text-white/60 hover:text-white hover:bg-white/10 transition"
+          >
+            {mobileOpen ? <X size={20} /> : <Menu size={20} />}
+          </button>
+        </nav>
+      </header>
+
+      {/* Mobile Drawer */}
+      <AnimatePresence>
+        {mobileOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.2 }}
+            className="fixed top-16 left-4 right-4 z-[9998] bg-[#0d0d18]/95 backdrop-blur-xl rounded-2xl border border-white/10 p-4 shadow-2xl"
+          >
+            {navLinks.map((link, i) => (
+              <a
+                key={link.label}
+                href={link.href}
+                onClick={() => {
+                  setActive(link.label);
+                  setMobileOpen(false);
+                }}
+                className="flex items-center gap-3 px-4 py-3 rounded-xl text-white/70 hover:text-white hover:bg-white/5 transition"
+              >
+                <span className="text-xs text-violet-500 font-mono">
+                  0{i + 1}
+                </span>
+                {link.label}
+              </a>
+            ))}
+            <a
+              href="/resume.pdf"
+              download
+              className="mt-2 flex items-center justify-center gap-2 w-full py-3 rounded-xl border border-cyan-500/40 text-cyan-400 text-sm font-medium hover:bg-cyan-500/10 transition"
+            >
+              <Download size={14} /> Download Resume
+            </a>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
+  );
+}
+
+===== C:\Users\DELL\OneDrive\Desktop\portfolio\portfolio\components\sections\About.tsx =====
+
+"use client";
+
+import { useRef } from "react";
+import { motion, useInView } from "framer-motion";
+import { personalInfo, stats } from "@/lib/data";
+
+const GRAD = "linear-gradient(135deg, #7B2FFF 0%, #00F5FF 100%)";
+// const STAT_ICONS = ["ðŸ—“ï¸", "ðŸš€", "ðŸ˜Š", "â˜•"];
+
+function FadeUp({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { once: true, margin: "-60px" });
+  return (
+    <motion.div ref={ref}
+      initial={{ opacity: 0, y: 30 }}
+      animate={inView ? { opacity: 1, y: 0 } : {}}
+      transition={{ duration: 0.6, ease: "easeOut", delay }}
+    >{children}</motion.div>
+  );
+}
+
+export default function About() {
+  return (
+    <section id="about" style={{ padding: "7rem 0", position: "relative", overflow: "hidden" }}>
+
+      {/* Ambient orbs */}
+      <div style={{ position: "absolute", width: 500, height: 500, borderRadius: "50%", top: "-10%", left: "-10%", background: "rgba(123,47,255,0.07)", filter: "blur(100px)", pointerEvents: "none" }} />
+      <div style={{ position: "absolute", width: 400, height: 400, borderRadius: "50%", bottom: "0%", right: "-5%", background: "rgba(0,245,255,0.05)", filter: "blur(100px)", pointerEvents: "none" }} />
+
+      <div style={{ maxWidth: 1100, margin: "0 auto", padding: "0 1.5rem" }}>
+
+        {/* â”€â”€ Section header â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+        <FadeUp>
+          <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "0.75rem" }}>
+            <div style={{ width: "2rem", height: "1px", background: "#00F5FF", boxShadow: "0 0 8px #00F5FF" }} />
+            <span style={{ fontFamily: "JetBrains Mono, monospace", fontSize: "0.7rem", letterSpacing: "0.15em", color: "#00F5FF", textTransform: "uppercase" }}>About Me</span>
+          </div>
+          <h2 style={{ fontFamily: "Syne, sans-serif", fontWeight: 800, fontSize: "clamp(2rem, 4vw, 3rem)", color: "#F0F0FF", lineHeight: 1.1, marginBottom: "4rem" }}>
+            Who I{" "}
+            <span style={{ background: GRAD, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>Am</span>
+          </h2>
+        </FadeUp>
+
+        {/* â”€â”€ Main grid â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "3rem", alignItems: "start" }}>
+
+          {/* LEFT â€” Photo + bio */}
+          <div style={{ display: "flex", flexDirection: "column", gap: "2rem" }}>
+
+            {/* Photo card */}
+            <FadeUp delay={0.1}>
+              <div style={{
+                background: "rgba(255,255,255,0.04)",
+                backdropFilter: "blur(20px)",
+                border: "1px solid rgba(255,255,255,0.08)",
+                borderRadius: "1.5rem",
+                padding: "2rem",
+                display: "flex",
+                alignItems: "center",
+                gap: "1.5rem",
+                position: "relative",
+                overflow: "hidden",
+              }}>
+                {/* gradient top line */}
+                <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 2, background: GRAD }} />
+
+                {/* Photo */}
+                <div style={{
+                  width: 100, height: 100, borderRadius: "1rem", flexShrink: 0, position: "relative",
+                  background: GRAD, padding: 2,
+                  boxShadow: "0 0 30px rgba(123,47,255,0.5)",
+                }}>
+                  <div style={{ width: "100%", height: "100%", borderRadius: "calc(1rem - 2px)", overflow: "hidden", background: "#0f0f1a", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <img
+                      src={personalInfo.avatar}
+                      alt={personalInfo.name}
+                      style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                      onError={(e) => {
+                        (e.currentTarget as HTMLImageElement).style.display = "none";
+                        const next = e.currentTarget.nextElementSibling as HTMLElement;
+                        if (next) next.style.display = "flex";
+                      }}
+                    />
+                    <div style={{ display: "none", width: "100%", height: "100%", alignItems: "center", justifyContent: "center", fontFamily: "Syne, sans-serif", fontWeight: 800, fontSize: "1.75rem", color: "#F0F0FF" }}>
+                      {personalInfo.initials}
+                    </div>
+                  </div>
+                  {/* online dot */}
+                  <div style={{ position: "absolute", bottom: -4, right: -4, width: 16, height: 16, borderRadius: "50%", background: "#22c55e", border: "2px solid #0a0a0f", boxShadow: "0 0 10px rgba(34,197,94,0.7)" }} />
+                </div>
+
+                {/* Name / role / badge */}
+                <div>
+                  <h3 style={{ fontFamily: "Syne, sans-serif", fontWeight: 700, fontSize: "1.15rem", color: "#F0F0FF", marginBottom: "0.3rem" }}>
+                    {personalInfo.name}
+                  </h3>
+                  <p style={{ fontFamily: "JetBrains Mono, monospace", fontSize: "0.8rem", color: "#00F5FF", marginBottom: "0.75rem" }}>
+                    {personalInfo.tagline}
+                  </p>
+                  <div style={{ display: "inline-flex", alignItems: "center", gap: "0.4rem", padding: "0.3rem 0.75rem", background: "rgba(34,197,94,0.1)", border: "1px solid rgba(34,197,94,0.3)", borderRadius: "2rem" }}>
+                    <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#22c55e", boxShadow: "0 0 6px #22c55e" }} />
+                    <span style={{ fontSize: "0.72rem", color: "#22c55e", fontFamily: "JetBrains Mono, monospace" }}>Available for work</span>
+                  </div>
+                </div>
+              </div>
+            </FadeUp>
+
+            {/* Bio */}
+            <FadeUp delay={0.2}>
+              <div style={{
+                background: "rgba(255,255,255,0.04)",
+                backdropFilter: "blur(20px)",
+                border: "1px solid rgba(255,255,255,0.08)",
+                borderRadius: "1.25rem",
+                padding: "1.75rem",
+              }}>
+                <p style={{ fontSize: "0.95rem", lineHeight: 1.85, color: "#A0A0B8", marginBottom: "1rem" }}>
+                  I'm a{" "}
+                  <span style={{ color: "#00F5FF", fontWeight: 500 }}>Full-Stack Developer</span>
+                  {" "}passionate about crafting performant, pixel-perfect web experiences.
+                  I love turning complex problems into elegant, intuitive solutions.
+                </p>
+                <p style={{ fontSize: "0.95rem", lineHeight: 1.85, color: "#A0A0B8" }}>
+                  When I'm not coding, I'm exploring new tech and contributing to{" "}
+                  <span style={{ color: "#F0F0FF", fontWeight: 500 }}>open-source</span>.
+                </p>
+              </div>
+            </FadeUp>
+
+            {/* Tech pills */}
+            <FadeUp delay={0.3}>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
+                {["React", "Next.js", "TypeScript", "Node.js", "PostgreSQL", "Tailwind"].map((t) => (
+                  <span key={t} style={{
+                    padding: "0.35rem 0.85rem",
+                    background: "rgba(123,47,255,0.1)",
+                    border: "1px solid rgba(0,245,255,0.2)",
+                    borderRadius: "2rem",
+                    fontFamily: "JetBrains Mono, monospace",
+                    fontSize: "0.72rem",
+                    color: "#00F5FF",
+                  }}>{t}</span>
+                ))}
+              </div>
+            </FadeUp>
+
+            {/* Resume button */}
+            <FadeUp delay={0.35}>
+              <a href={personalInfo.resumeUrl} download style={{
+                display: "inline-flex", alignItems: "center", gap: "0.5rem",
+                padding: "0.8rem 1.75rem",
+                background: "linear-gradient(135deg, #7B2FFF, #5b1fd4)",
+                color: "#fff",
+                fontFamily: "Syne, sans-serif", fontWeight: 600, fontSize: "0.9rem",
+                border: "none", borderRadius: "0.75rem",
+                textDecoration: "none",
+                boxShadow: "0 0 20px rgba(123,47,255,0.4)",
+              }}>
+                â†“ Download Resume
+              </a>
+            </FadeUp>
+          </div>
+
+          {/* RIGHT â€” Stats + what I bring */}
+          <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+
+            {/* Stat cards 2Ã—2 grid */}
+            <FadeUp delay={0.15}>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
+                {stats.map((s, i) => (
+                  <motion.div key={s.label}
+                    whileHover={{ scale: 1.04, y: -4 }}
+                    transition={{ duration: 0.2 }}
+                    style={{
+                      background: "rgba(255,255,255,0.04)",
+                      backdropFilter: "blur(20px)",
+                      border: "1px solid rgba(255,255,255,0.08)",
+                      borderRadius: "1.25rem",
+                      padding: "1.5rem",
+                      display: "flex", flexDirection: "column", gap: "0.5rem",
+                      cursor: "default",
+                      position: "relative", overflow: "hidden",
+                    }}
+                  >
+                    {/* corner glow */}
+                    <div style={{ position: "absolute", top: 0, right: 0, width: 60, height: 60, background: "rgba(123,47,255,0.08)", borderRadius: "0 1.25rem 0 100%", pointerEvents: "none" }} />
+                    {/* <div style={{ fontSize: "1.5rem" }}>{STAT_ICONS[i]}</div> */}
+                    <span style={{ fontFamily: "Syne, sans-serif", fontWeight: 800, fontSize: "2rem", background: GRAD, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
+                      {s.value}
+                    </span>
+                    <span style={{ fontSize: "0.78rem", color: "#6B7280", letterSpacing: "0.03em" }}>{s.label}</span>
+                  </motion.div>
+                ))}
+              </div>
+            </FadeUp>
+
+            {/* What I bring */}
+            <FadeUp delay={0.3}>
+              <div style={{
+                background: "rgba(255,255,255,0.04)",
+                backdropFilter: "blur(20px)",
+                border: "1px solid rgba(255,255,255,0.08)",
+                borderRadius: "1.25rem",
+                padding: "1.75rem",
+                position: "relative", overflow: "hidden",
+              }}>
+                <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 2, background: "linear-gradient(90deg, #7B2FFF, #00F5FF, transparent)" }} />
+                <p style={{ fontFamily: "Syne, sans-serif", fontWeight: 700, fontSize: "1rem", color: "#F0F0FF", marginBottom: "1.25rem" }}>
+                  What I bring to the table
+                </p>
+                <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+                  {[
+                    "Clean, maintainable, well-documented code",
+                    "Strong eye for UI/UX and design details",
+                    "End-to-end ownership from idea to deploy",
+                    "Fast learner â€” always up-to-date with tech",
+                  ].map((item) => (
+                    <div key={item} style={{ display: "flex", alignItems: "flex-start", gap: "0.75rem" }}>
+                      <span style={{ color: "#00F5FF", flexShrink: 0, marginTop: "0.1rem" }}>â–¹</span>
+                      <span style={{ fontSize: "0.875rem", color: "#A0A0B8", lineHeight: 1.6 }}>{item}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </FadeUp>
+
+            {/* Currently building */}
+            <FadeUp delay={0.4}>
+              <div style={{
+                padding: "1rem 1.25rem",
+                borderRadius: "1rem",
+                background: "rgba(123,47,255,0.08)",
+                border: "1px solid rgba(123,47,255,0.25)",
+                display: "flex", alignItems: "center", gap: "0.75rem",
+              }}>
+                <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#7B2FFF", boxShadow: "0 0 10px #7B2FFF", flexShrink: 0 }} />
+                <span style={{ fontSize: "0.85rem", color: "#A0A0B8" }}>
+                  Currently building:{" "}
+                  <span style={{ color: "#F0F0FF", fontWeight: 500 }}>Senior-Junior Connect AI powered platform</span>
+                </span>
+              </div>
+            </FadeUp>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+===== C:\Users\DELL\OneDrive\Desktop\portfolio\portfolio\components\sections\Contact.tsx =====
+
+"use client";
+
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Send, CheckCircle, AlertCircle, Loader2, Mail, MapPin, Clock } from "lucide-react";
+import { personalInfo } from "@/lib/data";
+
+const INFO_CARDS = [
+  { icon: Mail,    label: "Email",         value: personalInfo.email,      href: `mailto:${personalInfo.email}` },
+  { icon: MapPin,  label: "Location",      value: "India",                 href: null },
+  { icon: Clock,   label: "Response time", value: "Within 24 hours",       href: null },
+];
+
+type Status = "idle" | "loading" | "success" | "error";
+
+export default function Contact() {
+  const [form, setForm] = useState({ name: "", email: "", subject: "", message: "" });
+  const [status, setStatus] = useState<Status>("idle");
+  const [errorMsg, setErrorMsg] = useState("");
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  };
+
+  const canSubmit =
+    form.name.trim() && form.email.trim() && form.message.trim() && status !== "loading";
+
+  const handleSubmit = async () => {
+    if (!canSubmit) return;
+    setStatus("loading");
+    setErrorMsg("");
+
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+      const data = await res.json();
+
+      if (!res.ok) throw new Error(data.error || "Something went wrong.");
+
+      setStatus("success");
+      setForm({ name: "", email: "", subject: "", message: "" });
+    } catch (err: unknown) {
+      setStatus("error");
+      setErrorMsg(err instanceof Error ? err.message : "Failed to send. Please try again.");
+    }
+  };
+
+  return (
+    <section id="contact" className="py-28 px-6 relative overflow-hidden">
+      {/* Background glow */}
+      <div className="pointer-events-none absolute inset-0">
+        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-violet-600/10 rounded-full blur-[120px]" />
+      </div>
+
+      <div className="max-w-6xl mx-auto relative z-10">
+        {/* Heading */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
+          className="text-center mb-16"
+        >
+          <p className="text-sm font-mono text-violet-400 tracking-widest uppercase mb-3">
+            get in touch
+          </p>
+          <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
+            Let's{" "}
+            <span className="bg-gradient-to-r from-violet-400 to-cyan-400 bg-clip-text text-transparent">
+              Work Together
+            </span>
+          </h2>
+          <p className="text-white/50 max-w-md mx-auto">
+            Have a project in mind or just want to say hi? Drop me a message and I'll get back to you shortly.
+          </p>
+        </motion.div>
+
+        <div className="grid md:grid-cols-5 gap-8 items-start">
+          {/* Left: info cards + socials */}
+          <motion.div
+            initial={{ opacity: 0, x: -24 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="md:col-span-2 flex flex-col gap-4"
+          >
+            {INFO_CARDS.map(({ icon: Icon, label, value, href }) => (
+              <div
+                key={label}
+                className="flex items-center gap-4 p-4 rounded-2xl bg-white/5 border border-white/10 hover:border-violet-500/40 hover:bg-white/8 transition-all group"
+              >
+                <div className="w-10 h-10 rounded-xl bg-violet-500/15 flex items-center justify-center shrink-0 group-hover:bg-violet-500/25 transition">
+                  <Icon size={18} className="text-violet-400" />
+                </div>
+                <div>
+                  <p className="text-xs text-white/40 mb-0.5">{label}</p>
+                  {href ? (
+                    <a href={href} className="text-sm text-white/80 hover:text-cyan-400 transition">
+                      {value}
+                    </a>
+                  ) : (
+                    <p className="text-sm text-white/80">{value}</p>
+                  )}
+                </div>
+              </div>
+            ))}
+
+            {/* Social links from data */}
+            <div className="flex gap-3 mt-2">
+              {personalInfo.social?.map((s) => {
+                const Icon = s.icon as React.ElementType;
+                return (
+                  <a
+                    key={s.label}
+                    href={s.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white/50 hover:text-white hover:bg-white/10 hover:border-white/20 transition"
+                    aria-label={s.label}
+                  >
+                    <Icon size={16} />
+                  </a>
+                );
+              })}
+            </div>
+          </motion.div>
+
+          {/* Right: form card */}
+          <motion.div
+            initial={{ opacity: 0, x: 24 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+            className="md:col-span-3 relative rounded-3xl bg-white/4 border border-white/10 overflow-hidden"
+          >
+            {/* Neon top accent */}
+            <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-violet-500 to-transparent" />
+
+            <div className="p-8">
+              <AnimatePresence mode="wait">
+                {status === "success" ? (
+                  <motion.div
+                    key="success"
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.9 }}
+                    className="flex flex-col items-center justify-center py-16 text-center"
+                  >
+                    <div className="w-16 h-16 rounded-full bg-cyan-500/15 flex items-center justify-center mb-4">
+                      <CheckCircle size={32} className="text-cyan-400" />
+                    </div>
+                    <h3 className="text-xl font-semibold text-white mb-2">Message Sent!</h3>
+                    <p className="text-white/50 text-sm mb-6">
+                      Thanks for reaching out. I'll reply within 24 hours.
+                    </p>
+                    <button
+                      onClick={() => setStatus("idle")}
+                      className="px-5 py-2 rounded-full border border-violet-500/40 text-violet-400 text-sm hover:bg-violet-500/10 transition"
+                    >
+                      Send another
+                    </button>
+                  </motion.div>
+                ) : (
+                  <motion.div key="form" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                    <div className="grid grid-cols-2 gap-4 mb-4">
+                      <div className="col-span-2 md:col-span-1">
+                        <label className="block text-xs text-white/40 mb-1.5 font-medium">Name *</label>
+                        <input
+                          name="name"
+                          value={form.name}
+                          onChange={handleChange}
+                          placeholder="John Doe"
+                          suppressHydrationWarning
+                          className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/25 focus:outline-none focus:border-violet-500/60 focus:ring-1 focus:ring-violet-500/30 transition"
+                        />
+                      </div>
+                      <div className="col-span-2 md:col-span-1">
+                        <label className="block text-xs text-white/40 mb-1.5 font-medium">Email *</label>
+                        <input
+                          name="email"
+                          type="email"
+                          value={form.email}
+                          onChange={handleChange}
+                          placeholder="john@example.com"
+                          suppressHydrationWarning
+                          className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/25 focus:outline-none focus:border-violet-500/60 focus:ring-1 focus:ring-violet-500/30 transition"
+                        />
+                      </div>
+                      <div className="col-span-2">
+                        <label className="block text-xs text-white/40 mb-1.5 font-medium">Subject</label>
+                        <input
+                          name="subject"
+                          value={form.subject}
+                          onChange={handleChange}
+                          placeholder="Project inquiry, Freelance, etc."
+                          suppressHydrationWarning
+                          className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/25 focus:outline-none focus:border-violet-500/60 focus:ring-1 focus:ring-violet-500/30 transition"
+                        />
+                      </div>
+                      <div className="col-span-2">
+                        <label className="block text-xs text-white/40 mb-1.5 font-medium">Message *</label>
+                        <textarea
+                          name="message"
+                          value={form.message}
+                          onChange={handleChange}
+                          rows={5}
+                          placeholder="Tell me about your project..."
+                          suppressHydrationWarning
+                          className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/25 focus:outline-none focus:border-violet-500/60 focus:ring-1 focus:ring-violet-500/30 transition resize-none"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Error message */}
+                    <AnimatePresence>
+                      {status === "error" && (
+                        <motion.div
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: "auto" }}
+                          exit={{ opacity: 0, height: 0 }}
+                          className="flex items-center gap-2 text-red-400 text-sm mb-4 bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-3"
+                        >
+                          <AlertCircle size={15} />
+                          {errorMsg}
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+
+                    <button
+                      onClick={handleSubmit}
+                      disabled={!canSubmit}
+                      suppressHydrationWarning
+                      className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl font-medium text-sm transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed bg-gradient-to-r from-violet-600 to-violet-500 hover:from-violet-500 hover:to-cyan-500 text-white shadow-lg shadow-violet-500/25 hover:shadow-violet-500/40"
+                    >
+                      {status === "loading" ? (
+                        <><Loader2 size={16} className="animate-spin" /> Sendingâ€¦</>
+                      ) : (
+                        <><Send size={15} /> Send Message</>
+                      )}
+                    </button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          </motion.div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+===== C:\Users\DELL\OneDrive\Desktop\portfolio\portfolio\components\sections\Experience.tsx =====
+
+"use client";
+
+import { useRef, useState } from "react";
+import { motion, useInView } from "framer-motion";
+import { experiences } from "@/lib/data";
+
+const GRAD = "linear-gradient(135deg, #7B2FFF 0%, #00F5FF 100%)";
+
+function FadeUp({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { once: true, margin: "-60px" });
+  return (
+    <motion.div ref={ref}
+      initial={{ opacity: 0, y: 30 }}
+      animate={inView ? { opacity: 1, y: 0 } : {}}
+      transition={{ duration: 0.6, ease: "easeOut", delay }}
+    >{children}</motion.div>
+  );
+}
+
+const TYPE_COLORS: Record<string, { bg: string; border: string; color: string }> = {
+  "Full-time":  { bg: "rgba(123,47,255,0.12)", border: "rgba(123,47,255,0.35)", color: "#a78bfa" },
+  "Part-time":  { bg: "rgba(0,245,255,0.08)",  border: "rgba(0,245,255,0.25)",  color: "#00F5FF" },
+  "Freelance":  { bg: "rgba(255,47,190,0.1)",  border: "rgba(255,47,190,0.3)",  color: "#FF2FBE" },
+  "Internship": { bg: "rgba(34,197,94,0.1)",   border: "rgba(34,197,94,0.3)",   color: "#22c55e" },
+};
+
+export default function Experience() {
+  const [active, setActive] = useState<string>(experiences[0]?.id ?? "");
+  const activeExp = experiences.find((e) => e.id === active) ?? experiences[0];
+
+  return (
+    <section id="experience" style={{ padding: "7rem 0", position: "relative", overflow: "hidden" }}>
+
+      {/* Ambient orbs */}
+      <div style={{ position: "absolute", width: 500, height: 500, borderRadius: "50%", top: "0%", left: "-15%", background: "rgba(123,47,255,0.07)", filter: "blur(120px)", pointerEvents: "none" }} />
+      <div style={{ position: "absolute", width: 400, height: 400, borderRadius: "50%", bottom: "10%", right: "-10%", background: "rgba(0,245,255,0.05)", filter: "blur(100px)", pointerEvents: "none" }} />
+
+      <div style={{ maxWidth: 1100, margin: "0 auto", padding: "0 1.5rem" }}>
+
+        {/* â”€â”€ Header â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+        <FadeUp>
+          <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "0.75rem" }}>
+            <div style={{ width: "2rem", height: "1px", background: "#00F5FF", boxShadow: "0 0 8px #00F5FF" }} />
+            <span style={{ fontFamily: "JetBrains Mono, monospace", fontSize: "0.7rem", letterSpacing: "0.15em", color: "#00F5FF", textTransform: "uppercase" as const }}>Experience</span>
+          </div>
+          <h2 style={{ fontFamily: "Syne, sans-serif", fontWeight: 800, fontSize: "clamp(2rem, 4vw, 3rem)", color: "#F0F0FF", lineHeight: 1.1, marginBottom: "0.75rem" }}>
+            Where I've{" "}
+            <span style={{ background: GRAD, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
+              Worked
+            </span>
+          </h2>
+          <p style={{ fontSize: "0.9rem", color: "#6B7280", maxWidth: 480, lineHeight: 1.75, marginBottom: "3.5rem" }}>
+            My professional journey â€” companies I've contributed to and the impact I've made.
+          </p>
+        </FadeUp>
+
+        {/* â”€â”€ Two-column layout â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+        <div style={{ display: "grid", gridTemplateColumns: "340px 1fr", gap: "2rem", alignItems: "start" }}>
+
+          {/* LEFT â€” Company list / timeline */}
+          <FadeUp delay={0.1}>
+            <div style={{ display: "flex", flexDirection: "column", gap: "0", position: "relative" }}>
+
+              {/* Vertical neon line */}
+              <div style={{
+                position: "absolute", left: 19, top: 0, bottom: 0, width: 2,
+                background: "linear-gradient(180deg, #7B2FFF 0%, #00F5FF 50%, transparent 100%)",
+                opacity: 0.3,
+              }} />
+
+              {experiences.map((exp, i) => {
+                const isActive = active === exp.id;
+                const typeStyle = TYPE_COLORS[exp.type] ?? TYPE_COLORS["Full-time"];
+                return (
+                  <motion.button
+                    key={exp.id}
+                    onClick={() => setActive(exp.id)}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.15 + i * 0.1 }}
+                    style={{
+                      display: "flex", alignItems: "flex-start", gap: "1rem",
+                      padding: "1.25rem 1rem",
+                      background: isActive ? "rgba(123,47,255,0.1)" : "transparent",
+                      border: `1px solid ${isActive ? "rgba(123,47,255,0.4)" : "transparent"}`,
+                      borderRadius: "1rem",
+                      cursor: "pointer",
+                      textAlign: "left",
+                      position: "relative",
+                      transition: "all 0.25s",
+                      marginBottom: "0.5rem",
+                    }}
+                    whileHover={{ x: 4 }}
+                  >
+                    {/* Timeline dot */}
+                    <div style={{
+                      width: 20, height: 20, borderRadius: "50%", flexShrink: 0, marginTop: "0.1rem",
+                      background: isActive ? GRAD : "rgba(255,255,255,0.08)",
+                      border: `2px solid ${isActive ? "transparent" : "rgba(255,255,255,0.15)"}`,
+                      boxShadow: isActive ? "0 0 12px rgba(123,47,255,0.7)" : "none",
+                      transition: "all 0.25s",
+                      display: "flex", alignItems: "center", justifyContent: "center",
+                    }}>
+                      {isActive && <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#fff" }} />}
+                    </div>
+
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "0.5rem", marginBottom: "0.25rem" }}>
+                        <span style={{ fontFamily: "Syne, sans-serif", fontWeight: 700, fontSize: "0.95rem", color: isActive ? "#F0F0FF" : "#A0A0B8", transition: "color 0.25s", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                          {exp.company}
+                        </span>
+                        <span style={{ fontFamily: "JetBrains Mono, monospace", fontSize: "0.65rem", color: "#6B7280", flexShrink: 0 }}>
+                          {exp.endDate === "Present" ? (
+                            <span style={{ color: "#22c55e" }}>â— Present</span>
+                          ) : exp.endDate}
+                        </span>
+                      </div>
+                      <p style={{ fontFamily: "JetBrains Mono, monospace", fontSize: "0.72rem", color: isActive ? "#00F5FF" : "#6B7280", transition: "color 0.25s", marginBottom: "0.4rem" }}>
+                        {exp.role}
+                      </p>
+                      <span style={{
+                        display: "inline-block",
+                        padding: "0.15rem 0.55rem",
+                        background: typeStyle.bg,
+                        border: `1px solid ${typeStyle.border}`,
+                        borderRadius: "2rem",
+                        fontFamily: "JetBrains Mono, monospace",
+                        fontSize: "0.6rem",
+                        color: typeStyle.color,
+                      }}>
+                        {exp.type}
+                      </span>
+                    </div>
+                  </motion.button>
+                );
+              })}
+            </div>
+          </FadeUp>
+
+          {/* RIGHT â€” Detail panel */}
+          <FadeUp delay={0.2}>
+            {activeExp && (
+              <motion.div
+                key={activeExp.id}
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, ease: "easeOut" }}
+                style={{
+                  background: "rgba(255,255,255,0.04)",
+                  backdropFilter: "blur(24px)",
+                  border: "1px solid rgba(255,255,255,0.08)",
+                  borderRadius: "1.5rem",
+                  overflow: "hidden",
+                  position: "relative",
+                }}
+              >
+                {/* Top gradient bar */}
+                <div style={{ height: 3, background: GRAD }} />
+
+                <div style={{ padding: "2rem" }}>
+
+                  {/* Company + dates */}
+                  <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: "1.5rem", gap: "1rem" }}>
+                    <div>
+                      <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "0.4rem" }}>
+                        {/* Company logo placeholder */}
+                        <div style={{
+                          width: 44, height: 44, borderRadius: "0.75rem", flexShrink: 0,
+                          background: "rgba(123,47,255,0.15)",
+                          border: "1px solid rgba(123,47,255,0.3)",
+                          display: "flex", alignItems: "center", justifyContent: "center",
+                          fontFamily: "Syne, sans-serif", fontWeight: 800, fontSize: "1rem",
+                          color: "#7B2FFF",
+                        }}>
+                          {activeExp.company.charAt(0)}
+                        </div>
+                        <div>
+                          <h3 style={{ fontFamily: "Syne, sans-serif", fontWeight: 800, fontSize: "1.3rem", color: "#F0F0FF", lineHeight: 1.1 }}>
+                            {activeExp.company}
+                          </h3>
+                          <p style={{ fontFamily: "JetBrains Mono, monospace", fontSize: "0.78rem", color: "#00F5FF", marginTop: "0.2rem" }}>
+                            {activeExp.role}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Date badge */}
+                    <div style={{
+                      padding: "0.4rem 0.9rem",
+                      background: "rgba(255,255,255,0.05)",
+                      border: "1px solid rgba(255,255,255,0.1)",
+                      borderRadius: "2rem",
+                      fontFamily: "JetBrains Mono, monospace",
+                      fontSize: "0.72rem", color: "#A0A0B8",
+                      whiteSpace: "nowrap", flexShrink: 0,
+                    }}>
+                      {activeExp.startDate} â†’ {activeExp.endDate === "Present"
+                        ? <span style={{ color: "#22c55e" }}>Present</span>
+                        : activeExp.endDate}
+                    </div>
+                  </div>
+
+                  {/* Description */}
+                  <p style={{ fontSize: "0.9rem", color: "#A0A0B8", lineHeight: 1.8, marginBottom: "1.75rem" }}>
+                    {activeExp.description}
+                  </p>
+
+                  {/* Divider */}
+                  <div style={{ height: 1, background: "linear-gradient(90deg, rgba(123,47,255,0.4), rgba(0,245,255,0.4), transparent)", marginBottom: "1.75rem" }} />
+
+                  {/* Highlights */}
+                  <div style={{ marginBottom: "1.75rem" }}>
+                    <p style={{ fontFamily: "JetBrains Mono, monospace", fontSize: "0.7rem", letterSpacing: "0.12em", color: "#7B2FFF", textTransform: "uppercase" as const, marginBottom: "1rem" }}>
+                      Key Achievements
+                    </p>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+                      {activeExp.highlights.map((h, i) => (
+                        <motion.div
+                          key={h}
+                          initial={{ opacity: 0, x: -10 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: i * 0.08 }}
+                          style={{ display: "flex", alignItems: "flex-start", gap: "0.75rem" }}
+                        >
+                          <div style={{ width: 20, height: 20, borderRadius: "50%", background: "rgba(123,47,255,0.15)", border: "1px solid rgba(123,47,255,0.3)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginTop: "0.05rem" }}>
+                            <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#7B2FFF" }} />
+                          </div>
+                          <span style={{ fontSize: "0.875rem", color: "#C0C0D8", lineHeight: 1.6 }}>{h}</span>
+                        </motion.div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Tech used */}
+                  <div>
+                    <p style={{ fontFamily: "JetBrains Mono, monospace", fontSize: "0.7rem", letterSpacing: "0.12em", color: "#7B2FFF", textTransform: "uppercase" as const, marginBottom: "0.875rem" }}>
+                      Tech Stack
+                    </p>
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
+                      {activeExp.technologies.map((tech) => (
+                        <span key={tech} style={{
+                          padding: "0.3rem 0.75rem",
+                          background: "rgba(0,245,255,0.07)",
+                          border: "1px solid rgba(0,245,255,0.2)",
+                          borderRadius: "2rem",
+                          fontFamily: "JetBrains Mono, monospace",
+                          fontSize: "0.72rem", color: "#00F5FF",
+                        }}>
+                          {tech}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </FadeUp>
+        </div>
+
+        {/* â”€â”€ Bottom summary strip â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+        <FadeUp delay={0.3}>
+          <div style={{
+            marginTop: "3rem",
+            display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "1rem",
+          }}>
+            {[
+              { label: "Companies Worked At", value: `${experiences.length}+` },
+              { label: "Years of Experience",  value: "3+"    },
+              { label: "Technologies Used",    value: "15+"   },
+            ].map((s) => (
+              <div key={s.label} style={{
+                background: "rgba(255,255,255,0.03)",
+                border: "1px solid rgba(255,255,255,0.07)",
+                borderRadius: "1rem",
+                padding: "1.25rem 1.5rem",
+                display: "flex", alignItems: "center", gap: "1rem",
+              }}>
+                <span style={{ fontFamily: "Syne, sans-serif", fontWeight: 800, fontSize: "1.75rem", background: GRAD, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
+                  {s.value}
+                </span>
+                <span style={{ fontSize: "0.8rem", color: "#6B7280", lineHeight: 1.4 }}>{s.label}</span>
+              </div>
+            ))}
+          </div>
+        </FadeUp>
+
+      </div>
+    </section>
+  );
+}
+
+===== C:\Users\DELL\OneDrive\Desktop\portfolio\portfolio\components\sections\Hero.tsx =====
+
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+import { motion, useMotionValue, useSpring } from "framer-motion";
+import { ArrowDown, Download, Sparkles, Code2, Zap, Globe } from "lucide-react";
+import { personalInfo } from "@/lib/data";
+
+const ROLES = ["Full-Stack Developer", "UI/UX Enthusiast", "Problem Solver", "Open Source Builder"];
+
+function useTypewriter(words: string[], speed = 75, pause = 2000) {
+  const [display, setDisplay]   = useState("");
+  const [wIdx, setWIdx]         = useState(0);
+  const [cIdx, setCIdx]         = useState(0);
+  const [deleting, setDeleting] = useState(false);
+  useEffect(() => {
+    const cur = words[wIdx];
+    const id = setTimeout(() => {
+      if (!deleting) {
+        setDisplay(cur.slice(0, cIdx + 1));
+        if (cIdx + 1 === cur.length) setTimeout(() => setDeleting(true), pause);
+        else setCIdx(c => c + 1);
+      } else {
+        setDisplay(cur.slice(0, cIdx - 1));
+        if (cIdx - 1 === 0) { setDeleting(false); setWIdx(w => (w + 1) % words.length); setCIdx(0); }
+        else setCIdx(c => c - 1);
+      }
+    }, deleting ? speed / 2 : speed);
+    return () => clearTimeout(id);
+  }, [cIdx, deleting, wIdx, words, speed, pause]);
+  return display;
+}
+
+function Particles() {
+  const [pts, setPts] = useState<{ id: number; x: number; y: number; s: number; dur: number; del: number; cyan: boolean }[]>([]);
+  useEffect(() => {
+    setPts(Array.from({ length: 40 }, (_, i) => ({
+      id: i, x: Math.random() * 100, y: Math.random() * 100,
+      s: Math.random() * 2.5 + 0.5, dur: Math.random() * 10 + 8,
+      del: Math.random() * 6, cyan: Math.random() > 0.5,
+    })));
+  }, []);
+  return (
+    <div className="absolute inset-0 pointer-events-none overflow-hidden">
+      {pts.map(p => (
+        <motion.div key={p.id} className="absolute rounded-full"
+          style={{ left: `${p.x}%`, top: `${p.y}%`, width: p.s, height: p.s, background: p.cyan ? "#00F5FF" : "#7B2FFF" }}
+          animate={{ opacity: [0, 0.8, 0], y: [0, -80], scale: [0, 1, 0] }}
+          transition={{ duration: p.dur, repeat: Infinity, delay: p.del, ease: "easeOut" }}
+        />
+      ))}
+    </div>
+  );
+}
+
+// âœ… suppressHydrationWarning added to the button so password manager fdprocessedid is ignored
+function Mag({ children, className, style, onClick, href }: {
+  children: React.ReactNode; className?: string; style?: React.CSSProperties;
+  onClick?: () => void; href?: string;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+  const x = useMotionValue(0), y = useMotionValue(0);
+  const sx = useSpring(x, { stiffness: 250, damping: 20 });
+  const sy = useSpring(y, { stiffness: 250, damping: 20 });
+  return (
+    <motion.div ref={ref} style={{ x: sx, y: sy }} whileTap={{ scale: 0.95 }}
+      onMouseMove={e => { if (!ref.current) return; const r = ref.current.getBoundingClientRect(); x.set((e.clientX - (r.left + r.width / 2)) * 0.25); y.set((e.clientY - (r.top + r.height / 2)) * 0.25); }}
+      onMouseLeave={() => { x.set(0); y.set(0); }}>
+      {href
+        ? <a href={href} className={className} style={style} target="_blank" rel="noreferrer">{children}</a>
+        : <button type="button" suppressHydrationWarning onClick={onClick} className={className} style={style}>{children}</button>}
+    </motion.div>
+  );
+}
+
+function StatBadge({ icon: Icon, label, value }: { icon: React.ElementType; label: string; value: string }) {
+  return (
+    <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl"
+      style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", backdropFilter: "blur(8px)" }}>
+      <Icon className="w-4 h-4" style={{ color: "#7B2FFF" }} />
+      <div>
+        <p className="text-xs font-mono" style={{ color: "#6B7280" }}>{label}</p>
+        <p className="text-sm font-heading font-bold" style={{ color: "#F0F0FF" }}>{value}</p>
+      </div>
+    </div>
+  );
+}
+
+export default function Hero() {
+  const typed = useTypewriter(ROLES);
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  const go = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+
+  return (
+    <section id="home" className="relative min-h-screen flex items-center justify-center overflow-hidden"
+      style={{ background: "#050508" }}>
+
+      <div className="absolute inset-0"
+        style={{ background: "radial-gradient(ellipse 120% 80% at 50% -20%, rgba(123,47,255,0.25) 0%, transparent 60%)" }} />
+      <div className="absolute inset-0"
+        style={{ background: "radial-gradient(ellipse 80% 60% at 80% 80%, rgba(0,245,255,0.1) 0%, transparent 50%)" }} />
+      <div className="absolute inset-0"
+        style={{ background: "radial-gradient(ellipse 60% 60% at 10% 60%, rgba(123,47,255,0.08) 0%, transparent 50%)" }} />
+
+      <div className="absolute inset-0 opacity-[0.03]"
+        style={{ backgroundImage: "linear-gradient(rgba(123,47,255,1) 1px, transparent 1px), linear-gradient(90deg, rgba(123,47,255,1) 1px, transparent 1px)", backgroundSize: "60px 60px" }} />
+
+      <motion.div className="absolute left-0 right-0 h-px pointer-events-none"
+        style={{ background: "linear-gradient(90deg, transparent, rgba(0,245,255,0.4), transparent)" }}
+        animate={{ top: ["0%", "100%"] }}
+        transition={{ duration: 8, repeat: Infinity, ease: "linear", repeatDelay: 2 }} />
+
+      <motion.div className="absolute rounded-full pointer-events-none"
+        style={{ width: 600, height: 600, top: "-20%", left: "60%", background: "#7B2FFF", filter: "blur(120px)", opacity: 0.12 }}
+        animate={{ scale: [1, 1.15, 1], x: [0, 30, 0] }} transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }} />
+      <motion.div className="absolute rounded-full pointer-events-none"
+        style={{ width: 400, height: 400, bottom: "0%", left: "-10%", background: "#00F5FF", filter: "blur(100px)", opacity: 0.08 }}
+        animate={{ scale: [1, 1.2, 1], y: [0, -20, 0] }} transition={{ duration: 12, repeat: Infinity, ease: "easeInOut", delay: 2 }} />
+
+      <Particles />
+
+      <div className="relative z-10 max-w-6xl mx-auto px-6 pt-24 pb-20 w-full">
+        <div className="flex flex-col lg:flex-row items-center justify-between gap-12">
+
+          <div className="flex-1 flex flex-col items-start">
+
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={mounted ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.6, delay: 0.1 }}>
+              <div className="inline-flex items-center gap-2 px-4 py-2 mb-8 rounded-full"
+                style={{ background: "rgba(123,47,255,0.15)", border: "1px solid rgba(123,47,255,0.4)", backdropFilter: "blur(8px)" }}>
+                <motion.span animate={{ rotate: [0, 15, -15, 0] }} transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}>
+                  <Sparkles className="w-4 h-4" style={{ color: "#00F5FF" }} />
+                </motion.span>
+                <span className="text-sm font-mono tracking-widest uppercase" style={{ color: "#00F5FF" }}>Available for work</span>
+                <motion.span className="w-2 h-2 rounded-full bg-green-400"
+                  animate={{ scale: [1, 1.4, 1] }} transition={{ duration: 1.5, repeat: Infinity }} />
+              </div>
+            </motion.div>
+
+            <motion.p initial={{ opacity: 0, x: -30 }} animate={mounted ? { opacity: 1, x: 0 } : {}} transition={{ duration: 0.6, delay: 0.2 }}
+              className="text-xl sm:text-2xl font-mono mb-3" style={{ color: "#6B7280" }}>
+              Hello, World! ðŸ‘‹ I&apos;m
+            </motion.p>
+
+            <motion.div initial={{ opacity: 0, y: 40 }} animate={mounted ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.7, delay: 0.3 }}>
+              <h1 className="font-heading font-black leading-[0.9] tracking-tight mb-4">
+                <span className="block text-6xl sm:text-8xl md:text-[7rem]" style={{ color: "#F0F0FF" }}>
+                  Manjeet
+                </span>
+                <span className="block text-5xl sm:text-7xl md:text-[5.5rem]"
+                  style={{ background: "linear-gradient(135deg, #7B2FFF 0%, #00F5FF 60%, #7B2FFF 100%)", backgroundSize: "200%", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
+                  <motion.span style={{ display: "inline-block", backgroundSize: "200%" }}
+                    animate={{ backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"] }}
+                    transition={{ duration: 4, repeat: Infinity, ease: "linear" }}>
+                    Kumar Mishra
+                  </motion.span>
+                </span>
+              </h1>
+            </motion.div>
+
+            <motion.div initial={{ opacity: 0 }} animate={mounted ? { opacity: 1 } : {}} transition={{ duration: 0.6, delay: 0.5 }}
+              className="flex items-center gap-2 mb-6 h-10">
+              <span className="w-2 h-6 rounded-sm" style={{ background: "linear-gradient(180deg,#7B2FFF,#00F5FF)" }} />
+              <p className="text-lg sm:text-xl font-mono" style={{ color: "#F0F0FF" }}>
+                {typed}
+                <motion.span style={{ color: "#00F5FF" }} animate={{ opacity: [1, 0] }} transition={{ duration: 0.5, repeat: Infinity }}>_</motion.span>
+              </p>
+            </motion.div>
+
+            <motion.p initial={{ opacity: 0, y: 20 }} animate={mounted ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.6, delay: 0.55 }}
+              className="text-base sm:text-lg leading-relaxed mb-10 max-w-lg" style={{ color: "#6B7280" }}>
+              {personalInfo.bio}
+            </motion.p>
+
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={mounted ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.6, delay: 0.65 }}
+              className="flex flex-wrap gap-4 mb-10">
+              <Mag onClick={() => go("projects")}
+                className="group relative flex items-center gap-2 px-7 py-3.5 rounded-xl font-semibold text-white overflow-hidden cursor-pointer text-sm">
+                <span className="absolute inset-0 transition-all duration-300"
+                  style={{ background: "linear-gradient(135deg,#7B2FFF,#00F5FF)" }} />
+                <motion.span className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                  style={{ background: "linear-gradient(135deg,#00F5FF,#7B2FFF)" }} />
+                <motion.span className="absolute inset-0 -skew-x-12 bg-gradient-to-r from-transparent via-white/25 to-transparent"
+                  initial={{ x: "-200%" }} whileHover={{ x: "200%" }} transition={{ duration: 0.5 }} />
+                <span className="relative z-10 flex items-center gap-2">
+                  <Zap className="w-4 h-4" /> View My Work
+                </span>
+              </Mag>
+
+              <Mag href={personalInfo.resumeUrl}
+                className="group flex items-center gap-2 px-7 py-3.5 rounded-xl font-semibold text-sm cursor-pointer transition-all duration-300"
+                style={{ border: "1px solid rgba(123,47,255,0.5)", color: "#F0F0FF", background: "rgba(123,47,255,0.08)" }}>
+                <Download className="w-4 h-4 group-hover:text-[#00F5FF] transition-colors" />
+                <span className="group-hover:text-[#00F5FF] transition-colors">Resume</span>
+              </Mag>
+            </motion.div>
+
+            <motion.div initial={{ opacity: 0 }} animate={mounted ? { opacity: 1 } : {}} transition={{ duration: 0.6, delay: 0.75 }}
+              className="flex items-center gap-4">
+              {personalInfo.social.map(s => (
+                <motion.a key={s.label} href={s.url} target="_blank" rel="noreferrer"
+                  className="w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300 group"
+                  style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}
+                  whileHover={{ scale: 1.1, borderColor: "rgba(0,245,255,0.5)", background: "rgba(0,245,255,0.08)" }}>
+                  <s.icon size={16} style={{ color: "#6B7280" }} className="group-hover:text-[#00F5FF] transition-colors" />
+                </motion.a>
+              ))}
+            </motion.div>
+          </div>
+
+          <motion.div initial={{ opacity: 0, x: 60 }} animate={mounted ? { opacity: 1, x: 0 } : {}} transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
+            className="flex-shrink-0 hidden lg:flex flex-col items-center gap-6">
+
+            <div className="relative">
+              <motion.div className="absolute -inset-4 rounded-3xl"
+                style={{ background: "linear-gradient(135deg,#7B2FFF,#00F5FF)", filter: "blur(24px)", opacity: 0.3 }}
+                animate={{ opacity: [0.2, 0.45, 0.2] }} transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }} />
+
+              <div className="relative w-72 rounded-3xl overflow-hidden p-6 flex flex-col items-center gap-5"
+                style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)", backdropFilter: "blur(20px)" }}>
+
+                <div className="relative">
+                  <motion.div className="absolute -inset-[2px] rounded-2xl"
+                    style={{ background: "linear-gradient(135deg,#7B2FFF,#00F5FF)" }}
+                    animate={{ opacity: [0.6, 1, 0.6] }} transition={{ duration: 3, repeat: Infinity }} />
+                  <div className="relative w-32 h-32 rounded-2xl overflow-hidden z-10">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={personalInfo.avatar || ""} alt={personalInfo.name}
+                      className="w-full h-full object-cover"
+                      onError={e => { (e.currentTarget as HTMLImageElement).style.display = "none"; }} />
+                    <div className="absolute inset-0 flex items-center justify-center text-2xl font-heading font-black text-white -z-10"
+                      style={{ background: "linear-gradient(135deg,#7B2FFF,#00F5FF)" }}>
+                      {personalInfo.initials}
+                    </div>
+                  </div>
+                  <span className="absolute bottom-0 right-0 z-20 w-4 h-4 rounded-full bg-green-400 border-2 border-[#050508] animate-pulse" />
+                </div>
+
+                <div className="text-center">
+                  <p className="text-xl font-heading font-black" style={{ color: "#F0F0FF" }}>Manjeet Kumar</p>
+                  <p className="text-xl font-heading font-black mb-1" style={{ color: "#F0F0FF" }}>Mishra</p>
+                  <p className="text-xs font-mono tracking-widest uppercase" style={{ color: "#7B2FFF" }}>Full-Stack Developer</p>
+                </div>
+
+                <div className="w-full h-px" style={{ background: "linear-gradient(90deg,transparent,rgba(123,47,255,0.5),transparent)" }} />
+
+                <div className="w-full grid grid-cols-3 gap-2 text-center">
+                  {[{ v: "3+", l: "Years" }, { v: "40+", l: "Projects" }, { v: "âˆž", l: "Coffees" }].map(s => (
+                    <div key={s.l}>
+                      <p className="text-lg font-heading font-black"
+                        style={{ background: "linear-gradient(135deg,#7B2FFF,#00F5FF)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
+                        {s.v}
+                      </p>
+                      <p className="text-xs font-mono" style={{ color: "#6B7280" }}>{s.l}</p>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="w-full flex items-center justify-center gap-2 py-2 rounded-xl"
+                  style={{ background: "rgba(0,245,255,0.06)", border: "1px solid rgba(0,245,255,0.15)" }}>
+                  <motion.span className="w-1.5 h-1.5 rounded-full bg-green-400"
+                    animate={{ scale: [1, 1.5, 1] }} transition={{ duration: 1.5, repeat: Infinity }} />
+                  <span className="text-xs font-mono" style={{ color: "#00F5FF" }}>Open to opportunities</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex gap-3">
+              <StatBadge icon={Code2} label="Stack" value="Full-Stack" />
+              <StatBadge icon={Globe} label="Remote" value="Available" />
+            </div>
+          </motion.div>
+        </div>
+
+        <motion.div initial={{ opacity: 0 }} animate={mounted ? { opacity: 1 } : {}} transition={{ delay: 1.2 }}
+          className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 cursor-pointer"
+          onClick={() => go("about")}>
+          <span className="text-xs font-mono tracking-widest uppercase" style={{ color: "#6B7280" }}>Scroll Down</span>
+          <motion.div animate={{ y: [0, 8, 0] }} transition={{ duration: 1.6, repeat: Infinity }}
+            className="w-5 h-8 rounded-full flex items-start justify-center pt-1.5"
+            style={{ border: "1.5px solid rgba(123,47,255,0.5)" }}>
+            <motion.div className="w-1 h-2 rounded-full" style={{ background: "#7B2FFF" }}
+              animate={{ scaleY: [1, 0.4, 1], opacity: [1, 0.4, 1] }} transition={{ duration: 1.6, repeat: Infinity }} />
+          </motion.div>
+          <ArrowDown className="w-4 h-4 animate-bounce" style={{ color: "#7B2FFF" }} />
+        </motion.div>
+      </div>
+
+      <div className="absolute bottom-0 left-0 right-0 h-40 pointer-events-none"
+        style={{ background: "linear-gradient(to top, #0a0a0f, transparent)" }} />
+    </section>
+  );
+}
+
+===== C:\Users\DELL\OneDrive\Desktop\portfolio\portfolio\components\sections\Projects.tsx =====
+
+"use client";
+
+import { useRef, useState } from "react";
+import { motion, useInView, useMotionValue, useSpring, useTransform } from "framer-motion";
+import { ExternalLink, ArrowUpRight, Layers } from "lucide-react";
+import { FiGithub } from "react-icons/fi";
+import { projects } from "@/lib/data";
+
+const GRAD = "linear-gradient(135deg, #7B2FFF 0%, #00F5FF 100%)";
+
+function FadeUp({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { once: true, margin: "-60px" });
+  return (
+    <motion.div ref={ref}
+      initial={{ opacity: 0, y: 30 }}
+      animate={inView ? { opacity: 1, y: 0 } : {}}
+      transition={{ duration: 0.6, ease: "easeOut", delay }}
+    >{children}</motion.div>
+  );
+}
+
+// â”€â”€ Featured card with 3D tilt â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+function FeaturedCard({ project, index }: { project: typeof projects[0]; index: number }) {
+  const [hovered, setHovered] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+  const rotX = useSpring(useTransform(y, [-0.5, 0.5], [5, -5]), { stiffness: 200, damping: 20 });
+  const rotY = useSpring(useTransform(x, [-0.5, 0.5], [-5, 5]), { stiffness: 200, damping: 20 });
+
+  const isEven = index % 2 === 0;
+
+  return (
+    <FadeUp delay={index * 0.12}>
+      <motion.div
+        ref={ref}
+        onMouseMove={(e) => {
+          const r = ref.current!.getBoundingClientRect();
+          x.set((e.clientX - r.left) / r.width - 0.5);
+          y.set((e.clientY - r.top) / r.height - 0.5);
+        }}
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => { setHovered(false); x.set(0); y.set(0); }}
+        style={{
+          rotateX: rotX, rotateY: rotY,
+          transformPerspective: 1000,
+          borderRadius: "1.5rem",
+          overflow: "hidden",
+          background: "rgba(255,255,255,0.04)",
+          backdropFilter: "blur(20px)",
+          border: `1px solid ${hovered ? "rgba(123,47,255,0.6)" : "rgba(255,255,255,0.07)"}`,
+          boxShadow: hovered ? "0 20px 60px rgba(0,0,0,0.5), 0 0 40px rgba(123,47,255,0.12)" : "0 4px 24px rgba(0,0,0,0.3)",
+          transition: "border-color 0.3s, box-shadow 0.3s",
+        }}
+      >
+        {/* top neon line */}
+        <div style={{ height: 2, background: hovered ? GRAD : "rgba(123,47,255,0.3)", transition: "background 0.3s" }} />
+
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", minHeight: 320 }}>
+
+          {/* Image panel */}
+          <div style={{
+            order: isEven ? 2 : 1,
+            position: "relative", overflow: "hidden",
+            background: "rgba(123,47,255,0.05)",
+            minHeight: 280,
+            display: "flex", alignItems: "center", justifyContent: "center",
+          }}>
+            {/* grid overlay */}
+            <div style={{
+              position: "absolute", inset: 0,
+              backgroundImage: "linear-gradient(rgba(123,47,255,0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(123,47,255,0.08) 1px, transparent 1px)",
+              backgroundSize: "30px 30px",
+            }} />
+           <img
+  src={project.image}
+  alt={project.title}
+  style={{
+    position: "absolute", inset: 0,
+    width: "100%", height: "100%",
+    objectFit: "cover", objectPosition: "top",
+    opacity: 0.9,
+    transition: "transform 0.5s ease",
+    transform: hovered ? "scale(1.05)" : "scale(1)",
+  }}
+  onError={(e) => { (e.target as HTMLImageElement).style.opacity = "0"; }}
+/>
+<div style={{ position: "absolute", inset: 0, background: "linear-gradient(135deg, rgba(10,10,15,0.2) 0%, transparent 60%)", pointerEvents: "none" }} />
+
+            {/* Hover overlay with links */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: hovered ? 1 : 0 }}
+              transition={{ duration: 0.2 }}
+              style={{
+                position: "absolute", inset: 0,
+                background: "rgba(10,10,15,0.88)",
+                backdropFilter: "blur(4px)",
+                display: "flex", alignItems: "center", justifyContent: "center", gap: "0.75rem",
+              }}
+            >
+              {project.liveUrl && (
+                <a href={project.liveUrl} target="_blank" rel="noopener noreferrer" style={{
+                  display: "flex", alignItems: "center", gap: "0.4rem",
+                  padding: "0.6rem 1.25rem", borderRadius: "0.6rem",
+                  background: GRAD, color: "#fff",
+                  fontFamily: "JetBrains Mono, monospace", fontSize: "0.8rem",
+                  textDecoration: "none", fontWeight: 500,
+                }}>
+                  <ExternalLink size={13} /> Live
+                </a>
+              )}
+              {project.githubUrl && (
+                <a href={project.githubUrl} target="_blank" rel="noopener noreferrer" style={{
+                  display: "flex", alignItems: "center", gap: "0.4rem",
+                  padding: "0.6rem 1.25rem", borderRadius: "0.6rem",
+                  background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.15)",
+                  color: "#F0F0FF",
+                  fontFamily: "JetBrains Mono, monospace", fontSize: "0.8rem",
+                  textDecoration: "none",
+                }}>
+                  <FiGithub size={13} /> Code
+                </a>
+              )}
+            </motion.div>
+          </div>
+
+          {/* Text panel */}
+          <div style={{
+            order: isEven ? 1 : 2,
+            padding: "2.5rem",
+            display: "flex", flexDirection: "column", justifyContent: "center",
+          }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "1rem" }}>
+              <span style={{ fontFamily: "JetBrains Mono, monospace", fontSize: "0.68rem", color: project.accentColor, letterSpacing: "0.12em" }}>FEATURED PROJECT</span>
+              <span style={{ color: project.accentColor, fontSize: "0.75rem" }}>â˜…</span>
+            </div>
+
+            <h3 style={{ fontFamily: "Syne, sans-serif", fontWeight: 800, fontSize: "1.6rem", color: "#F0F0FF", lineHeight: 1.15, marginBottom: "0.875rem" }}>
+              {project.title}
+            </h3>
+            <p style={{ fontSize: "0.875rem", color: "#6B7280", lineHeight: 1.75, marginBottom: "1.5rem" }}>
+              {project.description}
+            </p>
+
+            {/* Tags */}
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "0.4rem", marginBottom: "1.75rem" }}>
+              {project.tags.map((tag) => (
+                <span key={tag} style={{
+                  padding: "0.28rem 0.7rem",
+                  background: "rgba(123,47,255,0.1)",
+                  border: "1px solid rgba(0,245,255,0.2)",
+                  borderRadius: "2rem",
+                  fontFamily: "JetBrains Mono, monospace", fontSize: "0.68rem",
+                  color: "#00F5FF",
+                }}>{tag}</span>
+              ))}
+            </div>
+
+            {/* Links */}
+            <div style={{ display: "flex", alignItems: "center", gap: "1.25rem" }}>
+              {project.liveUrl && (
+                <a href={project.liveUrl} target="_blank" rel="noopener noreferrer" style={{
+                  display: "flex", alignItems: "center", gap: "0.35rem",
+                  fontFamily: "JetBrains Mono, monospace", fontSize: "0.78rem",
+                  color: "#00F5FF", textDecoration: "none", fontWeight: 500,
+                }}>
+                  <ExternalLink size={13} /> Live Demo <ArrowUpRight size={12} />
+                </a>
+              )}
+              {project.githubUrl && (
+                <a href={project.githubUrl} target="_blank" rel="noopener noreferrer" style={{
+                  display: "flex", alignItems: "center", gap: "0.35rem",
+                  fontFamily: "JetBrains Mono, monospace", fontSize: "0.78rem",
+                  color: "#6B7280", textDecoration: "none",
+                }}>
+                  <FiGithub size={13} /> View Code
+                </a>
+              )}
+              <span style={{ marginLeft: "auto", fontFamily: "JetBrains Mono, monospace", fontSize: "0.72rem", color: "rgba(107,114,128,0.5)" }}>
+                {project.year}
+              </span>
+            </div>
+          </div>
+        </div>
+      </motion.div>
+    </FadeUp>
+  );
+}
+
+// â”€â”€ Small card â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+function SmallCard({ project, index }: { project: typeof projects[0]; index: number }) {
+  const [hovered, setHovered] = useState(false);
+  return (
+    <FadeUp delay={0.1 + index * 0.08}>
+      <motion.div
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+        whileHover={{ y: -6 }}
+        transition={{ duration: 0.25 }}
+        style={{
+          background: "rgba(255,255,255,0.04)",
+          backdropFilter: "blur(20px)",
+          border: `1px solid ${hovered ? "rgba(123,47,255,0.5)" : "rgba(255,255,255,0.07)"}`,
+          borderRadius: "1.25rem",
+          padding: "1.75rem",
+          height: "100%",
+          position: "relative", overflow: "hidden",
+          boxShadow: hovered ? "0 12px 40px rgba(0,0,0,0.4), 0 0 20px rgba(123,47,255,0.1)" : "none",
+          transition: "border-color 0.3s, box-shadow 0.3s",
+          cursor: "default",
+        }}
+      >
+        {/* top accent bar */}
+        <motion.div style={{
+          position: "absolute", top: 0, left: 0, right: 0, height: 2,
+          background: `linear-gradient(90deg, ${project.accentColor}, transparent)`,
+          transformOrigin: "left",
+        }}
+          initial={{ scaleX: 0 }}
+          animate={{ scaleX: hovered ? 1 : 0 }}
+          transition={{ duration: 0.35 }}
+        />
+
+        {/* Header row */}
+        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: "1.25rem" }}>
+          <div style={{ width: 44, height: 44, borderRadius: "0.875rem", display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(123,47,255,0.12)", border: "1px solid rgba(123,47,255,0.2)" }}>
+            <Layers size={20} style={{ color: "#7B2FFF" }} />
+          </div>
+          <div style={{ display: "flex", gap: "0.5rem" }}>
+            {project.githubUrl && (
+              <a href={project.githubUrl} target="_blank" rel="noopener noreferrer" style={{ width: 32, height: 32, display: "flex", alignItems: "center", justifyContent: "center", borderRadius: "0.5rem", background: hovered ? "rgba(255,255,255,0.08)" : "transparent", color: "#6B7280", textDecoration: "none", transition: "all 0.2s" }}>
+                <FiGithub size={15} />
+              </a>
+            )}
+            {project.liveUrl && (
+              <a href={project.liveUrl} target="_blank" rel="noopener noreferrer" style={{ width: 32, height: 32, display: "flex", alignItems: "center", justifyContent: "center", borderRadius: "0.5rem", background: hovered ? "rgba(0,245,255,0.1)" : "transparent", color: hovered ? "#00F5FF" : "#6B7280", textDecoration: "none", transition: "all 0.2s" }}>
+                <ExternalLink size={15} />
+              </a>
+            )}
+          </div>
+        </div>
+
+        <h3 style={{ fontFamily: "Syne, sans-serif", fontWeight: 700, fontSize: "1.05rem", color: "#F0F0FF", marginBottom: "0.6rem" }}>
+          {project.title}
+        </h3>
+        <p style={{ fontSize: "0.82rem", color: "#6B7280", lineHeight: 1.7, marginBottom: "1.25rem" }}>
+          {project.description}
+        </p>
+
+        <div style={{ display: "flex", flexWrap: "wrap", gap: "0.35rem" }}>
+          {project.tags.slice(0, 3).map((tag) => (
+            <span key={tag} style={{ padding: "0.22rem 0.6rem", background: "rgba(123,47,255,0.1)", border: "1px solid rgba(0,245,255,0.15)", borderRadius: "2rem", fontFamily: "JetBrains Mono, monospace", fontSize: "0.65rem", color: "#00F5FF" }}>{tag}</span>
+          ))}
+          {project.tags.length > 3 && (
+            <span style={{ fontSize: "0.65rem", color: "#6B7280", padding: "0.22rem 0.4rem", alignSelf: "center" }}>+{project.tags.length - 3}</span>
+          )}
+        </div>
+      </motion.div>
+    </FadeUp>
+  );
+}
+
+// â”€â”€ Main â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+export default function Projects() {
+  const featured = projects.filter((p) => p.featured);
+  const others   = projects.filter((p) => !p.featured);
+
+  return (
+    <section id="projects" style={{ padding: "7rem 0", position: "relative", overflow: "hidden" }}>
+
+      {/* Ambient orb */}
+      <div style={{ position: "absolute", width: 500, height: 500, borderRadius: "50%", top: "20%", right: "-15%", background: "rgba(0,245,255,0.06)", filter: "blur(100px)", pointerEvents: "none" }} />
+
+      <div style={{ maxWidth: 1100, margin: "0 auto", padding: "0 1.5rem" }}>
+
+        {/* Header */}
+        <FadeUp>
+          <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "0.75rem" }}>
+            <div style={{ width: "2rem", height: "1px", background: "#00F5FF", boxShadow: "0 0 8px #00F5FF" }} />
+            <span style={{ fontFamily: "JetBrains Mono, monospace", fontSize: "0.7rem", letterSpacing: "0.15em", color: "#00F5FF", textTransform: "uppercase" }}>Projects</span>
+          </div>
+          <h2 style={{ fontFamily: "Syne, sans-serif", fontWeight: 800, fontSize: "clamp(2rem, 4vw, 3rem)", color: "#F0F0FF", lineHeight: 1.1, marginBottom: "1rem" }}>
+            Things I've{" "}
+            <span style={{ background: GRAD, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>Built</span>
+          </h2>
+          <p style={{ fontSize: "0.9rem", color: "#6B7280", maxWidth: 480, lineHeight: 1.75, marginBottom: "3.5rem" }}>
+            A selection of projects I've crafted â€” from full-stack SaaS apps to open-source tools.
+          </p>
+        </FadeUp>
+
+        {/* Featured projects */}
+        <div style={{ display: "flex", flexDirection: "column", gap: "1.75rem", marginBottom: "4rem" }}>
+          {featured.map((p, i) => <FeaturedCard key={p.id} project={p} index={i} />)}
+        </div>
+
+        {/* Other projects */}
+        {others.length > 0 && (
+          <>
+            <FadeUp>
+              <div style={{ display: "flex", alignItems: "center", gap: "1rem", marginBottom: "2rem" }}>
+                <div style={{ flex: 1, height: 1, background: "linear-gradient(90deg, transparent, rgba(123,47,255,0.5), rgba(0,245,255,0.5), transparent)" }} />
+                <span style={{ fontFamily: "JetBrains Mono, monospace", fontSize: "0.68rem", color: "#6B7280", letterSpacing: "0.12em", whiteSpace: "nowrap" }}>OTHER PROJECTS</span>
+                <div style={{ flex: 1, height: 1, background: "linear-gradient(90deg, transparent, rgba(123,47,255,0.5), rgba(0,245,255,0.5), transparent)" }} />
+              </div>
+            </FadeUp>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "1.25rem", marginBottom: "3.5rem" }}>
+              {others.map((p, i) => <SmallCard key={p.id} project={p} index={i} />)}
+            </div>
+          </>
+        )}
+
+        {/* GitHub CTA */}
+        <FadeUp>
+          <div style={{ display: "flex", justifyContent: "center" }}>
+            <a href="https://github.com/manjeet0505" target="_blank" rel="noopener noreferrer" style={{
+              display: "inline-flex", alignItems: "center", gap: "0.5rem",
+              padding: "0.8rem 1.75rem",
+              background: "transparent",
+              color: "#F0F0FF",
+              fontFamily: "Syne, sans-serif", fontWeight: 600, fontSize: "0.9rem",
+              border: "1px solid rgba(123,47,255,0.4)",
+              borderRadius: "0.75rem",
+              textDecoration: "none",
+              transition: "all 0.3s",
+            }}
+              onMouseEnter={(e) => {
+                (e.currentTarget as HTMLAnchorElement).style.background = "rgba(123,47,255,0.1)";
+                (e.currentTarget as HTMLAnchorElement).style.borderColor = "#7B2FFF";
+                (e.currentTarget as HTMLAnchorElement).style.boxShadow = "0 0 20px rgba(123,47,255,0.3)";
+              }}
+              onMouseLeave={(e) => {
+                (e.currentTarget as HTMLAnchorElement).style.background = "transparent";
+                (e.currentTarget as HTMLAnchorElement).style.borderColor = "rgba(123,47,255,0.4)";
+                (e.currentTarget as HTMLAnchorElement).style.boxShadow = "none";
+              }}
+            >
+              <FiGithub size={16} />
+              View All on GitHub
+              <ArrowUpRight size={15} />
+            </a>
+          </div>
+        </FadeUp>
+
+      </div>
+    </section>
+  );
+}
+
+===== C:\Users\DELL\OneDrive\Desktop\portfolio\portfolio\components\sections\Skills.tsx =====
+
+"use client";
+
+import { useRef, useState } from "react";
+import { motion, useInView, AnimatePresence } from "framer-motion";
+import {
+  SiReact, SiNextdotjs, SiTypescript, SiTailwindcss, SiFramer,
+  SiNodedotjs, SiExpress, SiPostgresql, SiMongodb, SiPrisma,
+  SiGit, SiDocker, SiVercel, SiFigma, SiOpenai, SiHuggingface,
+} from "react-icons/si";
+import { VscVscode } from "react-icons/vsc";
+
+const GRAD = "linear-gradient(135deg, #7B2FFF 0%, #00F5FF 100%)";
+
+const TABS = ["All", "Frontend", "Backend", "Tools & DevOps", "AI & LLM"] as const;
+type Tab = typeof TABS[number];
+
+const PROFICIENCY = ["Expert", "Proficient", "Learning"] as const;
+type Prof = typeof PROFICIENCY[number];
+
+const PROF_STYLE: Record<Prof, { bg: string; border: string; color: string }> = {
+  Expert:     { bg: "rgba(123,47,255,0.12)", border: "rgba(123,47,255,0.4)", color: "#a78bfa" },
+  Proficient: { bg: "rgba(0,245,255,0.08)",  border: "rgba(0,245,255,0.3)",  color: "#00F5FF" },
+  Learning:   { bg: "rgba(255,47,190,0.08)", border: "rgba(255,47,190,0.3)", color: "#FF2FBE" },
+};
+
+type Skill = {
+  name: string;
+  icon?: React.ElementType; // react-icon
+  abbr?: string;            // text/emoji fallback for tools without react-icons
+  color: string;
+  category: "Frontend" | "Backend" | "Tools & DevOps" | "AI & LLM";
+  prof: Prof;
+};
+
+const SKILLS: Skill[] = [
+  // â”€â”€ Frontend â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  { name: "React",         icon: SiReact,       color: "#61DAFB", category: "Frontend",       prof: "Expert"     },
+  { name: "Next.js",       icon: SiNextdotjs,   color: "#ffffff", category: "Frontend",       prof: "Expert"     },
+  { name: "TypeScript",    icon: SiTypescript,  color: "#3178C6", category: "Frontend",       prof: "Expert"     },
+  { name: "Tailwind CSS",  icon: SiTailwindcss, color: "#38BDF8", category: "Frontend",       prof: "Expert"     },
+  { name: "Framer Motion", icon: SiFramer,      color: "#FF4D9E", category: "Frontend",       prof: "Proficient" },
+  // â”€â”€ Backend â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  { name: "Node.js",       icon: SiNodedotjs,   color: "#68A063", category: "Backend",        prof: "Expert"     },
+  { name: "Express",       icon: SiExpress,     color: "#ffffff", category: "Backend",        prof: "Expert"     },
+  { name: "PostgreSQL",    icon: SiPostgresql,  color: "#336791", category: "Backend",        prof: "Proficient" },
+  { name: "MongoDB",       icon: SiMongodb,     color: "#4DB33D", category: "Backend",        prof: "Proficient" },
+  { name: "Prisma",        icon: SiPrisma,      color: "#A5F3FC", category: "Backend",        prof: "Proficient" },
+  // â”€â”€ Tools & DevOps â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  { name: "Git",           icon: SiGit,         color: "#F05032", category: "Tools & DevOps", prof: "Expert"     },
+  { name: "Docker",        icon: SiDocker,      color: "#2496ED", category: "Tools & DevOps", prof: "Proficient" },
+  { name: "Vercel",        icon: SiVercel,      color: "#ffffff", category: "Tools & DevOps", prof: "Expert"     },
+  { name: "Figma",         icon: SiFigma,       color: "#F24E1E", category: "Tools & DevOps", prof: "Proficient" },
+  { name: "VS Code",       icon: VscVscode,     color: "#007ACC", category: "Tools & DevOps", prof: "Expert"     },
+  // â”€â”€ AI & LLM â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  { name: "OpenAI",        icon: SiOpenai,      color: "#ffffff", category: "AI & LLM",       prof: "Expert"     },
+  { name: "Claude AI",     abbr: "âœ¦",           color: "#CC785C", category: "AI & LLM",       prof: "Proficient" },
+  { name: "LangChain",     abbr: "ðŸ¦œ",          color: "#1C7C54", category: "AI & LLM",       prof: "Proficient" },
+  { name: "LangSmith",     abbr: "LS",          color: "#F4A261", category: "AI & LLM",       prof: "Learning"   },
+  { name: "RAG",           abbr: "RAG",         color: "#9B5DE5", category: "AI & LLM",       prof: "Proficient" },
+  { name: "Hugging Face",  icon: SiHuggingface, color: "#FFD21E", category: "AI & LLM",       prof: "Learning"   },
+  { name: "Vector DB",     abbr: "VDB",         color: "#00B4D8", category: "AI & LLM",       prof: "Learning"   },
+  { name: "Prompt Eng.",   abbr: "PE",          color: "#7B2FFF", category: "AI & LLM",       prof: "Proficient" },
+];
+
+// â”€â”€ Renders icon or styled text abbr â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+function SkillIcon({ skill, hovered }: { skill: Skill; hovered: boolean }) {
+  if (skill.icon) {
+    const Icon = skill.icon;
+    return (
+      <Icon style={{
+        fontSize: "1.75rem", color: skill.color,
+        filter: hovered ? `drop-shadow(0 0 8px ${skill.color}80)` : "none",
+        transition: "filter 0.3s",
+      }} />
+    );
+  }
+  const isEmoji  = skill.abbr && [...skill.abbr].length === 1 && skill.abbr.charCodeAt(0) > 255;
+  const isSymbol = skill.abbr === "âœ¦";
+  return (
+    <span style={{
+      fontSize: isEmoji || isSymbol ? "1.6rem" : skill.abbr!.length <= 2 ? "1.1rem" : "0.72rem",
+      fontWeight: 800,
+      fontFamily: "JetBrains Mono, monospace",
+      color: skill.color,
+      letterSpacing: "-0.02em",
+      filter: hovered ? `drop-shadow(0 0 8px ${skill.color}90)` : "none",
+      transition: "filter 0.3s",
+      lineHeight: 1,
+    }}>
+      {skill.abbr}
+    </span>
+  );
+}
+
+// â”€â”€ Skill card â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+function SkillCard({ skill, delay }: { skill: Skill; delay: number }) {
+  const [hovered, setHovered] = useState(false);
+  const prof  = PROF_STYLE[skill.prof];
+  const isAI  = skill.category === "AI & LLM";
+
+  return (
+    <motion.div
+      layout
+      initial={{ opacity: 0, scale: 0.88 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.88 }}
+      transition={{ duration: 0.35, delay, ease: "easeOut" }}
+      whileHover={{ y: -6, scale: 1.04 }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        position: "relative",
+        background: hovered
+          ? `${skill.color}0d`
+          : isAI ? "rgba(255,77,158,0.03)" : "rgba(255,255,255,0.03)",
+        border: `1px solid ${
+          hovered
+            ? `${skill.color}50`
+            : isAI ? "rgba(255,77,158,0.12)" : "rgba(255,255,255,0.07)"
+        }`,
+        borderRadius: "1.25rem",
+        padding: "1.5rem 1.25rem",
+        display: "flex", flexDirection: "column", alignItems: "center",
+        gap: "0.875rem",
+        cursor: "default",
+        overflow: "hidden",
+        transition: "background 0.3s, border-color 0.3s",
+        boxShadow: hovered ? `0 12px 40px ${skill.color}18` : "none",
+      }}
+    >
+      {/* AI pill marker */}
+      {isAI && (
+        <div style={{
+          position: "absolute", top: 8, right: 8,
+          padding: "0.1rem 0.4rem",
+          background: "rgba(255,77,158,0.15)",
+          border: "1px solid rgba(255,77,158,0.25)",
+          borderRadius: "4px",
+          fontFamily: "JetBrains Mono, monospace",
+          fontSize: "0.48rem", color: "#FF4D9E",
+          letterSpacing: "0.06em",
+        }}>AI</div>
+      )}
+
+      {/* Corner glow */}
+      {hovered && (
+        <div style={{
+          position: "absolute", top: 0, right: 0, width: 80, height: 80,
+          background: `radial-gradient(circle at top right, ${skill.color}20, transparent 70%)`,
+          pointerEvents: "none", borderRadius: "0 1.25rem 0 0",
+        }} />
+      )}
+
+      {/* Icon box */}
+      <div style={{
+        width: 56, height: 56, borderRadius: "1rem",
+        background: hovered ? `${skill.color}15` : "rgba(255,255,255,0.05)",
+        border: `1px solid ${hovered ? `${skill.color}35` : "rgba(255,255,255,0.08)"}`,
+        display: "flex", alignItems: "center", justifyContent: "center",
+        transition: "all 0.3s",
+        boxShadow: hovered ? `0 0 20px ${skill.color}30` : "none",
+      }}>
+        <SkillIcon skill={skill} hovered={hovered} />
+      </div>
+
+      {/* Name */}
+      <p style={{
+        fontFamily: "Syne, sans-serif", fontWeight: 700,
+        fontSize: "0.85rem",
+        color: hovered ? "#F0F0FF" : "#C0C0D8",
+        textAlign: "center", transition: "color 0.3s", lineHeight: 1.25,
+      }}>
+        {skill.name}
+      </p>
+
+      {/* Proficiency badge */}
+      <span style={{
+        padding: "0.2rem 0.6rem",
+        background: prof.bg, border: `1px solid ${prof.border}`,
+        borderRadius: "2rem",
+        fontFamily: "JetBrains Mono, monospace",
+        fontSize: "0.6rem", color: prof.color, letterSpacing: "0.05em",
+      }}>
+        {skill.prof}
+      </span>
+    </motion.div>
+  );
+}
+
+// â”€â”€ Main export â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+export default function Skills() {
+  const [activeTab, setActiveTab] = useState<Tab>("All");
+  const ref    = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { once: true, margin: "-80px" });
+
+  const filtered        = activeTab === "All" ? SKILLS : SKILLS.filter((s) => s.category === activeTab);
+  const expertCount     = SKILLS.filter((s) => s.prof === "Expert").length;
+  const proficientCount = SKILLS.filter((s) => s.prof === "Proficient").length;
+  const aiCount         = SKILLS.filter((s) => s.category === "AI & LLM").length;
+
+  return (
+    <section id="skills" ref={ref} style={{ padding: "7rem 0", position: "relative", overflow: "hidden" }}>
+
+      {/* Orbs */}
+      <div style={{ position: "absolute", top: "10%", left: "50%", transform: "translateX(-50%)", width: 700, height: 400, borderRadius: "50%", background: "radial-gradient(ellipse, rgba(123,47,255,0.06) 0%, transparent 70%)", pointerEvents: "none" }} />
+      <div style={{ position: "absolute", bottom: "5%", right: "-5%", width: 350, height: 350, borderRadius: "50%", background: "rgba(0,245,255,0.04)", filter: "blur(80px)", pointerEvents: "none" }} />
+
+      <div style={{ maxWidth: 1100, margin: "0 auto", padding: "0 1.5rem" }}>
+
+        {/* Header */}
+        <motion.div initial={{ opacity: 0, y: 30 }} animate={inView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.6 }} style={{ marginBottom: "3.5rem" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "0.75rem" }}>
+            <div style={{ width: "2rem", height: "1px", background: "#00F5FF", boxShadow: "0 0 8px #00F5FF" }} />
+            <span style={{ fontFamily: "JetBrains Mono, monospace", fontSize: "0.7rem", letterSpacing: "0.15em", color: "#00F5FF", textTransform: "uppercase" as const }}>Tech Stack</span>
+          </div>
+          <h2 style={{ fontFamily: "Syne, sans-serif", fontWeight: 800, fontSize: "clamp(2rem, 4vw, 3rem)", color: "#F0F0FF", lineHeight: 1.1, marginBottom: "1rem" }}>
+            Tools I{" "}
+            <span style={{ background: GRAD, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>master</span>
+            {" "}every day.
+          </h2>
+          <p style={{ fontSize: "0.9rem", color: "#6B7280", maxWidth: 480, lineHeight: 1.75 }}>
+            A curated set of technologies I use to build fast, scalable, and AI-powered products.
+          </p>
+        </motion.div>
+
+        {/* Summary chips */}
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={inView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.5, delay: 0.1 }} style={{ display: "flex", flexWrap: "wrap", gap: "0.75rem", marginBottom: "2.5rem" }}>
+          {[
+            { label: `${SKILLS.length} Technologies`, color: "#7B2FFF", border: "rgba(123,47,255,0.3)", bg: "rgba(123,47,255,0.1)"  },
+            { label: `${expertCount} Expert`,          color: "#a78bfa", border: "rgba(123,47,255,0.3)", bg: "rgba(123,47,255,0.08)" },
+            { label: `${proficientCount} Proficient`,  color: "#00F5FF", border: "rgba(0,245,255,0.25)", bg: "rgba(0,245,255,0.07)"  },
+            { label: `${aiCount} AI / LLM Tools`,      color: "#FF4D9E", border: "rgba(255,77,158,0.3)", bg: "rgba(255,77,158,0.08)" },
+          ].map((chip) => (
+            <span key={chip.label} style={{ padding: "0.35rem 0.9rem", background: chip.bg, border: `1px solid ${chip.border}`, borderRadius: "2rem", fontFamily: "JetBrains Mono, monospace", fontSize: "0.72rem", color: chip.color }}>
+              {chip.label}
+            </span>
+          ))}
+        </motion.div>
+
+        {/* Filter tabs */}
+        <motion.div initial={{ opacity: 0, y: 16 }} animate={inView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.5, delay: 0.15 }} style={{ display: "flex", gap: "0.5rem", marginBottom: "2rem", flexWrap: "wrap" }}>
+          {TABS.map((tab) => {
+            const isAITab = tab === "AI & LLM";
+            const isActive = activeTab === tab;
+            return (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                suppressHydrationWarning
+                style={{
+                  padding: "0.55rem 1.25rem", borderRadius: "0.75rem",
+                  fontFamily: "Syne, sans-serif", fontWeight: 600, fontSize: "0.85rem",
+                  cursor: "pointer", transition: "all 0.25s",
+                  background: isActive
+                    ? isAITab ? "linear-gradient(135deg, #FF4D9E, #7B2FFF)" : "linear-gradient(135deg, #7B2FFF, #5b1fd4)"
+                    : "rgba(255,255,255,0.04)",
+                  border: `1px solid ${isActive ? "transparent" : isAITab ? "rgba(255,77,158,0.2)" : "rgba(255,255,255,0.08)"}`,
+                  color: isActive ? "#fff" : isAITab ? "#FF4D9E" : "#A0A0B8",
+                  boxShadow: isActive ? (isAITab ? "0 0 20px rgba(255,77,158,0.3)" : "0 0 20px rgba(123,47,255,0.35)") : "none",
+                }}
+              >
+                {isAITab ? "âœ¦ AI & LLM" : tab}
+              </button>
+            );
+          })}
+        </motion.div>
+
+        {/* AI callout banner */}
+        <AnimatePresence>
+          {(activeTab === "AI & LLM" || activeTab === "All") && (
+            <motion.div
+              key="ai-callout"
+              initial={{ opacity: 0, y: -8, height: 0 }}
+              animate={{ opacity: 1, y: 0, height: "auto" }}
+              exit={{ opacity: 0, y: -8, height: 0 }}
+              transition={{ duration: 0.3 }}
+              style={{ marginBottom: "1.5rem", padding: "0.9rem 1.25rem", background: "linear-gradient(135deg, rgba(255,77,158,0.06), rgba(123,47,255,0.08))", border: "1px solid rgba(255,77,158,0.15)", borderRadius: "1rem", display: "flex", alignItems: "center", gap: "0.75rem" }}
+            >
+              <span style={{ fontSize: "1.1rem", flexShrink: 0 }}>ðŸ¤–</span>
+              <p style={{ fontFamily: "Inter, sans-serif", fontSize: "0.82rem", color: "#9CA3AF", lineHeight: 1.6, margin: 0 }}>
+                <span style={{ color: "#FF4D9E", fontWeight: 600 }}>AI / LLM stack</span> â€” Building intelligent apps with LLMs, RAG pipelines, AI agents, and vector search.
+              </p>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Grid */}
+        <motion.div layout style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))", gap: "1rem", marginBottom: "4rem" }}>
+          <AnimatePresence mode="popLayout">
+            {filtered.map((skill, i) => (
+              <SkillCard key={skill.name} skill={skill} delay={i * 0.04} />
+            ))}
+          </AnimatePresence>
+        </motion.div>
+
+      </div>
+
+      {/* Marquee */}
+      <div style={{ overflow: "hidden", padding: "1.25rem 0", borderTop: "1px solid rgba(255,255,255,0.05)", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
+        <motion.div animate={{ x: ["0%", "-50%"] }} transition={{ duration: 35, repeat: Infinity, ease: "linear" }} style={{ display: "flex", gap: "1rem", width: "max-content" }}>
+          {[...SKILLS, ...SKILLS].map((skill, i) => (
+            <div key={`m-${i}`} style={{
+              display: "flex", alignItems: "center", gap: "0.5rem",
+              padding: "0.4rem 1rem",
+              background: skill.category === "AI & LLM" ? "rgba(255,77,158,0.05)" : "rgba(255,255,255,0.03)",
+              border: `1px solid ${skill.category === "AI & LLM" ? "rgba(255,77,158,0.15)" : "rgba(255,255,255,0.06)"}`,
+              borderRadius: "999px", whiteSpace: "nowrap" as const, flexShrink: 0,
+            }}>
+              {skill.icon ? (
+                <skill.icon style={{ color: skill.color, fontSize: "0.9rem" }} />
+              ) : (
+                <span style={{ fontSize: "0.7rem", fontWeight: 700, color: skill.color, fontFamily: "JetBrains Mono, monospace", lineHeight: 1 }}>
+                  {skill.abbr}
+                </span>
+              )}
+              <span style={{ fontFamily: "Inter, sans-serif", fontSize: "0.78rem", color: "#6B7280" }}>
+                {skill.name}
+              </span>
+            </div>
+          ))}
+        </motion.div>
+      </div>
+
+    </section>
+  );
+}
+
+===== C:\Users\DELL\OneDrive\Desktop\portfolio\portfolio\lib\data.ts =====
+
+import { FiGithub, FiLinkedin, FiTwitter, FiMail } from "react-icons/fi";
+
+export const personalInfo = {
+  name: "Manjeet Kumar Mishra",
+  initials: "MKM",
+  tagline: "Full-Stack Developer",
+  bio: "I craft fast, accessible, and visually stunning web experiences. From pixel-perfect UIs to scalable backend systems â€” I bring ideas to life with clean code and creative thinking.",
+  email: "mishramanjeet26@gmail.com",
+  location: "India",
+  resumeUrl: "/Manjeet.pdf",
+  avatar: "/profile.jpg",
+
+  social: [
+    { label: "GitHub",   url: "https://github.com/manjeet0505",   icon: FiGithub   },
+    { label: "LinkedIn", url: "https://www.linkedin.com/in/manjeet-mishra-175705260/", icon: FiLinkedin },
+    { label: "Twitter",  url: "https://x.com/mishramanjeet26",  icon: FiTwitter  },
+    { label: "Email",    url: "mailto:mishramanjeet26@gmail.com", icon: FiMail },
+  ],
+};
+
+export const personal = personalInfo;
+
+export const navLinks = [
+  { label: "Home",       href: "#home"       },
+  { label: "About",      href: "#about"      },
+  { label: "Skills",     href: "#skills"     },
+  { label: "Projects",   href: "#projects"   },
+  { label: "Experience", href: "#experience" },
+  { label: "Contact",    href: "#contact"    },
+];
+
+export const roles = [
+  "Full-Stack Developer",
+  "React Specialist",
+  "Next.js Engineer",
+  "UI Craftsman",
+  "Problem Solver",
+];
+ 
+// â”€â”€ Stats â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+export const stats = [
+  { value: "3+",  label: "Years Experience" },
+  { value: "10+", label: "Projects Built"   },
+  { value: "10+", label: "Happy Clients"    },
+  { value: "âˆž",   label: "Coffees Drunk"    },
+];
+ 
+// â”€â”€ Skills â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+export type Skill = {
+  name: string;
+  icon: string;
+  color: string;
+  level: number; // 0â€“100
+};
+ 
+export type SkillGroup = {
+  category: string;
+  skills: Skill[];
+};
+ 
+export const skillGroups: SkillGroup[] = [
+  {
+    category: "Frontend",
+    skills: [
+      { name: "React",         icon: "react",      color: "#61DAFB", level: 92 },
+      { name: "Next.js",       icon: "nextjs",     color: "#ffffff", level: 88 },
+      { name: "TypeScript",    icon: "typescript", color: "#3178C6", level: 85 },
+      { name: "Tailwind CSS",  icon: "tailwind",   color: "#38BDF8", level: 90 },
+      { name: "Framer Motion", icon: "motion",     color: "#FF4D9E", level: 78 },
+    ],
+  },
+  {
+    category: "Backend",
+    skills: [
+      { name: "Node.js",    icon: "nodejs",      color: "#68A063", level: 85 },
+      { name: "Express",    icon: "express",     color: "#ffffff", level: 82 },
+      { name: "PostgreSQL", icon: "postgresql",  color: "#336791", level: 75 },
+      { name: "MongoDB",    icon: "mongodb",     color: "#4DB33D", level: 78 },
+      { name: "Prisma",     icon: "prisma",      color: "#2D3748", level: 72 },
+    ],
+  },
+  {
+    category: "Tools & DevOps",
+    skills: [
+      { name: "Git",    icon: "git",    color: "#F05032", level: 90 },
+      { name: "Docker", icon: "docker", color: "#2496ED", level: 70 },
+      { name: "Vercel", icon: "vercel", color: "#ffffff", level: 88 },
+      { name: "Figma",  icon: "figma",  color: "#F24E1E", level: 75 },
+      { name: "VS Code",icon: "vscode", color: "#007ACC", level: 95 },
+    ],
+  },
+];
+ 
+// â”€â”€ Projects â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+export type Project = {
+  id: string;
+  title: string;
+  description: string;
+  longDescription?: string;
+  image: string;
+  tags: string[];
+  liveUrl?: string;
+  githubUrl?: string;
+  featured: boolean;
+  year: string;
+  accentColor: string;
+};
+ 
+export const projects: Project[] = [
+  {
+    id: "project-1",
+    title: "S3 Dashboard: Smart Career Intelligence System",
+    description:
+      "AI-powered platform that helps students track progress, optimize skills, and get personalized career guidance.",
+    longDescription:
+      "Built with Next.js, MongoDB, and modern full-stack technologies, featuring AI-powered RAG chatbot, resume analysis, job recommendations, and real-time insights to help students track progress and accelerate their career growth.",
+    image: "/projects/project-1.png",
+    tags: ["Next.js", "TypeScript", "MONGODB", "Stripe", "Tailwind"],
+    liveUrl: "https://s3frontend-seven.vercel.app/",
+    githubUrl: "https://github.com/manjeet0505/s3dashboard",
+    featured: true,
+    year: "2025",
+    accentColor: "#7B2FFF",
+  },
+  {
+    id: "project-2",
+    title: "Expense Tracker",
+    description:
+      "A full-stack expense tracker to manage, categorize, and visualize daily spending.",
+    longDescription:
+      " Built a full-stack expense tracking application using Next.js, MongoDB, and modern web technologies, enabling users to manage daily expenses, categorize transactions, and visualize spending patterns through interactive dashboards.",
+    image: "/projects/project-2.png",
+    tags: ["Node.js", "React", "MongoDB", "GeminiAPI"],
+    liveUrl: "https://expense-bay-mu.vercel.app/",
+    githubUrl: "https://github.com/manjeet0505/Expense",
+    featured: true,
+    year: "2024",
+    accentColor: "#00F5FF",
+  },
+  {
+    id: "project-3",
+    title: "Noteflow",
+    description:
+      "A full-stack note-taking app with AI-powered assistance for smarter writing and productivity.",
+    longDescription:
+      "Built a full-stack note-taking application using Next.js, MongoDB, and modern web technologies, enabling users to create, organize, and manage notes with AI-powered assistance for smarter writing and productivity.",
+    image: "/projects/project-3.png",
+    tags: ["Nextjs","MongoDB", "Express"],
+    githubUrl: "https://github.com/manjeet0505/noteflow",
+    featured: false,
+    year: "2024",
+    accentColor: "#FF2FBE",
+  },
+];
+ 
+export const featuredProjects = projects.filter((p) => p.featured);
+export const otherProjects    = projects.filter((p) => !p.featured);
+ 
+// â”€â”€ Experience â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+export type Experience = {
+  id: string;
+  company: string;
+  role: string;
+  type: "Full-time" | "Part-time" | "Freelance" | "Internship";
+  startDate: string;
+  endDate: string | "Present";
+  description: string;
+  highlights: string[];
+  technologies: string[];
+  logoUrl?: string;
+};
+ 
+export const experiences: Experience[] = [
+  {
+    id: "exp-1",
+    company: "Next24Technology",
+    role: "Web developer ",
+    type: "Internship",
+    startDate: "Jul 2023",
+    endDate: "Sep 2023",
+    description:
+      "Worked as a Web Developer Intern, contributing to both frontend and backend development by building responsive UI components, integrating APIs, and improving overall application performance. ",
+    highlights: [
+  "Developed responsive and user-friendly UI components using modern web technologies",
+  "Integrated REST APIs to enable seamless data flow between frontend and backend",
+  "Improved application performance through code optimization and efficient rendering",
+  "Collaborated with team members to implement features and fix bugs in a timely manner"
+],
+    technologies: ["React", "Tailwind", "CSS3", "Javascript"],
+  },
+  {
+    id: "exp-2",
+    company: "Webs Jyoti",
+    role: "Full-Stack Developer",
+    type: "Internship",
+    startDate: "July 2024",
+    endDate: "Nov 2024",
+    description:
+      "Worked as a Full-Stack Developer Intern at an early-stage fintech startup, contributing to the development of scalable web applications by building frontend interfaces, developing backend APIs, and integrating third-party services.",
+    highlights: [
+  "Developed and maintained full-stack features for a fintech dashboard using modern web technologies",
+  "Integrated third-party APIs for payments and financial services",
+  "Designed and optimized backend APIs for efficient data handling and improved performance",
+  "Built responsive and user-friendly UI components to enhance user experience"
+],
+    technologies: ["Node.js", "React", "PostgreSQL", "AWS"],
+  },
+  {
+    id: "exp-3",
+    company: "Freelance",
+    role: "Full Stack Developer",
+    type: "Freelance",
+    startDate: "Jan 2026",
+    endDate: "Present",
+    description:
+      "Building and developing full-stack web applications as part of an early-stage startup, focusing on creating scalable products, improving user experience, and exploring real-world problem-solving.",
+    highlights: [
+  "Developing full-stack applications using modern technologies like React and Node.js",
+  "Working on product development from idea to implementation",
+  "Designing responsive and user-friendly interfaces",
+  "Continuously improving application performance and scalability"
+],
+    technologies: ["React.js", "Next.js 14", "Node.js", "FastAPI", "MongoDB", "PostgreSQL", "Qdrant", "Tailwind CSS", "REST APIs", "JWT Authentication", "LangChain", "OpenAI API", "Git", "Docker", "Vercel", "Railway"],
+  },
+];
