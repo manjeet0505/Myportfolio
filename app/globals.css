@@ -1,26 +1,456 @@
-@import "tailwindcss";
+@import url("https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap");
 
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================
+   CSS VARIABLES — DESIGN TOKENS
+============================================ */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg-primary: #0a0a0f;
+  --bg-secondary: #0f0f1a;
+  --bg-tertiary: #141424;
+
+  --neon-violet: #7b2fff;
+  --neon-violet-rgb: 123, 47, 255;
+  --neon-cyan: #00f5ff;
+  --neon-cyan-rgb: 0, 245, 255;
+  --neon-pink: #ff2fbe;
+  --neon-pink-rgb: 255, 47, 190;
+
+  --text-primary: #f0f0ff;
+  --text-secondary: #c0c0d8;
+  --text-muted: #6b7280;
+  --text-soft: #a0a0b8;
+
+  --glass-bg: rgba(255, 255, 255, 0.04);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-border-hover: rgba(123, 47, 255, 0.4);
+
+  --section-padding: 6rem 0;
+  --container-max: 1100px;
+  --radius-card: 1.25rem;
+  --radius-btn: 0.75rem;
+
+  --transition-fast: 150ms ease;
+  --transition-base: 300ms ease;
+  --transition-slow: 600ms ease;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* ============================================
+   BASE RESET & DEFAULTS
+============================================ */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 80px;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: "Inter", sans-serif;
+  font-size: 16px;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+::selection {
+  background: rgba(123, 47, 255, 0.3);
+  color: var(--neon-cyan);
+}
+
+/* ============================================
+   SCROLLBAR
+============================================ */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(123, 47, 255, 0.4);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--neon-violet);
+}
+
+/* ============================================
+   TYPOGRAPHY
+============================================ */
+h1, h2, h3, h4, h5, h6 {
+  font-family: "Syne", sans-serif;
+  font-weight: 700;
+  line-height: 1.15;
+  color: var(--text-primary);
+}
+
+code, pre, .font-mono {
+  font-family: "JetBrains Mono", monospace;
+}
+
+/* ============================================
+   LAYOUT UTILITIES
+============================================ */
+.container-custom {
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+.section-padding {
+  padding: var(--section-padding);
+}
+
+/* ============================================
+   GLASSMORPHISM
+============================================ */
+.glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-card);
+}
+
+.glass-hover {
+  transition: all var(--transition-base);
+}
+
+.glass-hover:hover {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: var(--glass-border-hover);
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(123, 47, 255, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  transform: translateY(-4px);
+}
+
+/* ============================================
+   NEON TEXT & EFFECTS
+============================================ */
+.neon-text {
+  background: linear-gradient(135deg, var(--neon-violet), var(--neon-cyan));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.neon-text-pink {
+  background: linear-gradient(135deg, var(--neon-violet), var(--neon-pink));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.neon-glow-violet {
+  text-shadow: 0 0 20px rgba(123, 47, 255, 0.8),
+    0 0 40px rgba(123, 47, 255, 0.4);
+}
+
+.neon-glow-cyan {
+  text-shadow: 0 0 20px rgba(0, 245, 255, 0.8),
+    0 0 40px rgba(0, 245, 255, 0.4);
+}
+
+/* ============================================
+   NEON BUTTONS
+============================================ */
+.btn-neon {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.75rem;
+  background: linear-gradient(135deg, var(--neon-violet), #5b1fd4);
+  color: #fff;
+  font-family: "Syne", sans-serif;
+  font-weight: 600;
+  font-size: 0.9rem;
+  letter-spacing: 0.02em;
+  border: none;
+  border-radius: var(--radius-btn);
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: all var(--transition-base);
+  text-decoration: none;
+}
+
+.btn-neon::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, #9b4fff, var(--neon-cyan));
+  opacity: 0;
+  transition: opacity var(--transition-base);
+}
+
+.btn-neon:hover {
+  box-shadow: 0 0 20px rgba(123, 47, 255, 0.6),
+    0 0 60px rgba(123, 47, 255, 0.25);
+  transform: translateY(-2px);
+}
+
+.btn-neon:hover::before {
+  opacity: 1;
+}
+
+.btn-neon span {
+  position: relative;
+  z-index: 1;
+}
+
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.75rem;
+  background: transparent;
+  color: var(--text-primary);
+  font-family: "Syne", sans-serif;
+  font-weight: 600;
+  font-size: 0.9rem;
+  letter-spacing: 0.02em;
+  border: 1px solid var(--glass-border-hover);
+  border-radius: var(--radius-btn);
+  cursor: pointer;
+  transition: all var(--transition-base);
+  text-decoration: none;
+}
+
+.btn-ghost:hover {
+  background: rgba(123, 47, 255, 0.1);
+  border-color: var(--neon-violet);
+  color: var(--neon-cyan);
+  box-shadow: 0 0 20px rgba(123, 47, 255, 0.2);
+  transform: translateY(-2px);
+}
+
+/* ============================================
+   SECTION TITLE
+============================================ */
+.section-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--neon-cyan);
+  margin-bottom: 1rem;
+}
+
+.section-label::before {
+  content: "";
+  display: block;
+  width: 2rem;
+  height: 1px;
+  background: var(--neon-cyan);
+  box-shadow: 0 0 8px var(--neon-cyan);
+}
+
+.section-title {
+  font-family: "Syne", sans-serif;
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 800;
+  line-height: 1.1;
+  margin-bottom: 1rem;
+}
+
+/* ============================================
+   NEON BORDER CARD
+============================================ */
+.neon-card {
+  position: relative;
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  border-radius: var(--radius-card);
+  overflow: hidden;
+  transition: all var(--transition-base);
+}
+
+.neon-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-card);
+  padding: 1px;
+  background: linear-gradient(135deg, var(--neon-violet), transparent, var(--neon-cyan));
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0.4;
+  transition: opacity var(--transition-base);
+}
+
+.neon-card:hover::before {
+  opacity: 1;
+}
+
+.neon-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5),
+    0 0 30px rgba(123, 47, 255, 0.15);
+}
+
+/* ============================================
+   BACKGROUND GRID & GLOW
+============================================ */
+.bg-grid {
+  background-image: linear-gradient(rgba(123, 47, 255, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(123, 47, 255, 0.06) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
+
+.hero-glow {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse 80% 60% at 50% 0%,
+    rgba(123, 47, 255, 0.25) 0%,
+    transparent 70%
+  );
+  pointer-events: none;
+}
+
+.hero-glow-bottom {
+  position: absolute;
+  bottom: -20%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60%;
+  height: 400px;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(0, 245, 255, 0.1) 0%,
+    transparent 70%
+  );
+  pointer-events: none;
+}
+
+/* ============================================
+   TECH TAG / BADGE
+============================================ */
+.tech-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.3rem 0.75rem;
+  background: rgba(123, 47, 255, 0.1);
+  color: var(--neon-cyan);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.7rem;
+  font-weight: 500;
+  border: 1px solid rgba(0, 245, 255, 0.2);
+  border-radius: 2rem;
+  transition: all var(--transition-fast);
+}
+
+.tech-tag:hover {
+  background: rgba(0, 245, 255, 0.1);
+  border-color: var(--neon-cyan);
+  box-shadow: 0 0 12px rgba(0, 245, 255, 0.25);
+}
+
+/* ============================================
+   NEON DIVIDER
+============================================ */
+.neon-divider {
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(123, 47, 255, 0.5),
+    rgba(0, 245, 255, 0.5),
+    transparent
+  );
+}
+
+/* ============================================
+   FLOATING ORB (decorative)
+============================================ */
+.orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  pointer-events: none;
+  animation: float 6s ease-in-out infinite;
+}
+
+.orb-violet {
+  background: rgba(123, 47, 255, 0.2);
+}
+
+.orb-cyan {
+  background: rgba(0, 245, 255, 0.12);
+}
+
+.orb-pink {
+  background: rgba(255, 47, 190, 0.12);
+}
+
+/* ============================================
+   ANIMATED UNDERLINE LINK
+============================================ */
+.link-neon {
+  position: relative;
+  color: var(--text-soft);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+.link-neon::after {
+  content: "";
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background: linear-gradient(90deg, var(--neon-violet), var(--neon-cyan));
+  box-shadow: 0 0 8px var(--neon-cyan);
+  transition: width var(--transition-base);
+}
+
+.link-neon:hover {
+  color: var(--neon-cyan);
+}
+
+.link-neon:hover::after {
+  width: 100%;
+}
+
+/* ============================================
+   FOCUS OUTLINE (accessibility)
+============================================ */
+:focus-visible {
+  outline: 2px solid var(--neon-violet);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* ============================================
+   RESPONSIVE HELPERS
+============================================ */
+@media (max-width: 768px) {
+  :root {
+    --section-padding: 4rem 0;
+  }
+
+  .section-title {
+    font-size: clamp(1.75rem, 6vw, 2.5rem);
+  }
 }
