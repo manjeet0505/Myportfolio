@@ -1,11 +1,159 @@
-@import url("https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap");
+@import "tailwindcss";
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* ============================================
+   THEME — Tailwind v4 (replaces tailwind.config.ts)
+   Delete tailwind.config.ts after using this file.
+============================================ */
+@theme {
+  /* Colors -> bg-bg-primary, text-neon-cyan, border-border-glass ... */
+  --color-bg-primary: #0a0a0f;
+  --color-bg-secondary: #0f0f1a;
+  --color-bg-card: rgba(255, 255, 255, 0.04);
+
+  --color-neon-violet: #7b2fff;
+  --color-neon-cyan: #00f5ff;
+  --color-neon-pink: #ff2fbe;
+
+  --color-text-primary: #f0f0ff;
+  --color-text-muted: #6b7280;
+  --color-text-soft: #a0a0b8;
+
+  --color-border-glass: rgba(255, 255, 255, 0.08);
+  --color-border-neon: rgba(123, 47, 255, 0.4);
+
+  /* Shadows -> shadow-neon-violet, shadow-glass ... */
+  --shadow-neon-violet: 0 0 20px rgba(123, 47, 255, 0.5),
+    0 0 60px rgba(123, 47, 255, 0.2);
+  --shadow-neon-cyan: 0 0 20px rgba(0, 245, 255, 0.5),
+    0 0 60px rgba(0, 245, 255, 0.2);
+  --shadow-neon-pink: 0 0 20px rgba(255, 47, 190, 0.5),
+    0 0 60px rgba(255, 47, 190, 0.2);
+  --shadow-glass: 0 4px 24px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  --shadow-glass-hover: 0 8px 40px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+
+  /* Animations -> animate-float, animate-glow ... (keyframes are below) */
+  --animate-fade-up: fadeUp 0.6s ease forwards;
+  --animate-fade-in: fadeIn 0.8s ease forwards;
+  --animate-glow: glow 2s ease-in-out infinite alternate;
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-spin-slow: spin 8s linear infinite;
+  --animate-typewriter: typewriter 3s steps(30) forwards;
+  --animate-blink: blink 1s step-end infinite;
+  --animate-shimmer: shimmer 2s linear infinite;
+
+  /* Radius + blur (same values as your old config) */
+  --radius-2xl: 1rem;
+  --radius-3xl: 1.5rem;
+  --radius-4xl: 2rem;
+  --blur-xs: 2px;
+  --blur-2xl: 40px;
+}
+
+/* next/font variables resolve at runtime, so this must be "inline".
+   -> font-heading, font-body, font-mono */
+@theme inline {
+  --font-heading: var(--font-syne), sans-serif;
+  --font-body: var(--font-inter), sans-serif;
+  --font-mono: var(--font-jetbrains), monospace;
+}
+
+/* Gradients that used to be backgroundImage in the old config */
+@utility bg-neon-gradient {
+  background-image: linear-gradient(135deg, #7b2fff 0%, #00f5ff 100%);
+}
+@utility bg-neon-gradient-pink {
+  background-image: linear-gradient(135deg, #7b2fff 0%, #ff2fbe 100%);
+}
+@utility bg-glass-gradient {
+  background-image: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.08) 0%,
+    rgba(255, 255, 255, 0.02) 100%
+  );
+}
+@utility bg-hero-glow {
+  background-image: radial-gradient(
+    ellipse 80% 60% at 50% 0%,
+    rgba(123, 47, 255, 0.25) 0%,
+    transparent 70%
+  );
+}
+@utility bg-grid-pattern {
+  background-image: linear-gradient(rgba(123, 47, 255, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(123, 47, 255, 0.06) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
+
+/* ============================================
+   KEYFRAMES (top-level so they are always emitted)
+============================================ */
+@keyframes fadeUp {
+  0% {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+@keyframes glow {
+  0% {
+    box-shadow: 0 0 20px rgba(123, 47, 255, 0.4);
+  }
+  100% {
+    box-shadow: 0 0 40px rgba(123, 47, 255, 0.8),
+      0 0 80px rgba(0, 245, 255, 0.3);
+  }
+}
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+@keyframes typewriter {
+  0% {
+    width: 0;
+  }
+  100% {
+    width: 100%;
+  }
+}
+@keyframes blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
 
 /* ============================================
    CSS VARIABLES — DESIGN TOKENS
+   (used by the custom classes + inline styles)
 ============================================ */
 :root {
   --bg-primary: #0a0a0f;
@@ -39,411 +187,418 @@
 }
 
 /* ============================================
-   BASE RESET & DEFAULTS
+   BASE (inside @layer so Tailwind utilities can override)
+   NOTE: the old "* { margin:0; padding:0 }" reset is removed on
+   purpose. Tailwind's preflight already does it, and an unlayered
+   reset would beat every p-*, m-*, px-* utility.
 ============================================ */
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
+@layer base {
+  /* v4 changed the default border color to currentColor.
+     This keeps plain `border` classes looking like the glass theme. */
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--glass-border);
+  }
 
-html {
-  scroll-behavior: smooth;
-  scroll-padding-top: 80px;
-}
+  html {
+    color-scheme: dark;
+    scroll-behavior: smooth;
+    scroll-padding-top: 80px;
+  }
 
-body {
-  background-color: var(--bg-primary);
-  color: var(--text-primary);
-  font-family: "Inter", sans-serif;
-  font-size: 16px;
-  line-height: 1.7;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  overflow-x: hidden;
-}
+  body {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    font-family: var(--font-inter), "Inter", sans-serif;
+    font-size: 16px;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+  }
 
-::selection {
-  background: rgba(123, 47, 255, 0.3);
-  color: var(--neon-cyan);
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+
+  ::selection {
+    background: rgba(123, 47, 255, 0.3);
+    color: var(--neon-cyan);
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--bg-primary);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgba(123, 47, 255, 0.4);
+    border-radius: 3px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--neon-violet);
+  }
+
+  /* Typography */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-syne), "Syne", sans-serif;
+    font-weight: 700;
+    line-height: 1.15;
+    color: var(--text-primary);
+  }
+
+  code,
+  pre {
+    font-family: var(--font-jetbrains), "JetBrains Mono", monospace;
+  }
+
+  /* Accessibility: visible keyboard focus.
+     (border-radius removed so it no longer squares off rounded buttons) */
+  :focus-visible {
+    outline: 2px solid var(--neon-violet);
+    outline-offset: 3px;
+  }
 }
 
 /* ============================================
-   SCROLLBAR
+   COMPONENTS (still overridable by utilities)
 ============================================ */
-::-webkit-scrollbar {
-  width: 6px;
-}
-::-webkit-scrollbar-track {
-  background: var(--bg-primary);
-}
-::-webkit-scrollbar-thumb {
-  background: rgba(123, 47, 255, 0.4);
-  border-radius: 3px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: var(--neon-violet);
+@layer components {
+  /* Layout */
+  .container-custom {
+    max-width: var(--container-max);
+    margin: 0 auto;
+    padding: 0 1.5rem;
+  }
+
+  .section-padding {
+    padding: var(--section-padding);
+  }
+
+  /* Glassmorphism */
+  .glass {
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-card);
+  }
+
+  .glass-hover {
+    transition: all var(--transition-base);
+  }
+
+  .glass-hover:hover {
+    background: rgba(255, 255, 255, 0.07);
+    border-color: var(--glass-border-hover);
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5),
+      0 0 0 1px rgba(123, 47, 255, 0.2),
+      inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    transform: translateY(-4px);
+  }
+
+  /* Neon text */
+  .neon-text {
+    background: linear-gradient(135deg, var(--neon-violet), var(--neon-cyan));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .neon-text-pink {
+    background: linear-gradient(135deg, var(--neon-violet), var(--neon-pink));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .neon-glow-violet {
+    text-shadow: 0 0 20px rgba(123, 47, 255, 0.8),
+      0 0 40px rgba(123, 47, 255, 0.4);
+  }
+
+  .neon-glow-cyan {
+    text-shadow: 0 0 20px rgba(0, 245, 255, 0.8),
+      0 0 40px rgba(0, 245, 255, 0.4);
+  }
+
+  /* Buttons */
+  .btn-neon {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.75rem;
+    background: linear-gradient(135deg, var(--neon-violet), #5b1fd4);
+    color: #fff;
+    font-family: var(--font-syne), "Syne", sans-serif;
+    font-weight: 600;
+    font-size: 0.9rem;
+    letter-spacing: 0.02em;
+    border: none;
+    border-radius: var(--radius-btn);
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: all var(--transition-base);
+    text-decoration: none;
+  }
+
+  .btn-neon::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, #9b4fff, var(--neon-cyan));
+    opacity: 0;
+    transition: opacity var(--transition-base);
+  }
+
+  .btn-neon:hover {
+    box-shadow: 0 0 20px rgba(123, 47, 255, 0.6),
+      0 0 60px rgba(123, 47, 255, 0.25);
+    transform: translateY(-2px);
+  }
+
+  .btn-neon:hover::before {
+    opacity: 1;
+  }
+
+  .btn-neon span {
+    position: relative;
+    z-index: 1;
+  }
+
+  .btn-ghost {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.75rem;
+    background: transparent;
+    color: var(--text-primary);
+    font-family: var(--font-syne), "Syne", sans-serif;
+    font-weight: 600;
+    font-size: 0.9rem;
+    letter-spacing: 0.02em;
+    border: 1px solid var(--glass-border-hover);
+    border-radius: var(--radius-btn);
+    cursor: pointer;
+    transition: all var(--transition-base);
+    text-decoration: none;
+  }
+
+  .btn-ghost:hover {
+    background: rgba(123, 47, 255, 0.1);
+    border-color: var(--neon-violet);
+    color: var(--neon-cyan);
+    box-shadow: 0 0 20px rgba(123, 47, 255, 0.2);
+    transform: translateY(-2px);
+  }
+
+  /* Section title */
+  .section-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: var(--font-jetbrains), "JetBrains Mono", monospace;
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--neon-cyan);
+    margin-bottom: 1rem;
+  }
+
+  .section-label::before {
+    content: "";
+    display: block;
+    width: 2rem;
+    height: 1px;
+    background: var(--neon-cyan);
+    box-shadow: 0 0 8px var(--neon-cyan);
+  }
+
+  .section-title {
+    font-family: var(--font-syne), "Syne", sans-serif;
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 800;
+    line-height: 1.1;
+    margin-bottom: 1rem;
+  }
+
+  /* Neon border card */
+  .neon-card {
+    position: relative;
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: var(--radius-card);
+    overflow: hidden;
+    transition: all var(--transition-base);
+  }
+
+  .neon-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: var(--radius-card);
+    padding: 1px;
+    background: linear-gradient(
+      135deg,
+      var(--neon-violet),
+      transparent,
+      var(--neon-cyan)
+    );
+    -webkit-mask: linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    opacity: 0.4;
+    transition: opacity var(--transition-base);
+    pointer-events: none;
+  }
+
+  .neon-card:hover::before {
+    opacity: 1;
+  }
+
+  .neon-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5),
+      0 0 30px rgba(123, 47, 255, 0.15);
+  }
+
+  /* Background grid + glow */
+  .bg-grid {
+    background-image: linear-gradient(
+        rgba(123, 47, 255, 0.06) 1px,
+        transparent 1px
+      ),
+      linear-gradient(90deg, rgba(123, 47, 255, 0.06) 1px, transparent 1px);
+    background-size: 60px 60px;
+  }
+
+  .hero-glow {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+      ellipse 80% 60% at 50% 0%,
+      rgba(123, 47, 255, 0.25) 0%,
+      transparent 70%
+    );
+    pointer-events: none;
+  }
+
+  .hero-glow-bottom {
+    position: absolute;
+    bottom: -20%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60%;
+    height: 400px;
+    background: radial-gradient(
+      ellipse at center,
+      rgba(0, 245, 255, 0.1) 0%,
+      transparent 70%
+    );
+    pointer-events: none;
+  }
+
+  /* Tech tag */
+  .tech-tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.3rem 0.75rem;
+    background: rgba(123, 47, 255, 0.1);
+    color: var(--neon-cyan);
+    font-family: var(--font-jetbrains), "JetBrains Mono", monospace;
+    font-size: 0.7rem;
+    font-weight: 500;
+    border: 1px solid rgba(0, 245, 255, 0.2);
+    border-radius: 2rem;
+    transition: all var(--transition-fast);
+  }
+
+  .tech-tag:hover {
+    background: rgba(0, 245, 255, 0.1);
+    border-color: var(--neon-cyan);
+    box-shadow: 0 0 12px rgba(0, 245, 255, 0.25);
+  }
+
+  /* Divider */
+  .neon-divider {
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(123, 47, 255, 0.5),
+      rgba(0, 245, 255, 0.5),
+      transparent
+    );
+  }
+
+  /* Floating orbs */
+  .orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    pointer-events: none;
+    animation: float 6s ease-in-out infinite;
+  }
+
+  .orb-violet {
+    background: rgba(123, 47, 255, 0.2);
+  }
+
+  .orb-cyan {
+    background: rgba(0, 245, 255, 0.12);
+  }
+
+  .orb-pink {
+    background: rgba(255, 47, 190, 0.12);
+  }
+
+  /* Animated underline link */
+  .link-neon {
+    position: relative;
+    color: var(--text-soft);
+    text-decoration: none;
+    transition: color var(--transition-fast);
+  }
+
+  .link-neon::after {
+    content: "";
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 1px;
+    background: linear-gradient(90deg, var(--neon-violet), var(--neon-cyan));
+    box-shadow: 0 0 8px var(--neon-cyan);
+    transition: width var(--transition-base);
+  }
+
+  .link-neon:hover {
+    color: var(--neon-cyan);
+  }
+
+  .link-neon:hover::after {
+    width: 100%;
+  }
 }
 
 /* ============================================
-   TYPOGRAPHY
-============================================ */
-h1, h2, h3, h4, h5, h6 {
-  font-family: "Syne", sans-serif;
-  font-weight: 700;
-  line-height: 1.15;
-  color: var(--text-primary);
-}
-
-code, pre, .font-mono {
-  font-family: "JetBrains Mono", monospace;
-}
-
-/* ============================================
-   LAYOUT UTILITIES
-============================================ */
-.container-custom {
-  max-width: var(--container-max);
-  margin: 0 auto;
-  padding: 0 1.5rem;
-}
-
-.section-padding {
-  padding: var(--section-padding);
-}
-
-/* ============================================
-   GLASSMORPHISM
-============================================ */
-.glass {
-  background: var(--glass-bg);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid var(--glass-border);
-  border-radius: var(--radius-card);
-}
-
-.glass-hover {
-  transition: all var(--transition-base);
-}
-
-.glass-hover:hover {
-  background: rgba(255, 255, 255, 0.07);
-  border-color: var(--glass-border-hover);
-  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5),
-    0 0 0 1px rgba(123, 47, 255, 0.2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
-  transform: translateY(-4px);
-}
-
-/* ============================================
-   NEON TEXT & EFFECTS
-============================================ */
-.neon-text {
-  background: linear-gradient(135deg, var(--neon-violet), var(--neon-cyan));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.neon-text-pink {
-  background: linear-gradient(135deg, var(--neon-violet), var(--neon-pink));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.neon-glow-violet {
-  text-shadow: 0 0 20px rgba(123, 47, 255, 0.8),
-    0 0 40px rgba(123, 47, 255, 0.4);
-}
-
-.neon-glow-cyan {
-  text-shadow: 0 0 20px rgba(0, 245, 255, 0.8),
-    0 0 40px rgba(0, 245, 255, 0.4);
-}
-
-/* ============================================
-   NEON BUTTONS
-============================================ */
-.btn-neon {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.75rem;
-  background: linear-gradient(135deg, var(--neon-violet), #5b1fd4);
-  color: #fff;
-  font-family: "Syne", sans-serif;
-  font-weight: 600;
-  font-size: 0.9rem;
-  letter-spacing: 0.02em;
-  border: none;
-  border-radius: var(--radius-btn);
-  cursor: pointer;
-  position: relative;
-  overflow: hidden;
-  transition: all var(--transition-base);
-  text-decoration: none;
-}
-
-.btn-neon::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, #9b4fff, var(--neon-cyan));
-  opacity: 0;
-  transition: opacity var(--transition-base);
-}
-
-.btn-neon:hover {
-  box-shadow: 0 0 20px rgba(123, 47, 255, 0.6),
-    0 0 60px rgba(123, 47, 255, 0.25);
-  transform: translateY(-2px);
-}
-
-.btn-neon:hover::before {
-  opacity: 1;
-}
-
-.btn-neon span {
-  position: relative;
-  z-index: 1;
-}
-
-.btn-ghost {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.75rem;
-  background: transparent;
-  color: var(--text-primary);
-  font-family: "Syne", sans-serif;
-  font-weight: 600;
-  font-size: 0.9rem;
-  letter-spacing: 0.02em;
-  border: 1px solid var(--glass-border-hover);
-  border-radius: var(--radius-btn);
-  cursor: pointer;
-  transition: all var(--transition-base);
-  text-decoration: none;
-}
-
-.btn-ghost:hover {
-  background: rgba(123, 47, 255, 0.1);
-  border-color: var(--neon-violet);
-  color: var(--neon-cyan);
-  box-shadow: 0 0 20px rgba(123, 47, 255, 0.2);
-  transform: translateY(-2px);
-}
-
-/* ============================================
-   SECTION TITLE
-============================================ */
-.section-label {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-family: "JetBrains Mono", monospace;
-  font-size: 0.75rem;
-  font-weight: 500;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  color: var(--neon-cyan);
-  margin-bottom: 1rem;
-}
-
-.section-label::before {
-  content: "";
-  display: block;
-  width: 2rem;
-  height: 1px;
-  background: var(--neon-cyan);
-  box-shadow: 0 0 8px var(--neon-cyan);
-}
-
-.section-title {
-  font-family: "Syne", sans-serif;
-  font-size: clamp(2rem, 4vw, 3rem);
-  font-weight: 800;
-  line-height: 1.1;
-  margin-bottom: 1rem;
-}
-
-/* ============================================
-   NEON BORDER CARD
-============================================ */
-.neon-card {
-  position: relative;
-  background: var(--glass-bg);
-  backdrop-filter: blur(20px);
-  border-radius: var(--radius-card);
-  overflow: hidden;
-  transition: all var(--transition-base);
-}
-
-.neon-card::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: var(--radius-card);
-  padding: 1px;
-  background: linear-gradient(135deg, var(--neon-violet), transparent, var(--neon-cyan));
-  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-  opacity: 0.4;
-  transition: opacity var(--transition-base);
-}
-
-.neon-card:hover::before {
-  opacity: 1;
-}
-
-.neon-card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5),
-    0 0 30px rgba(123, 47, 255, 0.15);
-}
-
-/* ============================================
-   BACKGROUND GRID & GLOW
-============================================ */
-.bg-grid {
-  background-image: linear-gradient(rgba(123, 47, 255, 0.06) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(123, 47, 255, 0.06) 1px, transparent 1px);
-  background-size: 60px 60px;
-}
-
-.hero-glow {
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(
-    ellipse 80% 60% at 50% 0%,
-    rgba(123, 47, 255, 0.25) 0%,
-    transparent 70%
-  );
-  pointer-events: none;
-}
-
-.hero-glow-bottom {
-  position: absolute;
-  bottom: -20%;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 60%;
-  height: 400px;
-  background: radial-gradient(
-    ellipse at center,
-    rgba(0, 245, 255, 0.1) 0%,
-    transparent 70%
-  );
-  pointer-events: none;
-}
-
-/* ============================================
-   TECH TAG / BADGE
-============================================ */
-.tech-tag {
-  display: inline-flex;
-  align-items: center;
-  padding: 0.3rem 0.75rem;
-  background: rgba(123, 47, 255, 0.1);
-  color: var(--neon-cyan);
-  font-family: "JetBrains Mono", monospace;
-  font-size: 0.7rem;
-  font-weight: 500;
-  border: 1px solid rgba(0, 245, 255, 0.2);
-  border-radius: 2rem;
-  transition: all var(--transition-fast);
-}
-
-.tech-tag:hover {
-  background: rgba(0, 245, 255, 0.1);
-  border-color: var(--neon-cyan);
-  box-shadow: 0 0 12px rgba(0, 245, 255, 0.25);
-}
-
-/* ============================================
-   NEON DIVIDER
-============================================ */
-.neon-divider {
-  width: 100%;
-  height: 1px;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(123, 47, 255, 0.5),
-    rgba(0, 245, 255, 0.5),
-    transparent
-  );
-}
-
-/* ============================================
-   FLOATING ORB (decorative)
-============================================ */
-.orb {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(80px);
-  pointer-events: none;
-  animation: float 6s ease-in-out infinite;
-}
-
-.orb-violet {
-  background: rgba(123, 47, 255, 0.2);
-}
-
-.orb-cyan {
-  background: rgba(0, 245, 255, 0.12);
-}
-
-.orb-pink {
-  background: rgba(255, 47, 190, 0.12);
-}
-
-/* ============================================
-   ANIMATED UNDERLINE LINK
-============================================ */
-.link-neon {
-  position: relative;
-  color: var(--text-soft);
-  text-decoration: none;
-  transition: color var(--transition-fast);
-}
-
-.link-neon::after {
-  content: "";
-  position: absolute;
-  bottom: -2px;
-  left: 0;
-  width: 0;
-  height: 1px;
-  background: linear-gradient(90deg, var(--neon-violet), var(--neon-cyan));
-  box-shadow: 0 0 8px var(--neon-cyan);
-  transition: width var(--transition-base);
-}
-
-.link-neon:hover {
-  color: var(--neon-cyan);
-}
-
-.link-neon:hover::after {
-  width: 100%;
-}
-
-/* ============================================
-   FOCUS OUTLINE (accessibility)
-============================================ */
-:focus-visible {
-  outline: 2px solid var(--neon-violet);
-  outline-offset: 3px;
-  border-radius: 4px;
-}
-
-/* ============================================
-   RESPONSIVE HELPERS
+   RESPONSIVE
 ============================================ */
 @media (max-width: 768px) {
   :root {
@@ -452,5 +607,22 @@ code, pre, .font-mono {
 
   .section-title {
     font-size: clamp(1.75rem, 6vw, 2.5rem);
+  }
+}
+
+/* ============================================
+   REDUCED MOTION (accessibility)
+============================================ */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }
