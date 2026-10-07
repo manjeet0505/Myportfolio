@@ -111,7 +111,7 @@ export default function Contact() {
             {/* Social links from data */}
             <div className="flex gap-3 mt-2">
               {personalInfo.social?.map((s) => {
-                const Icon = s.icon as React.ElementType;
+                const Icon = s.icon;
                 return (
                   <a
                     key={s.label}
