@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import * as THREE from "three";
+import TechOrbit from "../three/TechOrbit";
 
 const NODE_COUNT = 110;
 const LINK_DISTANCE = 1.2;
@@ -109,6 +110,7 @@ function Network() {
         <icosahedronGeometry args={[1.2, 1]} />
         <meshBasicMaterial color="#00F5FF" wireframe transparent opacity={0.22} />
       </mesh>
+      <TechOrbit />
     </group>
   );
 }
