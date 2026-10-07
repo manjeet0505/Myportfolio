@@ -86,7 +86,7 @@ function OrbitIcon({ Icon, color, radius, speed, tilt, offset }: (typeof TECH)[n
 
   return (
     <sprite ref={ref} scale={[0.4, 0.4, 1]}>
-      <spriteMaterial map={tex} transparent depthWrite={false} />
+      <spriteMaterial map={tex} transparent depthWrite={false} opacity={0.85} />
     </sprite>
   );
 }
