@@ -18,13 +18,32 @@ export default function Navbar() {
   const [active, setActive] = useState("Home");
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 20);
-    };
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+ useEffect(() => {
+  const handleScroll = () => setScrolled(window.scrollY > 20);
+  window.addEventListener("scroll", handleScroll, { passive: true });
+
+  // Scroll-spy: jo section screen ke beech mein hai wo active
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          const link = navLinks.find((l) => l.href === `#${entry.target.id}`);
+          if (link) setActive(link.label);
+        }
+      });
+    },
+    { rootMargin: "-40% 0px -55% 0px" }
+  );
+  navLinks.forEach((l) => {
+    const el = document.getElementById(l.href.slice(1));
+    if (el) observer.observe(el);
+  });
+
+  return () => {
+    window.removeEventListener("scroll", handleScroll);
+    observer.disconnect();
+  };
+}, []);
 
   return (
     <>

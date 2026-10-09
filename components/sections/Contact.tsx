@@ -1,250 +1,196 @@
 "use client";
-
-import { useState } from "react";
+import { useRef, useState } from "react";
+import { useForm } from "react-hook-form";
 import { motion, AnimatePresence } from "framer-motion";
-import { Send, CheckCircle, AlertCircle, Loader2, Mail, MapPin, Clock } from "lucide-react";
-import { personalInfo } from "@/lib/data";
+import { Send, CheckCircle, AlertCircle, Loader2, Mail, MapPin, Phone, Copy, Check } from "lucide-react";
+import { FaGithub, FaLinkedin } from "react-icons/fa";
 
-const INFO_CARDS = [
-  { icon: Mail,    label: "Email",         value: personalInfo.email,      href: `mailto:${personalInfo.email}` },
-  { icon: MapPin,  label: "Location",      value: "India",                 href: null },
-  { icon: Clock,   label: "Response time", value: "Within 24 hours",       href: null },
-];
+const EMAIL = "mishramanjeet26@gmail.com";
+const PHONE = "9540932794";
+const LINKEDIN = "https://linkedin.com/in/manjeet-mishra-175705260";
+const GITHUB = "https://github.com/manjeet0505";
 
+type FormValues = { name: string; email: string; message: string };
 type Status = "idle" | "loading" | "success" | "error";
 
+function SpotlightCard({ children, className = "" }: { children: React.ReactNode; className?: string }) {
+  const ref = useRef<HTMLDivElement>(null);
+  return (
+    <div
+      ref={ref}
+      onMouseMove={(e) => {
+        const r = ref.current!.getBoundingClientRect();
+        ref.current!.style.setProperty("--x", `${e.clientX - r.left}px`);
+        ref.current!.style.setProperty("--y", `${e.clientY - r.top}px`);
+      }}
+      className={`group relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04] backdrop-blur-xl transition-colors hover:border-cyan-400/30 ${className}`}
+    >
+      <div
+        className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+        style={{ background: "radial-gradient(260px circle at var(--x) var(--y), rgba(34,211,238,0.15), transparent 70%)" }}
+      />
+      <div className="relative">{children}</div>
+    </div>
+  );
+}
+
+function Field({ label, error, children }: { label: string; error?: string; children: React.ReactNode }) {
+  return (
+    <div className="relative">
+      {children}
+      <label className="pointer-events-none absolute left-4 top-4 origin-left text-sm text-white/40 transition-all duration-200 peer-focus:-translate-y-6 peer-focus:scale-90 peer-focus:text-cyan-300 peer-[:not(:placeholder-shown)]:-translate-y-6 peer-[:not(:placeholder-shown)]:scale-90">
+        {label}
+      </label>
+      {error && <p className="mt-1.5 text-xs text-red-400">{error}</p>}
+    </div>
+  );
+}
+
+const inputCls =
+  "peer w-full rounded-xl border border-white/10 bg-black/30 px-4 pb-2.5 pt-5 text-sm text-white outline-none transition focus:border-cyan-400/60 focus:ring-4 focus:ring-cyan-400/10";
+
 export default function Contact() {
-  const [form, setForm] = useState({ name: "", email: "", subject: "", message: "" });
   const [status, setStatus] = useState<Status>("idle");
-  const [errorMsg, setErrorMsg] = useState("");
+  const [copied, setCopied] = useState(false);
+  const { register, handleSubmit, reset, formState: { errors } } = useForm<FormValues>();
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
-  };
-
-  const canSubmit =
-    form.name.trim() && form.email.trim() && form.message.trim() && status !== "loading";
-
-  const handleSubmit = async () => {
-    if (!canSubmit) return;
+  const onSubmit = async (data: FormValues) => {
     setStatus("loading");
-    setErrorMsg("");
-
     try {
       const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify(data),
       });
-      const data = await res.json();
-
-      if (!res.ok) throw new Error(data.error || "Something went wrong.");
-
+      if (!res.ok) throw new Error();
       setStatus("success");
-      setForm({ name: "", email: "", subject: "", message: "" });
-    } catch (err: unknown) {
+      reset();
+    } catch {
       setStatus("error");
-      setErrorMsg(err instanceof Error ? err.message : "Failed to send. Please try again.");
     }
+    setTimeout(() => setStatus("idle"), 5000);
   };
 
-  return (
-    <section id="contact" className="py-28 px-6 relative overflow-hidden">
-      {/* Background glow */}
-      <div className="pointer-events-none absolute inset-0">
-        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-violet-600/10 rounded-full blur-[120px]" />
-      </div>
+  const copyEmail = async () => {
+    await navigator.clipboard.writeText(EMAIL);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
-      <div className="max-w-6xl mx-auto relative z-10">
-        {/* Heading */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-          className="text-center mb-16"
-        >
-          <p className="text-sm font-mono text-violet-400 tracking-widest uppercase mb-3">
-            get in touch
-          </p>
-          <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
-            Let's{" "}
-            <span className="bg-gradient-to-r from-violet-400 to-cyan-400 bg-clip-text text-transparent">
-              Work Together
+  const fade = { initial: { opacity: 0, y: 30 }, whileInView: { opacity: 1, y: 0 }, viewport: { once: true, margin: "-80px" } };
+
+  return (
+    <section id="contact" className="relative px-6 py-28">
+      <div className="mx-auto max-w-6xl">
+        <motion.div {...fade} transition={{ duration: 0.6 }} className="mb-14 text-center">
+          <span className="inline-flex items-center gap-2 rounded-full border border-emerald-400/30 bg-emerald-400/10 px-4 py-1.5 text-xs font-medium text-emerald-300">
+            <span className="relative flex h-2 w-2">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
+            </span>
+            Open to SDE-1 / AI Engineer roles
+          </span>
+          <h2 className="mt-6 text-4xl font-bold tracking-tight text-white md:text-6xl">
+            Let&apos;s build something{" "}
+            <span className="bg-gradient-to-r from-cyan-300 via-sky-400 to-violet-400 bg-clip-text text-transparent">
+              great together
             </span>
           </h2>
-          <p className="text-white/50 max-w-md mx-auto">
-            Have a project in mind or just want to say hi? Drop me a message and I'll get back to you shortly.
+          <p className="mx-auto mt-4 max-w-xl text-white/50">
+            Hiring, collaborating, ya bas hi bolna hai? Message bhej, 24 ghante ke andar reply aayega.
           </p>
         </motion.div>
 
-        <div className="grid md:grid-cols-5 gap-8 items-start">
-          {/* Left: info cards + socials */}
-          <motion.div
-            initial={{ opacity: 0, x: -24 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-            className="md:col-span-2 flex flex-col gap-4"
-          >
-            {INFO_CARDS.map(({ icon: Icon, label, value, href }) => (
-              <div
-                key={label}
-                className="flex items-center gap-4 p-4 rounded-2xl bg-white/5 border border-white/10 hover:border-violet-500/40 hover:bg-white/8 transition-all group"
-              >
-                <div className="w-10 h-10 rounded-xl bg-violet-500/15 flex items-center justify-center shrink-0 group-hover:bg-violet-500/25 transition">
-                  <Icon size={18} className="text-violet-400" />
+        <div className="grid gap-6 lg:grid-cols-5">
+          {/* Left: info cards */}
+          <motion.div {...fade} transition={{ duration: 0.6, delay: 0.1 }} className="space-y-4 lg:col-span-2">
+            <SpotlightCard className="p-5">
+              <div className="flex items-center gap-4">
+                <div className="grid h-11 w-11 place-items-center rounded-xl bg-cyan-400/10 text-cyan-300"><Mail size={20} /></div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs text-white/40">Email</p>
+                  <p className="truncate text-sm text-white">{EMAIL}</p>
                 </div>
+                <button onClick={copyEmail} aria-label="Copy email"
+                  className="rounded-lg border border-white/10 p-2 text-white/60 transition hover:border-cyan-400/40 hover:text-cyan-300">
+                  {copied ? <Check size={16} /> : <Copy size={16} />}
+                </button>
+              </div>
+            </SpotlightCard>
+
+            <SpotlightCard className="p-5">
+              <a href={`tel:+91${PHONE}`} className="flex items-center gap-4">
+                <div className="grid h-11 w-11 place-items-center rounded-xl bg-violet-400/10 text-violet-300"><Phone size={20} /></div>
                 <div>
-                  <p className="text-xs text-white/40 mb-0.5">{label}</p>
-                  {href ? (
-                    <a href={href} className="text-sm text-white/80 hover:text-cyan-400 transition">
-                      {value}
-                    </a>
-                  ) : (
-                    <p className="text-sm text-white/80">{value}</p>
-                  )}
+                  <p className="text-xs text-white/40">Phone</p>
+                  <p className="text-sm text-white">+91 {PHONE}</p>
+                </div>
+              </a>
+            </SpotlightCard>
+
+            <SpotlightCard className="p-5">
+              <div className="flex items-center gap-4">
+                <div className="grid h-11 w-11 place-items-center rounded-xl bg-sky-400/10 text-sky-300"><MapPin size={20} /></div>
+                <div>
+                  <p className="text-xs text-white/40">Location</p>
+                  <p className="text-sm text-white">Gurugram, India · open to remote</p>
                 </div>
               </div>
-            ))}
+            </SpotlightCard>
 
-            {/* Social links from data */}
-            <div className="flex gap-3 mt-2">
-              {personalInfo.social?.map((s) => {
-                const Icon = s.icon;
-                return (
-                  <a
-                    key={s.label}
-                    href={s.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white/50 hover:text-white hover:bg-white/10 hover:border-white/20 transition"
-                    aria-label={s.label}
-                  >
-                    <Icon size={16} />
-                  </a>
-                );
-              })}
+            <div className="flex gap-4 pt-2">
+              {[{ href: GITHUB, Icon: FaGithub, label: "GitHub" }, { href: LINKEDIN, Icon: FaLinkedin, label: "LinkedIn" }].map(
+                ({ href, Icon, label }) => (
+                  <motion.a key={label} href={href} target="_blank" rel="noopener noreferrer" whileHover={{ y: -4 }}
+                    className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] py-3 text-sm text-white/70 backdrop-blur-xl transition hover:border-cyan-400/40 hover:text-white">
+                    <Icon size={18} /> {label}
+                  </motion.a>
+                )
+              )}
             </div>
           </motion.div>
 
-          {/* Right: form card */}
-          <motion.div
-            initial={{ opacity: 0, x: 24 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-            className="md:col-span-3 relative rounded-3xl bg-white/4 border border-white/10 overflow-hidden"
-          >
-            {/* Neon top accent */}
-            <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-violet-500 to-transparent" />
+          {/* Right: form */}
+          <motion.div {...fade} transition={{ duration: 0.6, delay: 0.2 }} className="lg:col-span-3">
+            <SpotlightCard className="p-6 md:p-8">
+              <form onSubmit={handleSubmit(onSubmit)} className="space-y-5" noValidate>
+                <div className="grid gap-5 md:grid-cols-2">
+                  <Field label="Your name" error={errors.name?.message}>
+                    <input placeholder=" " className={inputCls} {...register("name", { required: "Naam toh bata" })} />
+                  </Field>
+                  <Field label="Email address" error={errors.email?.message}>
+                    <input type="email" placeholder=" " className={inputCls}
+                      {...register("email", { required: "Email chahiye", pattern: { value: /^\S+@\S+\.\S+$/, message: "Email sahi nahi hai" } })} />
+                  </Field>
+                </div>
+                <Field label="Your message" error={errors.message?.message}>
+                  <textarea rows={5} placeholder=" " className={`${inputCls} resize-none`}
+                    {...register("message", { required: "Kuch toh likh", minLength: { value: 10, message: "Thoda aur detail mein (min 10 chars)" } })} />
+                </Field>
 
-            <div className="p-8">
-              <AnimatePresence mode="wait">
-                {status === "success" ? (
-                  <motion.div
-                    key="success"
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.9 }}
-                    className="flex flex-col items-center justify-center py-16 text-center"
-                  >
-                    <div className="w-16 h-16 rounded-full bg-cyan-500/15 flex items-center justify-center mb-4">
-                      <CheckCircle size={32} className="text-cyan-400" />
-                    </div>
-                    <h3 className="text-xl font-semibold text-white mb-2">Message Sent!</h3>
-                    <p className="text-white/50 text-sm mb-6">
-                      Thanks for reaching out. I'll reply within 24 hours.
-                    </p>
-                    <button
-                      onClick={() => setStatus("idle")}
-                      className="px-5 py-2 rounded-full border border-violet-500/40 text-violet-400 text-sm hover:bg-violet-500/10 transition"
-                    >
-                      Send another
-                    </button>
-                  </motion.div>
-                ) : (
-                  <motion.div key="form" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                    <div className="grid grid-cols-2 gap-4 mb-4">
-                      <div className="col-span-2 md:col-span-1">
-                        <label className="block text-xs text-white/40 mb-1.5 font-medium">Name *</label>
-                        <input
-                          name="name"
-                          value={form.name}
-                          onChange={handleChange}
-                          placeholder="John Doe"
-                          suppressHydrationWarning
-                          className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/25 focus:outline-none focus:border-violet-500/60 focus:ring-1 focus:ring-violet-500/30 transition"
-                        />
-                      </div>
-                      <div className="col-span-2 md:col-span-1">
-                        <label className="block text-xs text-white/40 mb-1.5 font-medium">Email *</label>
-                        <input
-                          name="email"
-                          type="email"
-                          value={form.email}
-                          onChange={handleChange}
-                          placeholder="john@example.com"
-                          suppressHydrationWarning
-                          className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/25 focus:outline-none focus:border-violet-500/60 focus:ring-1 focus:ring-violet-500/30 transition"
-                        />
-                      </div>
-                      <div className="col-span-2">
-                        <label className="block text-xs text-white/40 mb-1.5 font-medium">Subject</label>
-                        <input
-                          name="subject"
-                          value={form.subject}
-                          onChange={handleChange}
-                          placeholder="Project inquiry, Freelance, etc."
-                          suppressHydrationWarning
-                          className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/25 focus:outline-none focus:border-violet-500/60 focus:ring-1 focus:ring-violet-500/30 transition"
-                        />
-                      </div>
-                      <div className="col-span-2">
-                        <label className="block text-xs text-white/40 mb-1.5 font-medium">Message *</label>
-                        <textarea
-                          name="message"
-                          value={form.message}
-                          onChange={handleChange}
-                          rows={5}
-                          placeholder="Tell me about your project..."
-                          suppressHydrationWarning
-                          className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/25 focus:outline-none focus:border-violet-500/60 focus:ring-1 focus:ring-violet-500/30 transition resize-none"
-                        />
-                      </div>
-                    </div>
+                <motion.button type="submit" disabled={status === "loading"} whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
+                  className="group relative flex w-full items-center justify-center gap-2 overflow-hidden rounded-xl bg-gradient-to-r from-cyan-500 to-violet-600 py-4 text-sm font-semibold text-white shadow-lg shadow-cyan-500/20 disabled:opacity-60">
+                  <span className="absolute inset-0 -translate-x-full bg-white/20 skew-x-12 transition-transform duration-700 group-hover:translate-x-full" />
+                  {status === "loading" ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />}
+                  {status === "loading" ? "Sending..." : "Send message"}
+                </motion.button>
 
-                    {/* Error message */}
-                    <AnimatePresence>
-                      {status === "error" && (
-                        <motion.div
-                          initial={{ opacity: 0, height: 0 }}
-                          animate={{ opacity: 1, height: "auto" }}
-                          exit={{ opacity: 0, height: 0 }}
-                          className="flex items-center gap-2 text-red-400 text-sm mb-4 bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-3"
-                        >
-                          <AlertCircle size={15} />
-                          {errorMsg}
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-
-                    <button
-                      onClick={handleSubmit}
-                      disabled={!canSubmit}
-                      suppressHydrationWarning
-                      className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl font-medium text-sm transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed bg-gradient-to-r from-violet-600 to-violet-500 hover:from-violet-500 hover:to-cyan-500 text-white shadow-lg shadow-violet-500/25 hover:shadow-violet-500/40"
-                    >
-                      {status === "loading" ? (
-                        <><Loader2 size={16} className="animate-spin" /> Sending…</>
-                      ) : (
-                        <><Send size={15} /> Send Message</>
-                      )}
-                    </button>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
+                <AnimatePresence mode="wait">
+                  {status === "success" && (
+                    <motion.p key="ok" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+                      className="flex items-center gap-2 rounded-xl border border-emerald-400/30 bg-emerald-400/10 p-3 text-sm text-emerald-300">
+                      <CheckCircle size={18} /> Message bhej diya. Jaldi reply karunga!
+                    </motion.p>
+                  )}
+                  {status === "error" && (
+                    <motion.p key="err" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+                      className="flex items-center gap-2 rounded-xl border border-red-400/30 bg-red-400/10 p-3 text-sm text-red-300">
+                      <AlertCircle size={18} /> Kuch gadbad hui. Direct email kar de.
+                    </motion.p>
+                  )}
+                </AnimatePresence>
+              </form>
+            </SpotlightCard>
           </motion.div>
         </div>
       </div>

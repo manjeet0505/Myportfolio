@@ -132,12 +132,11 @@ export default function Hero() {
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
 
   return (
-    <section
-      ref={sectionRef}
-      id="home"
-      className="relative min-h-screen flex items-center overflow-hidden"
-      style={{ background: "#050508" }}
-    >
+   <section
+  ref={sectionRef}
+  id="home"
+  className="relative min-h-screen flex items-center overflow-hidden"
+>
       {/* Ambient light */}
       <div
         className="absolute inset-0"
@@ -172,11 +171,11 @@ export default function Hero() {
 
       {/* Readability fade between text and scene */}
       <div
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          background: "linear-gradient(90deg, #050508 0%, rgba(5,5,8,0.65) 38%, transparent 70%)",
-        }}
-      />
+  className="absolute inset-0 pointer-events-none"
+  style={{
+    background: "linear-gradient(90deg, rgba(5,5,8,0.75) 0%, rgba(5,5,8,0.45) 38%, transparent 70%)",
+  }}
+/>
 
       {/* Content */}
       <motion.div
@@ -372,10 +371,10 @@ export default function Hero() {
         <ArrowDown className="w-4 h-4 animate-bounce text-neon-violet" />
       </button>
 
-      <div
+      {/* <div
         className="absolute bottom-0 left-0 right-0 h-40 pointer-events-none"
         style={{ background: "linear-gradient(to top, #0a0a0f, transparent)" }}
-      />
+      /> */}
     </section>
   );
 }

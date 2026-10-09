@@ -5,7 +5,7 @@ export default function AnimatedBackground() {
   const glow = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (window.matchMedia("(pointer: coarse)").matches) return; // mobile pe skip
+    if (window.matchMedia("(pointer: coarse)").matches) return;
     const el = glow.current;
     if (!el) return;
     let raf = 0;
@@ -23,13 +23,40 @@ export default function AnimatedBackground() {
   }, []);
 
   return (
-    <div aria-hidden className="pointer-events-none fixed inset-0 -z-10 overflow-hidden bg-[#05060a]">
-      <div className="bg-blob bg-blob-1" />
-      <div className="bg-blob bg-blob-2" />
-      <div className="bg-blob bg-blob-3" />
-      <div className="bg-grid absolute inset-0" />
-      <div ref={glow} className="bg-cursor-glow absolute left-0 top-0 hidden h-[600px] w-[600px] md:block" />
-      <div className="bg-noise absolute inset-0" />
+    <div
+      aria-hidden
+      style={{
+        position: "fixed",
+        inset: 0,
+        zIndex: 0,
+        overflow: "hidden",
+        pointerEvents: "none",
+        background: "#05060a",
+      }}
+    >
+      <style>{`
+        .amb-blob { position:absolute; border-radius:9999px; filter:blur(110px); opacity:.45; will-change:transform; }
+        .amb-1 { width:520px; height:520px; top:-10%; left:-8%; background:#00f5ff; animation:amb1 22s ease-in-out infinite alternate; }
+        .amb-2 { width:600px; height:600px; top:35%; right:-12%; background:#7b2fff; animation:amb2 28s ease-in-out infinite alternate; }
+        .amb-3 { width:460px; height:460px; bottom:-12%; left:25%; background:#2563eb; animation:amb3 25s ease-in-out infinite alternate; }
+        @keyframes amb1 { to { transform:translate3d(180px,140px,0) scale(1.15); } }
+        @keyframes amb2 { to { transform:translate3d(-220px,-120px,0) scale(.9); } }
+        @keyframes amb3 { to { transform:translate3d(160px,-160px,0) scale(1.2); } }
+        .amb-grid { position:absolute; inset:0;
+          background-image:linear-gradient(rgba(255,255,255,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.05) 1px,transparent 1px);
+          background-size:56px 56px;
+          -webkit-mask-image:radial-gradient(ellipse 75% 65% at 50% 40%,#000 30%,transparent 100%);
+          mask-image:radial-gradient(ellipse 75% 65% at 50% 40%,#000 30%,transparent 100%); }
+        .amb-cursor { position:absolute; left:0; top:0; width:600px; height:600px;
+          background:radial-gradient(circle,rgba(0,245,255,.15),transparent 65%);
+          transition:transform .15s ease-out; will-change:transform; }
+        @media (pointer:coarse) { .amb-cursor { display:none; } }
+      `}</style>
+      <div className="amb-blob amb-1" />
+      <div className="amb-blob amb-2" />
+      <div className="amb-blob amb-3" />
+      <div className="amb-grid" />
+      <div ref={glow} className="amb-cursor" />
     </div>
   );
 }

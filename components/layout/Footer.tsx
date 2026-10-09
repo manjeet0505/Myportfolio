@@ -1,98 +1,115 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { FiArrowUp, FiMail } from "react-icons/fi";
 import { personalInfo } from "@/lib/data";
-import { FiArrowUp } from "react-icons/fi";
-
-const VIOLET = "#7B2FFF";
-const CYAN = "#00F5FF";
-const GRAD = `linear-gradient(135deg, ${VIOLET}, ${CYAN})`;
 
 const navLinks = [
-  { label: "About",      href: "#about"      },
-  { label: "Skills",     href: "#skills"     },
-  { label: "Projects",   href: "#projects"   },
+  { label: "About", href: "#about" },
+  { label: "Skills", href: "#skills" },
+  { label: "Projects", href: "#projects" },
   { label: "Experience", href: "#experience" },
-  { label: "Contact",    href: "#contact"    },
+  { label: "Contact", href: "#contact" },
 ];
 
 export default function Footer() {
   const scrollToTop = () => window.scrollTo({ top: 0, behavior: "smooth" });
 
   return (
-    <footer style={{ position: "relative", borderTop: "1px solid rgba(255,255,255,0.06)", overflow: "hidden" }}>
-
+    <footer className="relative overflow-hidden border-t border-white/[0.06] bg-black/20 backdrop-blur-sm">
       {/* Top gradient line */}
-      <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "1px", background: `linear-gradient(90deg, transparent, ${VIOLET}55, ${CYAN}33, transparent)` }} />
+      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-violet-500/50 to-transparent" />
 
-      {/* Background glow */}
-      <div style={{ position: "absolute", bottom: "-60px", left: "50%", transform: "translateX(-50%)", width: "600px", height: "200px", borderRadius: "50%", background: "radial-gradient(ellipse, rgba(123,47,255,0.06) 0%, transparent 70%)", pointerEvents: "none" }} />
-
-      <div style={{ maxWidth: "1100px", margin: "0 auto", padding: "3rem 1.5rem 2rem" }}>
-
-        {/* Top row */}
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "1.5rem", marginBottom: "2.5rem" }}>
-
-          {/* Logo */}
-          <motion.div whileHover={{ scale: 1.03 }} style={{ cursor: "pointer" }} onClick={scrollToTop}>
-            <span style={{ fontFamily: "Syne, sans-serif", fontWeight: 800, fontSize: "1.3rem", background: GRAD, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
-              {personalInfo.initials}
-            </span>
-            <span style={{ fontFamily: "JetBrains Mono, monospace", fontSize: "0.65rem", color: "#4B5563", display: "block", letterSpacing: "0.1em", marginTop: "2px" }}>
+      <div className="mx-auto max-w-[1100px] px-6 pb-8 pt-14">
+        <div className="grid gap-10 md:grid-cols-[1.4fr_1fr_1fr]">
+          {/* Brand */}
+          <div>
+            <button type="button" onClick={scrollToTop} className="text-left" aria-label="Back to top">
+              <span className="font-heading text-xl font-bold tracking-tight">
+                <span className="text-white">Manjeet</span>
+                <span className="text-white/40"> Kumar Mishra</span>
+              </span>
+            </button>
+            <p className="mt-2 font-mono text-[0.7rem] uppercase tracking-[0.12em] text-cyan-400">
               Full-Stack · AI Engineer
-            </span>
-          </motion.div>
+            </p>
+            <p className="mt-4 max-w-xs text-sm leading-relaxed text-[#8A8AA3]">
+              Building AI products end to end, from multi-agent backends to the interfaces around them.
+            </p>
 
-          {/* Nav links */}
-          <nav style={{ display: "flex", gap: "0.25rem", flexWrap: "wrap" }}>
-            {navLinks.map((link) => (
-              <a key={link.label} href={link.href}
-                style={{ fontFamily: "Inter, sans-serif", fontSize: "0.82rem", color: "#6B7280", textDecoration: "none", padding: "0.4rem 0.75rem", borderRadius: "8px", transition: "all 0.25s ease" }}
-                onMouseEnter={(e) => { const el = e.target as HTMLElement; el.style.color = "#F0F0FF"; el.style.background = "rgba(255,255,255,0.05)"; }}
-                onMouseLeave={(e) => { const el = e.target as HTMLElement; el.style.color = "#6B7280"; el.style.background = "transparent"; }}>
-                {link.label}
-              </a>
-            ))}
+            <span className="mt-5 inline-flex items-center gap-2 rounded-full border border-emerald-400/30 bg-emerald-400/10 px-3 py-1.5 font-mono text-[0.68rem] text-emerald-300">
+              <span className="relative flex h-1.5 w-1.5">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-70" />
+                <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-400" />
+              </span>
+              Open to SDE-1 &amp; AI Engineer roles
+            </span>
+          </div>
+
+          {/* Links */}
+          <nav aria-label="Footer">
+            <p className="mb-4 font-mono text-[0.68rem] uppercase tracking-[0.15em] text-white/35">Navigate</p>
+            <ul className="flex flex-col gap-2.5">
+              {navLinks.map((l) => (
+                <li key={l.label}>
+                  <a
+                    href={l.href}
+                    className="text-sm text-[#8A8AA3] transition-colors hover:text-cyan-400"
+                  >
+                    {l.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
           </nav>
 
-          {/* Socials + scroll-to-top */}
-          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-            {personalInfo.social.map((s) => {
-              const Icon = s.icon;
-              return (
-                <motion.a key={s.label} href={s.url} target="_blank" rel="noopener noreferrer"
-                  whileHover={{ y: -3, scale: 1.1 }} aria-label={s.label}
-                  style={{ width: "36px", height: "36px", borderRadius: "9px", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", display: "flex", alignItems: "center", justifyContent: "center", color: "#9CA3AF", textDecoration: "none", fontSize: "0.95rem", transition: "all 0.25s ease" }}
-                  onMouseEnter={(e) => { const el = e.currentTarget as HTMLElement; el.style.color = CYAN; el.style.borderColor = "rgba(0,245,255,0.3)"; el.style.background = "rgba(0,245,255,0.06)"; }}
-                  onMouseLeave={(e) => { const el = e.currentTarget as HTMLElement; el.style.color = "#9CA3AF"; el.style.borderColor = "rgba(255,255,255,0.08)"; el.style.background = "rgba(255,255,255,0.04)"; }}>
-                  <Icon />
-                </motion.a>
-              );
-            })}
-
-            <motion.button onClick={scrollToTop} whileHover={{ y: -3, scale: 1.1 }}
-            suppressHydrationWarning
-              style={{ width: "36px", height: "36px", borderRadius: "9px", background: "rgba(123,47,255,0.1)", border: "1px solid rgba(123,47,255,0.25)", display: "flex", alignItems: "center", justifyContent: "center", color: VIOLET, cursor: "pointer", marginLeft: "0.25rem" }}>
-              <FiArrowUp />
-            </motion.button>
+          {/* Connect */}
+          <div>
+            <p className="mb-4 font-mono text-[0.68rem] uppercase tracking-[0.15em] text-white/35">Connect</p>
+            <a
+              href="mailto:mishramanjeet26@gmail.com"
+              className="inline-flex items-center gap-2 rounded-xl border border-violet-500/40 bg-violet-500/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:border-cyan-400/60 hover:text-cyan-300"
+            >
+              <FiMail size={15} /> Say hello
+            </a>
+            <div className="mt-4 flex items-center gap-2">
+              {personalInfo.social.map((s) => {
+                const Icon = s.icon;
+                return (
+                  <motion.a
+                    key={s.label}
+                    href={s.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={s.label}
+                    whileHover={{ y: -3 }}
+                    className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 bg-white/[0.04] text-[#9CA3AF] transition-colors hover:border-cyan-400/40 hover:bg-cyan-400/[0.06] hover:text-cyan-400"
+                  >
+                    <Icon size={16} />
+                  </motion.a>
+                );
+              })}
+              <motion.button
+                type="button"
+                onClick={scrollToTop}
+                whileHover={{ y: -3 }}
+                aria-label="Scroll to top"
+                suppressHydrationWarning
+                className="ml-1 flex h-9 w-9 items-center justify-center rounded-lg border border-violet-500/30 bg-violet-500/10 text-violet-400 transition-colors hover:border-violet-400"
+              >
+                <FiArrowUp size={16} />
+              </motion.button>
+            </div>
           </div>
         </div>
 
-        {/* Divider */}
-        <div style={{ height: "1px", background: "rgba(255,255,255,0.05)", marginBottom: "1.5rem" }} />
-
         {/* Bottom row */}
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "0.75rem" }}>
-          <p style={{ fontFamily: "Inter, sans-serif", color: "#4B5563", fontSize: "0.78rem" }}>
-            © 2026 {personalInfo.name} · All rights reserved
-          </p>
-          <p style={{ fontFamily: "JetBrains Mono, monospace", color: "#4B5563", fontSize: "0.72rem", display: "flex", alignItems: "center", gap: "0.4rem", flexWrap: "wrap" }}>
-            Built with{" "}
-            <span style={{ background: GRAD, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text", fontWeight: 600 }}>Next.js</span>
-            {" "}&amp;{" "}
-            <span style={{ background: GRAD, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text", fontWeight: 600 }}>Framer Motion</span>
-            {" "}✦ Deployed on{" "}
-            <span style={{ background: GRAD, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text", fontWeight: 600 }}>Vercel</span>
+        <div className="mt-12 flex flex-col items-start justify-between gap-3 border-t border-white/5 pt-6 sm:flex-row sm:items-center">
+          <p className="text-xs text-[#4B5563]">© 2026 {personalInfo.name}. All rights reserved.</p>
+          <p className="font-mono text-[0.7rem] text-[#4B5563]">
+            Built with <span className="neon-text font-semibold">Next.js</span> &amp;{" "}
+            <span className="neon-text font-semibold">Framer Motion</span> · Deployed on{" "}
+            <span className="neon-text font-semibold">Vercel</span>
           </p>
         </div>
       </div>

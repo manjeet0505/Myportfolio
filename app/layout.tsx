@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, Space_Grotesk, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
-
+import AnimatedBackground from "@/components/layout/AnimatedBackground";
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
@@ -89,17 +89,18 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       className={`${inter.variable} ${display.variable} ${jetbrainsMono.variable}`}
       suppressHydrationWarning
     >
-      <body className="bg-[#0a0a0f] text-[#F0F0FF] font-body antialiased overflow-x-hidden">
-        <div
-          className="fixed inset-0 pointer-events-none z-50 opacity-[0.03]"
-          style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
-            backgroundRepeat: "repeat",
-            backgroundSize: "128px 128px",
-          }}
-        />
-        {children}
-      </body>
+      <body className="text-[#F0F0FF] font-body antialiased overflow-x-hidden">
+  <AnimatedBackground />
+  <div className="relative z-10">{children}</div>
+  <div
+    className="fixed inset-0 pointer-events-none z-50 opacity-[0.03]"
+    style={{
+      backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
+      backgroundRepeat: "repeat",
+      backgroundSize: "128px 128px",
+    }}
+  />
+</body>
     </html>
   );
 }
