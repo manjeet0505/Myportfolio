@@ -154,14 +154,14 @@ function FeaturedCard({ project, index }: { project: Project; index: number }) {
       <div className="relative grid md:grid-cols-12">
         {/* Screenshot in a browser frame */}
         <div className={`flex items-center p-4 sm:p-6 md:col-span-7 md:p-8 ${isEven ? "md:order-2" : "md:order-1"}`}>
-          <motion.div
-            ref={frameRef}
-            initial={reduce ? false : { clipPath: "inset(0 0 100% 0)" }}
-            whileInView={{ clipPath: "inset(0 0 0% 0)" }}
-            viewport={{ once: true, margin: "-80px" }}
-            transition={{ duration: 0.8, ease: "easeOut", delay: 0.1 }}
-            className="w-full overflow-hidden rounded-xl border border-white/10 bg-[#0c0c14] shadow-[0_20px_60px_rgba(0,0,0,0.5)]"
-          >
+         <motion.div
+  ref={frameRef}
+  initial={reduce ? false : { opacity: 0, y: 32, scale: 0.97 }}
+  whileInView={{ opacity: 1, y: 0, scale: 1 }}
+  viewport={{ once: true, margin: "-40px" }}
+  transition={{ duration: 0.7, ease: "easeOut", delay: 0.1 }}
+  className="w-full overflow-hidden rounded-xl border border-white/10 bg-[#0c0c14] shadow-[0_20px_60px_rgba(0,0,0,0.5)]"
+>
             <div className="flex items-center gap-2 border-b border-white/10 bg-white/[0.03] px-3 py-2">
               <span className="h-2.5 w-2.5 rounded-full bg-[#ff5f57]" />
               <span className="h-2.5 w-2.5 rounded-full bg-[#febc2e]" />
