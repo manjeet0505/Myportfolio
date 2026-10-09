@@ -108,7 +108,7 @@ export default function Hero() {
   useEffect(() => {
     const wide = window.matchMedia("(min-width: 768px)");
     const calm = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const update = () => setShow3d(wide.matches && !calm.matches);
+    const update = () => setShow3d(!calm.matches);
     update();
     wide.addEventListener("change", update);
     calm.addEventListener("change", update);
@@ -162,7 +162,7 @@ export default function Hero() {
       {/* 3D network (fast parallax) */}
       {show3d && (
         <motion.div
-          className="absolute inset-y-0 right-0 w-full lg:w-[62%] pointer-events-none"
+          className="absolute inset-y-0 right-0 w-full lg:w-[62%] pointer-events-none opacity-50 md:opacity-100"
           style={{ y: sceneY }}
         >
           <HeroScene active={inView} />
