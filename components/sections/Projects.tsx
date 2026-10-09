@@ -1,348 +1,449 @@
 "use client";
 
-import { useRef, useState } from "react";
-import { motion, useInView, useMotionValue, useSpring, useTransform } from "framer-motion";
-import { ExternalLink, ArrowUpRight, Layers } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { motion, useReducedMotion, useScroll, useTransform, type Variants } from "framer-motion";
+import { ArrowUpRight, Check, ExternalLink } from "lucide-react";
 import { FiGithub } from "react-icons/fi";
-import { projects } from "@/lib/data";
+import { projects, type Project } from "@/lib/data";
 
 const GRAD = "linear-gradient(135deg, #7B2FFF 0%, #00F5FF 100%)";
 
-function FadeUp({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
+const list: Variants = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.09, delayChildren: 0.25 } },
+};
+const item: Variants = {
+  hidden: { opacity: 0, x: -14 },
+  show: { opacity: 1, x: 0, transition: { duration: 0.4, ease: "easeOut" } },
+};
+
+function splitTitle(title: string) {
+  const [name, ...rest] = title.split(/:\s*/);
+  return { name, tagline: rest.join(": ") };
+}
+
+function hostOf(url?: string) {
+  if (!url) return null;
+  try {
+    return new URL(url).host;
+  } catch {
+    return null;
+  }
+}
+
+// Cursor-follow spotlight: updates CSS vars directly, no re-renders
+function useSpotlight(enabled: boolean) {
   const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { once: true, margin: "-60px" });
+  const onPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!enabled || e.pointerType !== "mouse" || !ref.current) return;
+    const r = ref.current.getBoundingClientRect();
+    ref.current.style.setProperty("--mx", `${e.clientX - r.left}px`);
+    ref.current.style.setProperty("--my", `${e.clientY - r.top}px`);
+  };
+  return { ref, onPointerMove };
+}
+
+function Spotlight({ color }: { color: string }) {
   return (
-    <motion.div ref={ref}
-      initial={{ opacity: 0, y: 30 }}
-      animate={inView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.6, ease: "easeOut", delay }}
-    >{children}</motion.div>
+    <div
+      aria-hidden
+      className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+      style={{
+        background: `radial-gradient(480px circle at var(--mx, 50%) var(--my, 50%), ${color}1f, transparent 60%)`,
+      }}
+    />
   );
 }
 
-// ── Featured card with 3D tilt ────────────────────────────────
-function FeaturedCard({ project, index }: { project: typeof projects[0]; index: number }) {
-  const [hovered, setHovered] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
-  const x = useMotionValue(0);
-  const y = useMotionValue(0);
-  const rotX = useSpring(useTransform(y, [-0.5, 0.5], [5, -5]), { stiffness: 200, damping: 20 });
-  const rotY = useSpring(useTransform(x, [-0.5, 0.5], [-5, 5]), { stiffness: 200, damping: 20 });
+function Placeholder({ name, accent }: { name: string; accent: string }) {
+  return (
+    <div
+      className="absolute inset-0 flex items-center justify-center"
+      style={{
+        background: `radial-gradient(circle at 25% 20%, ${accent}30, transparent 55%), radial-gradient(circle at 80% 90%, rgba(123,47,255,0.18), transparent 50%), #0f0f1a`,
+      }}
+    >
+      <div
+        className="absolute inset-0 opacity-60"
+        style={{
+          backgroundImage:
+            "linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px)",
+          backgroundSize: "28px 28px",
+        }}
+      />
+      <span className="relative px-6 text-center font-heading text-3xl font-bold tracking-tight text-white/80 sm:text-4xl">
+        {name}
+      </span>
+    </div>
+  );
+}
 
+function StatusPill({ project }: { project: Project }) {
+  if (project.liveUrl) {
+    return (
+      <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-0.5 font-mono text-[0.65rem] text-emerald-400">
+        <span className="relative flex h-1.5 w-1.5">
+          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-60" />
+          <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-400" />
+        </span>
+        Live
+      </span>
+    );
+  }
+  if (project.inDevelopment) {
+    return (
+      <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-500/30 bg-amber-500/10 px-2.5 py-0.5 font-mono text-[0.65rem] text-amber-400">
+        <span className="h-1.5 w-1.5 rounded-full bg-amber-400" />
+        In development
+      </span>
+    );
+  }
+  return null;
+}
+
+// ── Featured card ─────────────────────────────────────────────
+function FeaturedCard({ project, index }: { project: Project; index: number }) {
+  const reduce = useReducedMotion();
+  const spot = useSpotlight(!reduce);
+  const [hovered, setHovered] = useState(false);
+  const [failed, setFailed] = useState(false);
+  const frameRef = useRef<HTMLDivElement>(null);
+  const imgRef = useRef<HTMLImageElement>(null);
+
+  const { scrollYProgress } = useScroll({ target: frameRef, offset: ["start end", "end start"] });
+  const y = useTransform(scrollYProgress, [0, 1], reduce ? ["0%", "0%"] : ["-7%", "7%"]);
+
+  // Catch images that already failed before hydration
+  useEffect(() => {
+    const img = imgRef.current;
+    if (img && img.complete && img.naturalWidth === 0) setFailed(true);
+  }, []);
+
+  const { name, tagline } = splitTitle(project.title);
+  const accent = project.accentColor;
   const isEven = index % 2 === 0;
+  const showImage = !!project.image && !failed;
+  const host = hostOf(project.liveUrl);
+  const hasLinks = !!project.liveUrl || !!project.githubUrl;
 
   return (
-    <FadeUp delay={index * 0.12}>
-      <motion.div
-        ref={ref}
-        onMouseMove={(e) => {
-          const r = ref.current!.getBoundingClientRect();
-          x.set((e.clientX - r.left) / r.width - 0.5);
-          y.set((e.clientY - r.top) / r.height - 0.5);
-        }}
-        onMouseEnter={() => setHovered(true)}
-        onMouseLeave={() => { setHovered(false); x.set(0); y.set(0); }}
-        style={{
-          rotateX: rotX, rotateY: rotY,
-          transformPerspective: 1000,
-          borderRadius: "1.5rem",
-          overflow: "hidden",
-          background: "rgba(255,255,255,0.04)",
-          backdropFilter: "blur(20px)",
-          border: `1px solid ${hovered ? "rgba(123,47,255,0.6)" : "rgba(255,255,255,0.07)"}`,
-          boxShadow: hovered ? "0 20px 60px rgba(0,0,0,0.5), 0 0 40px rgba(123,47,255,0.12)" : "0 4px 24px rgba(0,0,0,0.3)",
-          transition: "border-color 0.3s, box-shadow 0.3s",
-        }}
-      >
-        {/* top neon line */}
-        <div style={{ height: 2, background: hovered ? GRAD : "rgba(123,47,255,0.3)", transition: "background 0.3s" }} />
+    <motion.div
+      ref={spot.ref}
+      onPointerMove={spot.onPointerMove}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      initial={reduce ? false : { opacity: 0, y: 40 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-80px" }}
+      transition={{ duration: 0.6, ease: "easeOut" }}
+      className="group relative overflow-hidden rounded-3xl bg-white/[0.03]"
+      style={{
+        border: `1px solid ${hovered ? `${accent}80` : "rgba(255,255,255,0.08)"}`,
+        boxShadow: hovered
+          ? `0 24px 70px rgba(0,0,0,0.5), 0 0 50px ${accent}1a`
+          : "0 4px 24px rgba(0,0,0,0.3)",
+        transition: "border-color 0.3s, box-shadow 0.3s",
+      }}
+    >
+      <div
+        className="h-0.5"
+        style={{ background: hovered ? GRAD : `${accent}55`, transition: "background 0.3s" }}
+      />
+      <Spotlight color={accent} />
 
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", minHeight: 320 }}>
+      <div className="relative grid md:grid-cols-12">
+        {/* Screenshot in a browser frame */}
+        <div className={`flex items-center p-4 sm:p-6 md:col-span-7 md:p-8 ${isEven ? "md:order-2" : "md:order-1"}`}>
+          <motion.div
+            ref={frameRef}
+            initial={reduce ? false : { clipPath: "inset(0 0 100% 0)" }}
+            whileInView={{ clipPath: "inset(0 0 0% 0)" }}
+            viewport={{ once: true, margin: "-80px" }}
+            transition={{ duration: 0.8, ease: "easeOut", delay: 0.1 }}
+            className="w-full overflow-hidden rounded-xl border border-white/10 bg-[#0c0c14] shadow-[0_20px_60px_rgba(0,0,0,0.5)]"
+          >
+            <div className="flex items-center gap-2 border-b border-white/10 bg-white/[0.03] px-3 py-2">
+              <span className="h-2.5 w-2.5 rounded-full bg-[#ff5f57]" />
+              <span className="h-2.5 w-2.5 rounded-full bg-[#febc2e]" />
+              <span className="h-2.5 w-2.5 rounded-full bg-[#28c840]" />
+              <div className="ml-2 flex-1 truncate rounded-md bg-white/5 px-3 py-1 font-mono text-[0.65rem] text-white/40">
+                {host ?? "coming soon"}
+              </div>
+            </div>
+            <div className="relative aspect-[16/10] overflow-hidden">
+              {showImage ? (
+                <div className="absolute inset-0 transition-transform duration-700 ease-out group-hover:scale-[1.04]">
+                  <motion.img
+                    ref={imgRef}
+                    src={project.image}
+                    alt={`${name} screenshot`}
+                    loading="lazy"
+                    decoding="async"
+                    onError={() => setFailed(true)}
+                    className="h-full w-full object-cover object-top"
+                    style={{ y, scale: 1.15 }}
+                  />
+                </div>
+              ) : (
+                <Placeholder name={name} accent={accent} />
+              )}
+              <div
+                className="pointer-events-none absolute inset-0"
+                style={{ background: "linear-gradient(135deg, rgba(10,10,15,0.25) 0%, transparent 60%)" }}
+              />
+            </div>
+          </motion.div>
+        </div>
 
-          {/* Image panel */}
-          <div style={{
-            order: isEven ? 2 : 1,
-            position: "relative", overflow: "hidden",
-            background: "rgba(123,47,255,0.05)",
-            minHeight: 280,
-            display: "flex", alignItems: "center", justifyContent: "center",
-          }}>
-            {/* grid overlay */}
-            <div style={{
-              position: "absolute", inset: 0,
-              backgroundImage: "linear-gradient(rgba(123,47,255,0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(123,47,255,0.08) 1px, transparent 1px)",
-              backgroundSize: "30px 30px",
-            }} />
-           <img
-  src={project.image}
-  alt={project.title}
-  style={{
-    position: "absolute", inset: 0,
-    width: "100%", height: "100%",
-    objectFit: "cover", objectPosition: "top",
-    opacity: 0.9,
-    transition: "transform 0.5s ease",
-    transform: hovered ? "scale(1.05)" : "scale(1)",
-  }}
-  onError={(e) => { (e.target as HTMLImageElement).style.opacity = "0"; }}
-/>
-<div style={{ position: "absolute", inset: 0, background: "linear-gradient(135deg, rgba(10,10,15,0.2) 0%, transparent 60%)", pointerEvents: "none" }} />
-
-            {/* Hover overlay with links */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: hovered ? 1 : 0 }}
-              transition={{ duration: 0.2 }}
-              style={{
-                position: "absolute", inset: 0,
-                background: "rgba(10,10,15,0.88)",
-                backdropFilter: "blur(4px)",
-                display: "flex", alignItems: "center", justifyContent: "center", gap: "0.75rem",
-              }}
+        {/* Content */}
+        <div className={`flex flex-col justify-center p-6 sm:p-8 md:col-span-5 md:p-10 ${isEven ? "md:order-1" : "md:order-2"}`}>
+          <div className="mb-5 flex flex-wrap items-center gap-3">
+            <span
+              className="select-none font-heading text-5xl font-bold leading-none"
+              style={{ color: "transparent", WebkitTextStroke: `1px ${accent}77` }}
             >
-              {project.liveUrl && (
-                <a href={project.liveUrl} target="_blank" rel="noopener noreferrer" style={{
-                  display: "flex", alignItems: "center", gap: "0.4rem",
-                  padding: "0.6rem 1.25rem", borderRadius: "0.6rem",
-                  background: GRAD, color: "#fff",
-                  fontFamily: "JetBrains Mono, monospace", fontSize: "0.8rem",
-                  textDecoration: "none", fontWeight: 500,
-                }}>
-                  <ExternalLink size={13} /> Live
-                </a>
-              )}
-              {project.githubUrl && (
-                <a href={project.githubUrl} target="_blank" rel="noopener noreferrer" style={{
-                  display: "flex", alignItems: "center", gap: "0.4rem",
-                  padding: "0.6rem 1.25rem", borderRadius: "0.6rem",
-                  background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.15)",
-                  color: "#F0F0FF",
-                  fontFamily: "JetBrains Mono, monospace", fontSize: "0.8rem",
-                  textDecoration: "none",
-                }}>
-                  <FiGithub size={13} /> Code
-                </a>
-              )}
-            </motion.div>
+              {String(index + 1).padStart(2, "0")}
+            </span>
+            <StatusPill project={project} />
+            <span className="font-mono text-[0.7rem] text-white/35">{project.year}</span>
           </div>
 
-          {/* Text panel */}
-          <div style={{
-            order: isEven ? 1 : 2,
-            padding: "2.5rem",
-            display: "flex", flexDirection: "column", justifyContent: "center",
-          }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "1rem" }}>
-              <span style={{ fontFamily: "JetBrains Mono, monospace", fontSize: "0.68rem", color: project.accentColor, letterSpacing: "0.12em" }}>FEATURED PROJECT</span>
-              <span style={{ color: project.accentColor, fontSize: "0.75rem" }}>★</span>
-            </div>
-
-            <h3 style={{ fontFamily: "Syne, sans-serif", fontWeight: 800, fontSize: "1.6rem", color: "#F0F0FF", lineHeight: 1.15, marginBottom: "0.875rem" }}>
-              {project.title}
-            </h3>
-            <p style={{ fontSize: "0.875rem", color: "#6B7280", lineHeight: 1.75, marginBottom: "1.5rem" }}>
-              {project.description}
+          <h3 className="font-heading text-2xl font-bold leading-tight tracking-tight text-[#F0F0FF] sm:text-3xl">
+            {name}
+          </h3>
+          {tagline && (
+            <p className="mt-1 font-mono text-[0.7rem] uppercase tracking-[0.12em]" style={{ color: accent }}>
+              {tagline}
             </p>
+          )}
 
-            {/* Tags */}
-            <div style={{ display: "flex", flexWrap: "wrap", gap: "0.4rem", marginBottom: "1.75rem" }}>
-              {project.tags.map((tag) => (
-                <span key={tag} style={{
-                  padding: "0.28rem 0.7rem",
-                  background: "rgba(123,47,255,0.1)",
-                  border: "1px solid rgba(0,245,255,0.2)",
-                  borderRadius: "2rem",
-                  fontFamily: "JetBrains Mono, monospace", fontSize: "0.68rem",
-                  color: "#00F5FF",
-                }}>{tag}</span>
+          <p className="mt-4 text-sm leading-relaxed text-[#8A8AA3]">{project.description}</p>
+
+          {project.highlights && project.highlights.length > 0 && (
+            <motion.ul
+              variants={list}
+              initial={reduce ? "show" : "hidden"}
+              whileInView="show"
+              viewport={{ once: true, margin: "-60px" }}
+              className="mt-5 flex flex-col gap-2.5"
+            >
+              {project.highlights.map((h) => (
+                <motion.li key={h} variants={item} className="flex items-start gap-2.5 text-[0.82rem] leading-snug text-[#A0A0B8]">
+                  <Check size={14} className="mt-0.5 shrink-0" style={{ color: accent }} />
+                  <span>{h}</span>
+                </motion.li>
               ))}
-            </div>
+            </motion.ul>
+          )}
 
-            {/* Links */}
-            <div style={{ display: "flex", alignItems: "center", gap: "1.25rem" }}>
-              {project.liveUrl && (
-                <a href={project.liveUrl} target="_blank" rel="noopener noreferrer" style={{
-                  display: "flex", alignItems: "center", gap: "0.35rem",
-                  fontFamily: "JetBrains Mono, monospace", fontSize: "0.78rem",
-                  color: "#00F5FF", textDecoration: "none", fontWeight: 500,
-                }}>
-                  <ExternalLink size={13} /> Live Demo <ArrowUpRight size={12} />
-                </a>
-              )}
-              {project.githubUrl && (
-                <a href={project.githubUrl} target="_blank" rel="noopener noreferrer" style={{
-                  display: "flex", alignItems: "center", gap: "0.35rem",
-                  fontFamily: "JetBrains Mono, monospace", fontSize: "0.78rem",
-                  color: "#6B7280", textDecoration: "none",
-                }}>
-                  <FiGithub size={13} /> View Code
-                </a>
-              )}
-              <span style={{ marginLeft: "auto", fontFamily: "JetBrains Mono, monospace", fontSize: "0.72rem", color: "rgba(107,114,128,0.5)" }}>
-                {project.year}
+          <div className="mt-6 flex flex-wrap gap-1.5">
+            {project.tags.map((tag) => (
+              <span
+                key={tag}
+                className="rounded-full border border-cyan-400/20 bg-violet-500/10 px-2.5 py-1 font-mono text-[0.66rem] text-cyan-400"
+              >
+                {tag}
               </span>
-            </div>
+            ))}
+          </div>
+
+          <div className="mt-7 flex flex-wrap items-center gap-3">
+            {project.liveUrl && (
+              <a
+                href={project.liveUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 rounded-xl bg-violet-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-violet-500"
+                style={{ boxShadow: `0 0 24px ${accent}40` }}
+              >
+                <ExternalLink size={14} /> Live Demo
+              </a>
+            )}
+            {project.githubUrl && (
+              <a
+                href={project.githubUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 rounded-xl border border-white/15 px-5 py-2.5 text-sm font-semibold text-white/80 transition hover:-translate-y-0.5 hover:border-white/30 hover:text-white"
+              >
+                <FiGithub size={14} /> Code
+              </a>
+            )}
+            {!hasLinks && (
+              <span className="font-mono text-xs text-white/40">Demo and repo links coming soon</span>
+            )}
           </div>
         </div>
-      </motion.div>
-    </FadeUp>
+      </div>
+    </motion.div>
   );
 }
 
 // ── Small card ────────────────────────────────────────────────
-function SmallCard({ project, index }: { project: typeof projects[0]; index: number }) {
-  const [hovered, setHovered] = useState(false);
+function SmallCard({ project, index, number }: { project: Project; index: number; number: number }) {
+  const reduce = useReducedMotion();
+  const spot = useSpotlight(!reduce);
+  const { name, tagline } = splitTitle(project.title);
+  const accent = project.accentColor;
+  const href = project.liveUrl ?? project.githubUrl;
+  const shown = project.tags.slice(0, 4);
+  const extra = project.tags.length - shown.length;
+
   return (
-    <FadeUp delay={0.1 + index * 0.08}>
-      <motion.div
-        onMouseEnter={() => setHovered(true)}
-        onMouseLeave={() => setHovered(false)}
-        whileHover={{ y: -6 }}
-        transition={{ duration: 0.25 }}
-        style={{
-          background: "rgba(255,255,255,0.04)",
-          backdropFilter: "blur(20px)",
-          border: `1px solid ${hovered ? "rgba(123,47,255,0.5)" : "rgba(255,255,255,0.07)"}`,
-          borderRadius: "1.25rem",
-          padding: "1.75rem",
-          height: "100%",
-          position: "relative", overflow: "hidden",
-          boxShadow: hovered ? "0 12px 40px rgba(0,0,0,0.4), 0 0 20px rgba(123,47,255,0.1)" : "none",
-          transition: "border-color 0.3s, box-shadow 0.3s",
-          cursor: "default",
-        }}
-      >
-        {/* top accent bar */}
-        <motion.div style={{
-          position: "absolute", top: 0, left: 0, right: 0, height: 2,
-          background: `linear-gradient(90deg, ${project.accentColor}, transparent)`,
-          transformOrigin: "left",
-        }}
-          initial={{ scaleX: 0 }}
-          animate={{ scaleX: hovered ? 1 : 0 }}
-          transition={{ duration: 0.35 }}
-        />
+    <motion.div
+      ref={spot.ref}
+      onPointerMove={spot.onPointerMove}
+      initial={reduce ? false : { opacity: 0, y: 30 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      whileHover={reduce ? undefined : { y: -6 }}
+      viewport={{ once: true, margin: "-60px" }}
+      transition={{ duration: 0.5, ease: "easeOut", delay: index * 0.08 }}
+      className="group relative flex flex-col overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] p-6 transition-colors hover:border-white/20"
+    >
+      <Spotlight color={accent} />
+      <div
+        className="absolute left-0 right-0 top-0 h-0.5 origin-left scale-x-0 transition-transform duration-300 group-hover:scale-x-100"
+        style={{ background: `linear-gradient(90deg, ${accent}, transparent)` }}
+      />
 
-        {/* Header row */}
-        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: "1.25rem" }}>
-          <div style={{ width: 44, height: 44, borderRadius: "0.875rem", display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(123,47,255,0.12)", border: "1px solid rgba(123,47,255,0.2)" }}>
-            <Layers size={20} style={{ color: "#7B2FFF" }} />
-          </div>
-          <div style={{ display: "flex", gap: "0.5rem" }}>
-            {project.githubUrl && (
-              <a href={project.githubUrl} target="_blank" rel="noopener noreferrer" style={{ width: 32, height: 32, display: "flex", alignItems: "center", justifyContent: "center", borderRadius: "0.5rem", background: hovered ? "rgba(255,255,255,0.08)" : "transparent", color: "#6B7280", textDecoration: "none", transition: "all 0.2s" }}>
-                <FiGithub size={15} />
-              </a>
-            )}
-            {project.liveUrl && (
-              <a href={project.liveUrl} target="_blank" rel="noopener noreferrer" style={{ width: 32, height: 32, display: "flex", alignItems: "center", justifyContent: "center", borderRadius: "0.5rem", background: hovered ? "rgba(0,245,255,0.1)" : "transparent", color: hovered ? "#00F5FF" : "#6B7280", textDecoration: "none", transition: "all 0.2s" }}>
-                <ExternalLink size={15} />
-              </a>
-            )}
-          </div>
-        </div>
-
-        <h3 style={{ fontFamily: "Syne, sans-serif", fontWeight: 700, fontSize: "1.05rem", color: "#F0F0FF", marginBottom: "0.6rem" }}>
-          {project.title}
-        </h3>
-        <p style={{ fontSize: "0.82rem", color: "#6B7280", lineHeight: 1.7, marginBottom: "1.25rem" }}>
-          {project.description}
-        </p>
-
-        <div style={{ display: "flex", flexWrap: "wrap", gap: "0.35rem" }}>
-          {project.tags.slice(0, 3).map((tag) => (
-            <span key={tag} style={{ padding: "0.22rem 0.6rem", background: "rgba(123,47,255,0.1)", border: "1px solid rgba(0,245,255,0.15)", borderRadius: "2rem", fontFamily: "JetBrains Mono, monospace", fontSize: "0.65rem", color: "#00F5FF" }}>{tag}</span>
-          ))}
-          {project.tags.length > 3 && (
-            <span style={{ fontSize: "0.65rem", color: "#6B7280", padding: "0.22rem 0.4rem", alignSelf: "center" }}>+{project.tags.length - 3}</span>
+      <div className="relative mb-5 flex items-start justify-between">
+        <span
+          className="select-none font-heading text-4xl font-bold leading-none"
+          style={{ color: "transparent", WebkitTextStroke: `1px ${accent}77` }}
+        >
+          {String(number).padStart(2, "0")}
+        </span>
+        <div className="relative z-10 flex gap-1">
+          {project.githubUrl && (
+            <a
+              href={project.githubUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={`${name} source code`}
+              className="flex h-9 w-9 items-center justify-center rounded-lg text-white/50 transition hover:bg-white/10 hover:text-white"
+            >
+              <FiGithub size={16} />
+            </a>
+          )}
+          {project.liveUrl && (
+            <a
+              href={project.liveUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={`${name} live demo`}
+              className="flex h-9 w-9 items-center justify-center rounded-lg text-white/50 transition hover:bg-cyan-400/10 hover:text-cyan-400"
+            >
+              <ExternalLink size={16} />
+            </a>
           )}
         </div>
-      </motion.div>
-    </FadeUp>
+      </div>
+
+      <h3 className="relative font-heading text-lg font-bold tracking-tight text-[#F0F0FF]">
+        {href ? (
+          <a href={href} target="_blank" rel="noopener noreferrer" className="after:absolute after:inset-0">
+            {name}
+          </a>
+        ) : (
+          name
+        )}
+      </h3>
+      {tagline && (
+        <p className="mt-0.5 font-mono text-[0.65rem] uppercase tracking-[0.12em]" style={{ color: accent }}>
+          {tagline}
+        </p>
+      )}
+      <p className="relative mt-3 text-[0.82rem] leading-relaxed text-[#8A8AA3]">{project.description}</p>
+
+      <div className="relative mt-auto flex flex-wrap items-center gap-1.5 pt-5">
+        {shown.map((tag) => (
+          <span
+            key={tag}
+            className="rounded-full border border-cyan-400/15 bg-violet-500/10 px-2.5 py-1 font-mono text-[0.64rem] text-cyan-400"
+          >
+            {tag}
+          </span>
+        ))}
+        {extra > 0 && <span className="px-1 font-mono text-[0.64rem] text-white/35">+{extra}</span>}
+        <span className="ml-auto font-mono text-[0.68rem] text-white/30">{project.year}</span>
+      </div>
+    </motion.div>
   );
 }
 
 // ── Main ──────────────────────────────────────────────────────
 export default function Projects() {
+  const reduce = useReducedMotion();
   const featured = projects.filter((p) => p.featured);
-  const others   = projects.filter((p) => !p.featured);
+  const others = projects.filter((p) => !p.featured);
 
   return (
-    <section id="projects" style={{ padding: "7rem 0", position: "relative", overflow: "hidden" }}>
+    <section id="projects" className="relative overflow-hidden px-6 py-28">
+      <div className="pointer-events-none absolute -right-40 top-1/4 h-[500px] w-[500px] rounded-full bg-cyan-400/[0.06] blur-[100px]" />
 
-      {/* Ambient orb */}
-      <div style={{ position: "absolute", width: 500, height: 500, borderRadius: "50%", top: "20%", right: "-15%", background: "rgba(0,245,255,0.06)", filter: "blur(100px)", pointerEvents: "none" }} />
-
-      <div style={{ maxWidth: 1100, margin: "0 auto", padding: "0 1.5rem" }}>
-
+      <div className="relative mx-auto max-w-[1100px]">
         {/* Header */}
-        <FadeUp>
-          <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "0.75rem" }}>
-            <div style={{ width: "2rem", height: "1px", background: "#00F5FF", boxShadow: "0 0 8px #00F5FF" }} />
-            <span style={{ fontFamily: "JetBrains Mono, monospace", fontSize: "0.7rem", letterSpacing: "0.15em", color: "#00F5FF", textTransform: "uppercase" }}>Projects</span>
+        <motion.div
+          initial={reduce ? false : { opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-60px" }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
+          className="mb-14"
+        >
+          <div className="mb-3 flex items-center gap-3">
+            <div className="h-px w-8 bg-cyan-400 shadow-[0_0_8px_#00F5FF]" />
+            <span className="font-mono text-[0.7rem] uppercase tracking-[0.15em] text-cyan-400">Projects</span>
           </div>
-          <h2 style={{ fontFamily: "Syne, sans-serif", fontWeight: 800, fontSize: "clamp(2rem, 4vw, 3rem)", color: "#F0F0FF", lineHeight: 1.1, marginBottom: "1rem" }}>
-            Things I've{" "}
-            <span style={{ background: GRAD, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>Built</span>
+          <h2 className="mb-4 font-heading text-4xl font-bold leading-tight tracking-tight text-[#F0F0FF] md:text-5xl">
+            Things I&apos;ve <span className="neon-text">Built</span>
           </h2>
-          <p style={{ fontSize: "0.9rem", color: "#6B7280", maxWidth: 480, lineHeight: 1.75, marginBottom: "3.5rem" }}>
-            A selection of projects I've crafted — from full-stack SaaS apps to open-source tools.
+          <p className="max-w-lg text-[0.95rem] leading-relaxed text-[#6B7280]">
+            AI products and full-stack apps, built end to end, from the agent logic to the interface.
           </p>
-        </FadeUp>
+        </motion.div>
 
-        {/* Featured projects */}
-        <div style={{ display: "flex", flexDirection: "column", gap: "1.75rem", marginBottom: "4rem" }}>
-          {featured.map((p, i) => <FeaturedCard key={p.id} project={p} index={i} />)}
+        {/* Featured */}
+        <div className="mb-16 flex flex-col gap-8">
+          {featured.map((p, i) => (
+            <FeaturedCard key={p.id} project={p} index={i} />
+          ))}
         </div>
 
-        {/* Other projects */}
+        {/* Others */}
         {others.length > 0 && (
           <>
-            <FadeUp>
-              <div style={{ display: "flex", alignItems: "center", gap: "1rem", marginBottom: "2rem" }}>
-                <div style={{ flex: 1, height: 1, background: "linear-gradient(90deg, transparent, rgba(123,47,255,0.5), rgba(0,245,255,0.5), transparent)" }} />
-                <span style={{ fontFamily: "JetBrains Mono, monospace", fontSize: "0.68rem", color: "#6B7280", letterSpacing: "0.12em", whiteSpace: "nowrap" }}>OTHER PROJECTS</span>
-                <div style={{ flex: 1, height: 1, background: "linear-gradient(90deg, transparent, rgba(123,47,255,0.5), rgba(0,245,255,0.5), transparent)" }} />
-              </div>
-            </FadeUp>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "1.25rem", marginBottom: "3.5rem" }}>
-              {others.map((p, i) => <SmallCard key={p.id} project={p} index={i} />)}
+            <div className="mb-8 flex items-center gap-4">
+              <div className="h-px flex-1 bg-gradient-to-r from-transparent via-violet-500/50 to-transparent" />
+              <span className="whitespace-nowrap font-mono text-[0.68rem] tracking-[0.12em] text-[#6B7280]">
+                OTHER PROJECTS
+              </span>
+              <div className="h-px flex-1 bg-gradient-to-r from-transparent via-cyan-400/50 to-transparent" />
+            </div>
+
+            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              {others.map((p, i) => (
+                <SmallCard key={p.id} project={p} index={i} number={featured.length + i + 1} />
+              ))}
+
+              <motion.a
+                href="https://github.com/manjeet0505"
+                target="_blank"
+                rel="noopener noreferrer"
+                initial={reduce ? false : { opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-60px" }}
+                transition={{ duration: 0.5, ease: "easeOut", delay: others.length * 0.08 }}
+                className="group flex min-h-[200px] flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-white/15 p-6 text-center transition-colors hover:border-violet-500/50 hover:bg-violet-500/[0.05]"
+              >
+                <FiGithub size={28} className="text-white/70 transition-colors group-hover:text-cyan-400" />
+                <span className="font-heading text-base font-semibold text-[#F0F0FF]">More on GitHub</span>
+                <span className="inline-flex items-center gap-1 font-mono text-xs text-white/40 transition-colors group-hover:text-cyan-400">
+                  github.com/manjeet0505 <ArrowUpRight size={12} />
+                </span>
+              </motion.a>
             </div>
           </>
         )}
-
-        {/* GitHub CTA */}
-        <FadeUp>
-          <div style={{ display: "flex", justifyContent: "center" }}>
-            <a href="https://github.com/manjeet0505" target="_blank" rel="noopener noreferrer" style={{
-              display: "inline-flex", alignItems: "center", gap: "0.5rem",
-              padding: "0.8rem 1.75rem",
-              background: "transparent",
-              color: "#F0F0FF",
-              fontFamily: "Syne, sans-serif", fontWeight: 600, fontSize: "0.9rem",
-              border: "1px solid rgba(123,47,255,0.4)",
-              borderRadius: "0.75rem",
-              textDecoration: "none",
-              transition: "all 0.3s",
-            }}
-              onMouseEnter={(e) => {
-                (e.currentTarget as HTMLAnchorElement).style.background = "rgba(123,47,255,0.1)";
-                (e.currentTarget as HTMLAnchorElement).style.borderColor = "#7B2FFF";
-                (e.currentTarget as HTMLAnchorElement).style.boxShadow = "0 0 20px rgba(123,47,255,0.3)";
-              }}
-              onMouseLeave={(e) => {
-                (e.currentTarget as HTMLAnchorElement).style.background = "transparent";
-                (e.currentTarget as HTMLAnchorElement).style.borderColor = "rgba(123,47,255,0.4)";
-                (e.currentTarget as HTMLAnchorElement).style.boxShadow = "none";
-              }}
-            >
-              <FiGithub size={16} />
-              View All on GitHub
-              <ArrowUpRight size={15} />
-            </a>
-          </div>
-        </FadeUp>
-
       </div>
     </section>
   );
