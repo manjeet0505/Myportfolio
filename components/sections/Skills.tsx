@@ -8,6 +8,7 @@ import {
   SiGit, SiDocker, SiVercel, SiFigma, SiOpenai, SiHuggingface,
 } from "react-icons/si";
 import { VscVscode } from "react-icons/vsc";
+import type { IconType } from "react-icons";
 
 const GRAD = "linear-gradient(135deg, #7B2FFF 0%, #00F5FF 100%)";
 
@@ -25,11 +26,11 @@ const PROF_STYLE: Record<Prof, { bg: string; border: string; color: string }> = 
 
 type Skill = {
   name: string;
-  icon?: React.ElementType; // react-icon
   abbr?: string;            // text/emoji fallback for tools without react-icons
   color: string;
   category: "Frontend" | "Backend" | "Tools & DevOps" | "AI & LLM";
   prof: Prof;
+  icon?: IconType;
 };
 
 const SKILLS: Skill[] = [
@@ -62,6 +63,9 @@ const SKILLS: Skill[] = [
   { name: "Prompt Eng.",   abbr: "PE",          color: "#7B2FFF", category: "AI & LLM",       prof: "Proficient" },
 ];
 
+function MarqueeIcon({ icon: Icon, color }: { icon: IconType; color: string }) {
+  return <Icon style={{ color, fontSize: "0.9rem" }} />;
+}
 // ── Renders icon or styled text abbr ──────────────────────────
 function SkillIcon({ skill, hovered }: { skill: Skill; hovered: boolean }) {
   if (skill.icon) {
@@ -74,8 +78,10 @@ function SkillIcon({ skill, hovered }: { skill: Skill; hovered: boolean }) {
       }} />
     );
   }
-  const isEmoji  = skill.abbr && [...skill.abbr].length === 1 && skill.abbr.charCodeAt(0) > 255;
-  const isSymbol = skill.abbr === "✦";
+  const abbr = skill.abbr ?? "";
+  const isEmoji  = abbr.length > 0 && [...abbr].length === 1 && abbr.charCodeAt(0) > 255;
+  const isSymbol = abbr === "✦";
+
   return (
     <span style={{
       fontSize: isEmoji || isSymbol ? "1.6rem" : skill.abbr!.length <= 2 ? "1.1rem" : "0.72rem",
@@ -306,13 +312,13 @@ export default function Skills() {
               border: `1px solid ${skill.category === "AI & LLM" ? "rgba(255,77,158,0.15)" : "rgba(255,255,255,0.06)"}`,
               borderRadius: "999px", whiteSpace: "nowrap" as const, flexShrink: 0,
             }}>
-              {skill.icon ? (
-                <skill.icon style={{ color: skill.color, fontSize: "0.9rem" }} />
-              ) : (
-                <span style={{ fontSize: "0.7rem", fontWeight: 700, color: skill.color, fontFamily: "JetBrains Mono, monospace", lineHeight: 1 }}>
-                  {skill.abbr}
-                </span>
-              )}
+            {skill.icon ? (
+  <MarqueeIcon icon={skill.icon} color={skill.color} />
+) : (
+  <span style={{ fontSize: "0.7rem", fontWeight: 700, color: skill.color, fontFamily: "JetBrains Mono, monospace", lineHeight: 1 }}>
+    {skill.abbr}
+  </span>
+)}
               <span style={{ fontFamily: "Inter, sans-serif", fontSize: "0.78rem", color: "#6B7280" }}>
                 {skill.name}
               </span>
