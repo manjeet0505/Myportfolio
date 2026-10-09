@@ -65,6 +65,8 @@ export type Project = {
   featured: boolean;
   year: string;
   accentColor: string;
+  highlights?: string[];
+  inDevelopment?: boolean;
 };
 
 export const projects: Project[] = [
@@ -77,6 +79,11 @@ export const projects: Project[] = [
       "Next.js 14 frontend and FastAPI backend with Qdrant vector search and MongoDB usage tracking.",
     image: "/projects/project-1.png",
     tags: ["Next.js 14", "FastAPI", "Qdrant", "MongoDB", "GPT-4o"],
+    highlights: [
+  "Resume scorer with per-dimension rubrics and weighted averaging, so scores stay consistent",
+  "Career roadmap agent pulling real job postings through the JSearch API",
+  "Freemium plan checks with per-feature usage limits on the FastAPI backend",
+],
     liveUrl: "https://s3frontend-seven.vercel.app/",
     githubUrl: "https://github.com/manjeet0505/s3dashboard",
     featured: true,
