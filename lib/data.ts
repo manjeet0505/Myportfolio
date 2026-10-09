@@ -98,6 +98,12 @@ export const projects: Project[] = [
     // TODO: add a screenshot at /public/projects/project-4.png and the live/GitHub links
     image: "/projects/project-4.png",
     tags: ["LangGraph", "FastAPI", "PostgreSQL", "JWT Auth", "OpenAI"],
+    inDevelopment: true,
+highlights: [
+  "Prescription upload parsed with GPT-4o Vision into an automatic dose schedule",
+  "WhatsApp reminders and missed-dose escalation driven by a background scheduler",
+  "JWT auth with token revocation, 24h expiry and invite-code patient onboarding",
+],
     featured: true,
     year: "2026",
     accentColor: "#00F5FF",
