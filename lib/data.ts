@@ -49,7 +49,7 @@ export const stats = [
   { value: "3", label: "Internships completed" },
   { value: "IEEE", label: "Paper on LLM architecture" },
   { value: "#1", label: "University rank, MDU" },
-  { value: "8.0", label: "CGPA" },
+  { value: "8.5", label: "CGPA" },
 ];
 
 // ── Projects ─────────────────────────────────────────────────────────
