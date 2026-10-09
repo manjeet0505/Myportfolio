@@ -221,4 +221,20 @@ export const experiences: Experience[] = [
       "Vercel",
     ],
   },
+  {
+  id: "exp-4",
+  company: "AI Signal",
+  role: "Software Engineering Intern",
+  type: "Internship",
+  startDate: "Mar 2026",
+  endDate: "May 2026",
+  description:
+    "Software Engineering Intern building a real-time web dashboard, with a React frontend connected to a FastAPI backend.",
+  highlights: [
+    "Built and owned a full web dashboard end-to-end, connecting a React frontend to a FastAPI backend for real-time data streaming without page reloads",
+    "Designed the API payload contract and state-management layer to keep the UI consistent under concurrent backend responses",
+    "Authored a Jest test suite covering all critical input form paths, eliminating runtime UI crashes before pilot release",
+  ],
+  technologies: ["React", "FastAPI", "Jest"],
+},
 ];

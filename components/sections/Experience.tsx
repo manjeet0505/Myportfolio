@@ -47,8 +47,12 @@ function duration(start: string, end: string) {
 }
 
 // Latest first
-const sorted: Exp[] = [...experiences].sort((a, b) => monthIndex(b.startDate) - monthIndex(a.startDate));
-
+const sorted: Exp[] = [...experiences].sort((a, b) => {
+  const aCurrent = a.endDate === "Present" ? 1 : 0;
+  const bCurrent = b.endDate === "Present" ? 1 : 0;
+  if (aCurrent !== bCurrent) return bCurrent - aCurrent; // current role first
+  return monthIndex(b.startDate) - monthIndex(a.startDate);
+});
 // ── Cursor-follow spotlight ───────────────────────────────────
 function useSpotlight(enabled: boolean) {
   const ref = useRef<HTMLDivElement>(null);
@@ -217,7 +221,8 @@ export default function Experience() {
   const internships = sorted.filter((e) => e.type === "Internship").length;
   const freelance = sorted.filter((e) => e.type === "Freelance").length;
   const techCount = new Set(sorted.flatMap((e) => e.technologies.map((t) => t.toLowerCase()))).size;
-  const since = sorted.length ? sorted[sorted.length - 1].startDate.split(" ")[1] : "";
+ const earliest = [...sorted].sort((a, b) => monthIndex(a.startDate) - monthIndex(b.startDate))[0];
+ const since = earliest ? earliest.startDate.split(" ")[1] : "";
 
   const stats = [
     { value: String(internships), label: internships === 1 ? "Internship" : "Internships" },
