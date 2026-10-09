@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Syne, JetBrains_Mono } from "next/font/google";
+import { Inter, Space_Grotesk, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 
 const inter = Inter({
@@ -8,10 +8,10 @@ const inter = Inter({
   display: "swap",
 });
 
-const syne = Syne({
+const display = Space_Grotesk({
   subsets: ["latin"],
-  variable: "--font-syne",
-  weight: ["400", "500", "600", "700", "800"],
+  variable: "--font-display",
+  weight: ["400", "500", "600", "700"],
   display: "swap",
 });
 
@@ -86,7 +86,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html
       lang="en"
-      className={`${inter.variable} ${syne.variable} ${jetbrainsMono.variable}`}
+      className={`${inter.variable} ${display.variable} ${jetbrainsMono.variable}`}
       suppressHydrationWarning
     >
       <body className="bg-[#0a0a0f] text-[#F0F0FF] font-body antialiased overflow-x-hidden">
