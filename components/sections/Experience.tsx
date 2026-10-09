@@ -1,291 +1,319 @@
 "use client";
 
-import { useRef, useState } from "react";
-import { motion, useInView } from "framer-motion";
-import { experiences } from "@/lib/data";
+import { useRef } from "react";
+import {
+  motion,
+  useInView,
+  useReducedMotion,
+  useScroll,
+  useSpring,
+  type Variants,
+} from "framer-motion";
+import { ArrowUpRight, Check, Download } from "lucide-react";
+import { experiences, personalInfo, type Experience as Exp } from "@/lib/data";
 
 const GRAD = "linear-gradient(135deg, #7B2FFF 0%, #00F5FF 100%)";
 
-function FadeUp({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
+const TYPE_COLORS: Record<string, { bg: string; border: string; color: string }> = {
+  "Full-time": { bg: "rgba(123,47,255,0.12)", border: "rgba(123,47,255,0.35)", color: "#a78bfa" },
+  "Part-time": { bg: "rgba(0,245,255,0.08)", border: "rgba(0,245,255,0.25)", color: "#00F5FF" },
+  Freelance: { bg: "rgba(255,47,190,0.1)", border: "rgba(255,47,190,0.3)", color: "#FF2FBE" },
+  Internship: { bg: "rgba(34,197,94,0.1)", border: "rgba(34,197,94,0.3)", color: "#22c55e" },
+};
+
+const list: Variants = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.09, delayChildren: 0.2 } },
+};
+const item: Variants = {
+  hidden: { opacity: 0, x: -12 },
+  show: { opacity: 1, x: 0, transition: { duration: 0.4, ease: "easeOut" } },
+};
+
+// ── Date helpers (no Date object, so no server/client mismatch) ─
+const MONTHS = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
+
+function monthIndex(s: string) {
+  const [m, y] = s.trim().split(/\s+/);
+  const mi = MONTHS.indexOf((m ?? "").slice(0, 3).toLowerCase());
+  return Number(y) * 12 + (mi < 0 ? 0 : mi);
+}
+
+function duration(start: string, end: string) {
+  if (end === "Present") return null;
+  const n = monthIndex(end) - monthIndex(start) + 1;
+  if (!Number.isFinite(n) || n <= 0) return null;
+  return n === 1 ? "1 mo" : `${n} mos`;
+}
+
+// Latest first
+const sorted: Exp[] = [...experiences].sort((a, b) => monthIndex(b.startDate) - monthIndex(a.startDate));
+
+// ── Cursor-follow spotlight ───────────────────────────────────
+function useSpotlight(enabled: boolean) {
   const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { once: true, margin: "-60px" });
+  const onPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!enabled || e.pointerType !== "mouse" || !ref.current) return;
+    const r = ref.current.getBoundingClientRect();
+    ref.current.style.setProperty("--mx", `${e.clientX - r.left}px`);
+    ref.current.style.setProperty("--my", `${e.clientY - r.top}px`);
+  };
+  return { ref, onPointerMove };
+}
+
+// ── One timeline entry ────────────────────────────────────────
+function Entry({ exp }: { exp: Exp }) {
+  const reduce = useReducedMotion();
+  const spot = useSpotlight(!reduce);
+  const liRef = useRef<HTMLLIElement>(null);
+  const seen = useInView(liRef, { once: true, margin: "0px 0px -45% 0px" });
+
+  const current = exp.endDate === "Present";
+  const dur = duration(exp.startDate, exp.endDate);
+  const typeStyle = TYPE_COLORS[exp.type] ?? TYPE_COLORS["Full-time"];
+  const year = exp.startDate.split(" ")[1];
+
   return (
-    <motion.div ref={ref}
-      initial={{ opacity: 0, y: 30 }}
-      animate={inView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.6, ease: "easeOut", delay }}
-    >{children}</motion.div>
+    <li ref={liRef} className="relative pb-12 pl-10 last:pb-0 md:pl-14">
+      {/* Timeline dot */}
+      <span className="absolute left-0 top-8 flex h-[22px] w-[22px] items-center justify-center">
+        {current && <span className="absolute h-full w-full animate-ping rounded-full bg-emerald-400/40" />}
+        <span
+          className="relative flex h-[22px] w-[22px] items-center justify-center rounded-full border-2 transition-all duration-500"
+          style={{
+            borderColor: seen ? "transparent" : "rgba(255,255,255,0.18)",
+            background: seen ? GRAD : "#0a0a0f",
+            boxShadow: seen ? "0 0 16px rgba(123,47,255,0.7)" : "none",
+          }}
+        >
+          <span
+            className="h-1.5 w-1.5 rounded-full bg-white transition-opacity duration-500"
+            style={{ opacity: seen ? 1 : 0 }}
+          />
+        </span>
+      </span>
+
+      {/* Card */}
+      <motion.div
+        ref={spot.ref}
+        onPointerMove={spot.onPointerMove}
+        initial={reduce ? false : { opacity: 0, y: 36 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-80px" }}
+        transition={{ duration: 0.6, ease: "easeOut" }}
+        className="group relative overflow-hidden rounded-3xl border border-white/10 bg-white/[0.03] transition-[border-color,box-shadow] duration-300 hover:border-violet-500/50 hover:shadow-[0_20px_60px_rgba(0,0,0,0.45),0_0_40px_rgba(123,47,255,0.12)]"
+      >
+        <div className="h-0.5 bg-gradient-to-r from-violet-500/60 via-cyan-400/40 to-transparent" />
+
+        {/* spotlight */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+          style={{
+            background:
+              "radial-gradient(480px circle at var(--mx, 50%) var(--my, 50%), rgba(123,47,255,0.14), transparent 60%)",
+          }}
+        />
+
+        {/* year watermark */}
+        <span
+          aria-hidden
+          className="pointer-events-none absolute bottom-2 right-5 select-none font-heading text-7xl font-bold leading-none sm:text-8xl"
+          style={{ color: "transparent", WebkitTextStroke: "1px rgba(255,255,255,0.06)" }}
+        >
+          {year}
+        </span>
+
+        <div className="relative p-6 sm:p-8">
+          {/* Header */}
+          <div className="mb-5 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+            <div className="flex items-start gap-4">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-violet-500/30 bg-violet-500/15 font-heading text-lg font-bold text-violet-300">
+                {exp.logoUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={exp.logoUrl} alt={`${exp.company} logo`} className="h-full w-full object-cover" />
+                ) : (
+                  exp.company.charAt(0)
+                )}
+              </div>
+              <div>
+                <h3 className="font-heading text-xl font-bold leading-tight tracking-tight text-[#F0F0FF] sm:text-2xl">
+                  {exp.role}
+                </h3>
+                <p className="mt-1 font-mono text-sm text-cyan-400">{exp.company}</p>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2 sm:justify-end">
+              {current && (
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-1 font-mono text-[0.65rem] text-emerald-400">
+                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+                  Current
+                </span>
+              )}
+              <span
+                className="rounded-full border px-2.5 py-1 font-mono text-[0.65rem]"
+                style={{ background: typeStyle.bg, borderColor: typeStyle.border, color: typeStyle.color }}
+              >
+                {exp.type}
+              </span>
+            </div>
+          </div>
+
+          {/* Dates */}
+          <div className="mb-5 flex flex-wrap items-center gap-2 font-mono text-xs text-[#8A8AA3]">
+            <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1">
+              {exp.startDate} → {current ? <span className="text-emerald-400">Present</span> : exp.endDate}
+            </span>
+            {dur && <span className="text-white/35">· {dur}</span>}
+          </div>
+
+          <p className="max-w-2xl text-sm leading-relaxed text-[#A0A0B8]">{exp.description}</p>
+
+          {/* Highlights */}
+          <p className="mb-3 mt-6 font-mono text-[0.68rem] uppercase tracking-[0.14em] text-violet-400">
+            What I did
+          </p>
+          <motion.ul
+            variants={list}
+            initial={reduce ? "show" : "hidden"}
+            whileInView="show"
+            viewport={{ once: true, margin: "-60px" }}
+            className="flex max-w-2xl flex-col gap-2.5"
+          >
+            {exp.highlights.map((h) => (
+              <motion.li key={h} variants={item} className="flex items-start gap-3 text-sm leading-snug text-[#C0C0D8]">
+                <Check size={15} className="mt-0.5 shrink-0 text-cyan-400" />
+                <span>{h}</span>
+              </motion.li>
+            ))}
+          </motion.ul>
+
+          {/* Tech */}
+          <div className="mt-6 flex flex-wrap gap-1.5">
+            {exp.technologies.map((t) => (
+              <span
+                key={t}
+                className="rounded-full border border-cyan-400/20 bg-cyan-400/[0.07] px-2.5 py-1 font-mono text-[0.68rem] text-cyan-400"
+              >
+                {t}
+              </span>
+            ))}
+          </div>
+        </div>
+      </motion.div>
+    </li>
   );
 }
 
-const TYPE_COLORS: Record<string, { bg: string; border: string; color: string }> = {
-  "Full-time":  { bg: "rgba(123,47,255,0.12)", border: "rgba(123,47,255,0.35)", color: "#a78bfa" },
-  "Part-time":  { bg: "rgba(0,245,255,0.08)",  border: "rgba(0,245,255,0.25)",  color: "#00F5FF" },
-  "Freelance":  { bg: "rgba(255,47,190,0.1)",  border: "rgba(255,47,190,0.3)",  color: "#FF2FBE" },
-  "Internship": { bg: "rgba(34,197,94,0.1)",   border: "rgba(34,197,94,0.3)",   color: "#22c55e" },
-};
-
+// ── Main ──────────────────────────────────────────────────────
 export default function Experience() {
-  const [active, setActive] = useState<string>(experiences[0]?.id ?? "");
-  const activeExp = experiences.find((e) => e.id === active) ?? experiences[0];
+  const reduce = useReducedMotion();
+  const listRef = useRef<HTMLOListElement>(null);
+  const { scrollYProgress } = useScroll({ target: listRef, offset: ["start 70%", "end 55%"] });
+  const fill = useSpring(scrollYProgress, { stiffness: 120, damping: 30, mass: 0.3 });
+
+  // Stats come straight from the data, so they can never overclaim
+  const internships = sorted.filter((e) => e.type === "Internship").length;
+  const freelance = sorted.filter((e) => e.type === "Freelance").length;
+  const techCount = new Set(sorted.flatMap((e) => e.technologies.map((t) => t.toLowerCase()))).size;
+  const since = sorted.length ? sorted[sorted.length - 1].startDate.split(" ")[1] : "";
+
+  const stats = [
+    { value: String(internships), label: internships === 1 ? "Internship" : "Internships" },
+    { value: String(freelance), label: "Freelance" },
+    { value: String(techCount), label: "Technologies used" },
+    { value: since, label: "Building since" },
+  ];
 
   return (
-    <section id="experience" style={{ padding: "7rem 0", position: "relative", overflow: "hidden" }}>
+    <section id="experience" className="relative overflow-hidden px-6 py-28">
+      <div className="pointer-events-none absolute -left-40 top-0 h-[500px] w-[500px] rounded-full bg-violet-600/[0.07] blur-[120px]" />
+      <div className="pointer-events-none absolute -right-32 bottom-20 h-[400px] w-[400px] rounded-full bg-cyan-400/[0.05] blur-[100px]" />
 
-      {/* Ambient orbs */}
-      <div style={{ position: "absolute", width: 500, height: 500, borderRadius: "50%", top: "0%", left: "-15%", background: "rgba(123,47,255,0.07)", filter: "blur(120px)", pointerEvents: "none" }} />
-      <div style={{ position: "absolute", width: 400, height: 400, borderRadius: "50%", bottom: "10%", right: "-10%", background: "rgba(0,245,255,0.05)", filter: "blur(100px)", pointerEvents: "none" }} />
-
-      <div style={{ maxWidth: 1100, margin: "0 auto", padding: "0 1.5rem" }}>
-
-        {/* ── Header ─────────────────────────────────────────── */}
-        <FadeUp>
-          <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "0.75rem" }}>
-            <div style={{ width: "2rem", height: "1px", background: "#00F5FF", boxShadow: "0 0 8px #00F5FF" }} />
-            <span style={{ fontFamily: "JetBrains Mono, monospace", fontSize: "0.7rem", letterSpacing: "0.15em", color: "#00F5FF", textTransform: "uppercase" as const }}>Experience</span>
+      <div className="relative mx-auto max-w-4xl">
+        {/* Header */}
+        <motion.div
+          initial={reduce ? false : { opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-60px" }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
+          className="mb-10"
+        >
+          <div className="mb-3 flex items-center gap-3">
+            <div className="h-px w-8 bg-cyan-400 shadow-[0_0_8px_#00F5FF]" />
+            <span className="font-mono text-[0.7rem] uppercase tracking-[0.15em] text-cyan-400">Experience</span>
           </div>
-          <h2 style={{ fontFamily: "Syne, sans-serif", fontWeight: 800, fontSize: "clamp(2rem, 4vw, 3rem)", color: "#F0F0FF", lineHeight: 1.1, marginBottom: "0.75rem" }}>
-            Where I've{" "}
-            <span style={{ background: GRAD, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
-              Worked
-            </span>
+          <h2 className="mb-4 font-heading text-4xl font-bold leading-tight tracking-tight text-[#F0F0FF] md:text-5xl">
+            Where I&apos;ve <span className="neon-text">Worked</span>
           </h2>
-          <p style={{ fontSize: "0.9rem", color: "#6B7280", maxWidth: 480, lineHeight: 1.75, marginBottom: "3.5rem" }}>
-            My professional journey — companies I've contributed to and the impact I've made.
+          <p className="max-w-lg text-[0.95rem] leading-relaxed text-[#6B7280]">
+            Internships and freelance work: what I built, with what, and where. Latest first.
           </p>
-        </FadeUp>
+        </motion.div>
 
-        {/* ── Two-column layout ──────────────────────────────── */}
-        <div style={{ display: "grid", gridTemplateColumns: "340px 1fr", gap: "2rem", alignItems: "start" }}>
-
-          {/* LEFT — Company list / timeline */}
-          <FadeUp delay={0.1}>
-            <div style={{ display: "flex", flexDirection: "column", gap: "0", position: "relative" }}>
-
-              {/* Vertical neon line */}
-              <div style={{
-                position: "absolute", left: 19, top: 0, bottom: 0, width: 2,
-                background: "linear-gradient(180deg, #7B2FFF 0%, #00F5FF 50%, transparent 100%)",
-                opacity: 0.3,
-              }} />
-
-              {experiences.map((exp, i) => {
-                const isActive = active === exp.id;
-                const typeStyle = TYPE_COLORS[exp.type] ?? TYPE_COLORS["Full-time"];
-                return (
-                  <motion.button
-                    key={exp.id}
-                    onClick={() => setActive(exp.id)}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.15 + i * 0.1 }}
-                    style={{
-                      display: "flex", alignItems: "flex-start", gap: "1rem",
-                      padding: "1.25rem 1rem",
-                      background: isActive ? "rgba(123,47,255,0.1)" : "transparent",
-                      border: `1px solid ${isActive ? "rgba(123,47,255,0.4)" : "transparent"}`,
-                      borderRadius: "1rem",
-                      cursor: "pointer",
-                      textAlign: "left",
-                      position: "relative",
-                      transition: "all 0.25s",
-                      marginBottom: "0.5rem",
-                    }}
-                    whileHover={{ x: 4 }}
-                  >
-                    {/* Timeline dot */}
-                    <div style={{
-                      width: 20, height: 20, borderRadius: "50%", flexShrink: 0, marginTop: "0.1rem",
-                      background: isActive ? GRAD : "rgba(255,255,255,0.08)",
-                      border: `2px solid ${isActive ? "transparent" : "rgba(255,255,255,0.15)"}`,
-                      boxShadow: isActive ? "0 0 12px rgba(123,47,255,0.7)" : "none",
-                      transition: "all 0.25s",
-                      display: "flex", alignItems: "center", justifyContent: "center",
-                    }}>
-                      {isActive && <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#fff" }} />}
-                    </div>
-
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "0.5rem", marginBottom: "0.25rem" }}>
-                        <span style={{ fontFamily: "Syne, sans-serif", fontWeight: 700, fontSize: "0.95rem", color: isActive ? "#F0F0FF" : "#A0A0B8", transition: "color 0.25s", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                          {exp.company}
-                        </span>
-                        <span style={{ fontFamily: "JetBrains Mono, monospace", fontSize: "0.65rem", color: "#6B7280", flexShrink: 0 }}>
-                          {exp.endDate === "Present" ? (
-                            <span style={{ color: "#22c55e" }}>● Present</span>
-                          ) : exp.endDate}
-                        </span>
-                      </div>
-                      <p style={{ fontFamily: "JetBrains Mono, monospace", fontSize: "0.72rem", color: isActive ? "#00F5FF" : "#6B7280", transition: "color 0.25s", marginBottom: "0.4rem" }}>
-                        {exp.role}
-                      </p>
-                      <span style={{
-                        display: "inline-block",
-                        padding: "0.15rem 0.55rem",
-                        background: typeStyle.bg,
-                        border: `1px solid ${typeStyle.border}`,
-                        borderRadius: "2rem",
-                        fontFamily: "JetBrains Mono, monospace",
-                        fontSize: "0.6rem",
-                        color: typeStyle.color,
-                      }}>
-                        {exp.type}
-                      </span>
-                    </div>
-                  </motion.button>
-                );
-              })}
+        {/* Stats */}
+        <motion.div
+          initial={reduce ? false : { opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-60px" }}
+          transition={{ duration: 0.5, ease: "easeOut", delay: 0.1 }}
+          className="mb-14 grid grid-cols-2 gap-3 md:grid-cols-4"
+        >
+          {stats.map((s) => (
+            <div key={s.label} className="rounded-2xl border border-white/10 bg-white/[0.03] px-5 py-4">
+              <div className="font-heading text-2xl font-bold neon-text">{s.value}</div>
+              <div className="mt-0.5 text-xs text-[#6B7280]">{s.label}</div>
             </div>
-          </FadeUp>
+          ))}
+        </motion.div>
 
-          {/* RIGHT — Detail panel */}
-          <FadeUp delay={0.2}>
-            {activeExp && (
-              <motion.div
-                key={activeExp.id}
-                initial={{ opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4, ease: "easeOut" }}
-                style={{
-                  background: "rgba(255,255,255,0.04)",
-                  backdropFilter: "blur(24px)",
-                  border: "1px solid rgba(255,255,255,0.08)",
-                  borderRadius: "1.5rem",
-                  overflow: "hidden",
-                  position: "relative",
-                }}
-              >
-                {/* Top gradient bar */}
-                <div style={{ height: 3, background: GRAD }} />
+        {/* Timeline */}
+        <ol ref={listRef} className="relative">
+          <div className="absolute bottom-2 left-[10px] top-2 w-0.5 rounded-full bg-white/10" />
+          <motion.div
+            className="absolute bottom-2 left-[10px] top-2 w-0.5 origin-top rounded-full"
+            style={{
+              scaleY: reduce ? 1 : fill,
+              background: "linear-gradient(180deg, #7B2FFF, #00F5FF)",
+              boxShadow: "0 0 10px rgba(123,47,255,0.6)",
+            }}
+          />
+          {sorted.map((exp) => (
+            <Entry key={exp.id} exp={exp} />
+          ))}
+        </ol>
 
-                <div style={{ padding: "2rem" }}>
-
-                  {/* Company + dates */}
-                  <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: "1.5rem", gap: "1rem" }}>
-                    <div>
-                      <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "0.4rem" }}>
-                        {/* Company logo placeholder */}
-                        <div style={{
-                          width: 44, height: 44, borderRadius: "0.75rem", flexShrink: 0,
-                          background: "rgba(123,47,255,0.15)",
-                          border: "1px solid rgba(123,47,255,0.3)",
-                          display: "flex", alignItems: "center", justifyContent: "center",
-                          fontFamily: "Syne, sans-serif", fontWeight: 800, fontSize: "1rem",
-                          color: "#7B2FFF",
-                        }}>
-                          {activeExp.company.charAt(0)}
-                        </div>
-                        <div>
-                          <h3 style={{ fontFamily: "Syne, sans-serif", fontWeight: 800, fontSize: "1.3rem", color: "#F0F0FF", lineHeight: 1.1 }}>
-                            {activeExp.company}
-                          </h3>
-                          <p style={{ fontFamily: "JetBrains Mono, monospace", fontSize: "0.78rem", color: "#00F5FF", marginTop: "0.2rem" }}>
-                            {activeExp.role}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Date badge */}
-                    <div style={{
-                      padding: "0.4rem 0.9rem",
-                      background: "rgba(255,255,255,0.05)",
-                      border: "1px solid rgba(255,255,255,0.1)",
-                      borderRadius: "2rem",
-                      fontFamily: "JetBrains Mono, monospace",
-                      fontSize: "0.72rem", color: "#A0A0B8",
-                      whiteSpace: "nowrap", flexShrink: 0,
-                    }}>
-                      {activeExp.startDate} → {activeExp.endDate === "Present"
-                        ? <span style={{ color: "#22c55e" }}>Present</span>
-                        : activeExp.endDate}
-                    </div>
-                  </div>
-
-                  {/* Description */}
-                  <p style={{ fontSize: "0.9rem", color: "#A0A0B8", lineHeight: 1.8, marginBottom: "1.75rem" }}>
-                    {activeExp.description}
-                  </p>
-
-                  {/* Divider */}
-                  <div style={{ height: 1, background: "linear-gradient(90deg, rgba(123,47,255,0.4), rgba(0,245,255,0.4), transparent)", marginBottom: "1.75rem" }} />
-
-                  {/* Highlights */}
-                  <div style={{ marginBottom: "1.75rem" }}>
-                    <p style={{ fontFamily: "JetBrains Mono, monospace", fontSize: "0.7rem", letterSpacing: "0.12em", color: "#7B2FFF", textTransform: "uppercase" as const, marginBottom: "1rem" }}>
-                      Key Achievements
-                    </p>
-                    <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-                      {activeExp.highlights.map((h, i) => (
-                        <motion.div
-                          key={h}
-                          initial={{ opacity: 0, x: -10 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: i * 0.08 }}
-                          style={{ display: "flex", alignItems: "flex-start", gap: "0.75rem" }}
-                        >
-                          <div style={{ width: 20, height: 20, borderRadius: "50%", background: "rgba(123,47,255,0.15)", border: "1px solid rgba(123,47,255,0.3)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginTop: "0.05rem" }}>
-                            <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#7B2FFF" }} />
-                          </div>
-                          <span style={{ fontSize: "0.875rem", color: "#C0C0D8", lineHeight: 1.6 }}>{h}</span>
-                        </motion.div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Tech used */}
-                  <div>
-                    <p style={{ fontFamily: "JetBrains Mono, monospace", fontSize: "0.7rem", letterSpacing: "0.12em", color: "#7B2FFF", textTransform: "uppercase" as const, marginBottom: "0.875rem" }}>
-                      Tech Stack
-                    </p>
-                    <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
-                      {activeExp.technologies.map((tech) => (
-                        <span key={tech} style={{
-                          padding: "0.3rem 0.75rem",
-                          background: "rgba(0,245,255,0.07)",
-                          border: "1px solid rgba(0,245,255,0.2)",
-                          borderRadius: "2rem",
-                          fontFamily: "JetBrains Mono, monospace",
-                          fontSize: "0.72rem", color: "#00F5FF",
-                        }}>
-                          {tech}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
-            )}
-          </FadeUp>
-        </div>
-
-        {/* ── Bottom summary strip ───────────────────────────── */}
-        <FadeUp delay={0.3}>
-          <div style={{
-            marginTop: "3rem",
-            display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "1rem",
-          }}>
-            {[
-              { label: "Companies Worked At", value: `${experiences.length}+` },
-              { label: "Years of Experience",  value: "3+"    },
-              { label: "Technologies Used",    value: "15+"   },
-            ].map((s) => (
-              <div key={s.label} style={{
-                background: "rgba(255,255,255,0.03)",
-                border: "1px solid rgba(255,255,255,0.07)",
-                borderRadius: "1rem",
-                padding: "1.25rem 1.5rem",
-                display: "flex", alignItems: "center", gap: "1rem",
-              }}>
-                <span style={{ fontFamily: "Syne, sans-serif", fontWeight: 800, fontSize: "1.75rem", background: GRAD, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
-                  {s.value}
-                </span>
-                <span style={{ fontSize: "0.8rem", color: "#6B7280", lineHeight: 1.4 }}>{s.label}</span>
-              </div>
-            ))}
+        {/* CTA */}
+        <motion.div
+          initial={reduce ? false : { opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-60px" }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+          className="mt-16 flex flex-col items-start justify-between gap-5 rounded-3xl border border-violet-500/25 bg-violet-500/[0.06] p-6 sm:flex-row sm:items-center sm:p-8"
+        >
+          <div>
+            <p className="font-heading text-lg font-bold tracking-tight text-[#F0F0FF]">
+              Looking for an SDE-1 or AI Engineer?
+            </p>
+            <p className="mt-1 text-sm text-[#8A8AA3]">The resume has the full picture. Or just say hi.</p>
           </div>
-        </FadeUp>
-
+          <div className="flex flex-wrap gap-3">
+            <a
+              href={personalInfo.resumeUrl}
+              download
+              className="inline-flex items-center gap-2 rounded-xl bg-violet-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-violet-500"
+            >
+              <Download size={14} /> Resume
+            </a>
+            <a
+              href="#contact"
+              className="inline-flex items-center gap-2 rounded-xl border border-white/15 px-5 py-2.5 text-sm font-semibold text-white/80 transition hover:-translate-y-0.5 hover:border-white/30 hover:text-white"
+            >
+              Get in touch <ArrowUpRight size={14} />
+            </a>
+          </div>
+        </motion.div>
       </div>
     </section>
   );
